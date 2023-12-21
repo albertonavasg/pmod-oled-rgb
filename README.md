@@ -6,9 +6,9 @@ Project for Design of Embedded Systems, usable in PYNQ-Z2
 
 - Docs: documentation about PMod OLED RGB 
 
-- Modules: VHDL files
+- Modules: VHDL files and testbenches
 
 - PYNQ-Z2: board files
 
-- PMod_OLED_RGB (ignored): Vivado 2020.1 project
+- p,mod_oled_rgb (ignored): Vivado 2020.1 project
 
