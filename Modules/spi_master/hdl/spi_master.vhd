@@ -43,7 +43,7 @@ entity spi_master is
          data : in std_logic_vector(7 downto 0);
          
          -- Debug 
-         bit_counter : out std_logic_vector(4 downto 0);
+         bit_counter : out std_logic_vector(3 downto 0);
          shift_data  : out std_logic_vector(7 downto 0)
         );
 end spi_master;
@@ -53,7 +53,7 @@ architecture Behavioral of spi_master is
     -- Signals
     signal clk_signal : std_logic := '0';
     signal done_signal: std_logic := '0';
-    signal bit_counter_signal : integer range 0 to 8 := 0;
+    signal bit_counter_signal : integer range 0 to 7 := 0;
     signal shift_data_signal : std_logic_vector(7 downto 0) := "00000000";
     
     -- FSM
@@ -120,7 +120,7 @@ begin
     sck  <= clk_signal when (state = s_busy) else '1';
     
     -- Debug signals
-    bit_counter <= std_logic_vector(to_unsigned(bit_counter_signal, 5));
+    bit_counter <= std_logic_vector(to_unsigned(bit_counter_signal, 4));
     shift_data <= shift_data_signal;
     
 end Behavioral;

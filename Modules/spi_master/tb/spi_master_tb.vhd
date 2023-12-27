@@ -57,7 +57,7 @@ component spi_master is
          data : in std_logic_vector(7 downto 0);
          
          -- Debug
-         bit_counter : out std_logic_vector(4 downto 0);
+         bit_counter : out std_logic_vector(3 downto 0);
          shift_data  : out std_logic_vector(7 downto 0)
         );
 end component;
@@ -69,7 +69,7 @@ end component;
     signal clk, reset, start, ready, mosi, sck, cs : std_logic;
     signal data : std_logic_vector(7 downto 0);
     
-    signal bit_counter : std_logic_vector(4 downto 0);
+    signal bit_counter : std_logic_vector(3 downto 0);
     signal shift_data : std_logic_vector(7 downto 0);
     
 begin
@@ -114,14 +114,22 @@ begin
     wait for 2*clk_period; 
     reset     <= '0';
     start     <= '0';
-    data      <= "10101010";
+    data      <= "10011001";
     wait for 2*clk_period;
     reset     <= '0';
     start     <= '1';
-    wait for 2*clk_period;
+    wait for 1*clk_period;
     reset     <= '0';
     start     <= '0';
     wait for 20*clk_period;
+    reset     <= '0';
+    start     <= '1';
+    data      <= "00110010";
+    wait for 1*clk_period;
+    reset     <= '0';
+    start     <= '0';
+    wait;
+    
     
     end process;
     
