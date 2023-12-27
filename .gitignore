@@ -1,2 +1,1 @@
-# Ignore PMod_OLED_RGB folder
-pmod_oled_rgb/
+pmod_oled_rgb/*

@@ -52,10 +52,13 @@ component spi_master is
          mosi         : out std_logic;
          sck          : out std_logic;
          cs           : out std_logic;
-         data_command : out std_logic;
          
          -- Data
-         data : in std_logic_vector(7 downto 0)
+         data : in std_logic_vector(7 downto 0);
+         
+         -- Debug
+         bit_counter : out std_logic_vector(4 downto 0);
+         shift_data  : out std_logic_vector(7 downto 0)
         );
 end component;
     
@@ -63,8 +66,11 @@ end component;
     constant clk_period : time := 1 ns;
     
     -- Signals
-    signal clk, reset, start, ready, mosi, sck, cs, data_command : std_logic;
+    signal clk, reset, start, ready, mosi, sck, cs : std_logic;
     signal data : std_logic_vector(7 downto 0);
+    
+    signal bit_counter : std_logic_vector(4 downto 0);
+    signal shift_data : std_logic_vector(7 downto 0);
     
 begin
     
@@ -81,10 +87,13 @@ begin
                   mosi         => mosi,
                   sck          => sck,
                   cs           => cs,
-                  data_command => data_command,
                   
                   -- Data
-                  data => data
+                  data => data,
+                  
+                  -- Debug
+                  bit_counter => bit_counter,
+                  shift_data  => shift_data
                 );
                 
     -- Stimulus processes
@@ -101,10 +110,15 @@ begin
     begin
     reset     <= '1';
     start     <= '0';
-    wait for 10*clk_period; 
+    data      <= "00000000";
+    wait for 2*clk_period; 
+    reset     <= '0';
+    start     <= '0';
+    data      <= "10101010";
+    wait for 2*clk_period;
     reset     <= '0';
     start     <= '1';
-    wait for 1*clk_period;
+    wait for 2*clk_period;
     reset     <= '0';
     start     <= '0';
     wait for 20*clk_period;

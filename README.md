@@ -10,5 +10,5 @@ Project for Design of Embedded Systems, usable in PYNQ-Z2
 
 - PYNQ-Z2: board files
 
-- p,mod_oled_rgb (ignored): Vivado 2020.1 project
+- pmod_oled_rgb (ignored): Vivado 2020.1 project
 
