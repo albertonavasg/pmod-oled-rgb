@@ -121,7 +121,7 @@ begin
     wait for 1*clk_period;
     reset     <= '0';
     start     <= '0';
-    wait for 20*clk_period;
+    wait for 17*clk_period;
     reset     <= '0';
     start     <= '1';
     data      <= "00110010";

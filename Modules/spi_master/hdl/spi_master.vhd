@@ -95,8 +95,11 @@ begin
                     sck_signal <= '0';
                     if (bit_counter_signal = 0) then
                         shift_data_signal <= data;
-                    else
+                    elsif (done_signal = '0') then
                         shift_data_signal <= shift_data_signal(6 downto 0) & '0';
+                    else
+                        shift_data_signal <= "00000000";
+                        bit_counter_signal <= 0;
                     end if;
                 else
                     sck_signal <= '1';
@@ -115,7 +118,7 @@ begin
         end if;
     end process;
     
-    mosi <= shift_data_signal(7);
+    mosi <= shift_data_signal(7) when (state = s_busy) else '0';
     cs   <= '0' when (state = s_busy) else '1';
     sck  <= sck_signal when (state = s_busy) else '1';
     
