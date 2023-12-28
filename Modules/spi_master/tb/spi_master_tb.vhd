@@ -57,8 +57,9 @@ component spi_master is
          data : in std_logic_vector(7 downto 0);
          
          -- Debug
-         bit_counter : out std_logic_vector(3 downto 0);
-         shift_data  : out std_logic_vector(7 downto 0)
+         done_dbg        : out std_logic;
+         bit_counter_dbg : out std_logic_vector(3 downto 0);
+         shift_data_dbg  : out std_logic_vector(7 downto 0)
         );
 end component;
     
@@ -69,8 +70,9 @@ end component;
     signal clk, reset, start, ready, mosi, sck, cs : std_logic;
     signal data : std_logic_vector(7 downto 0);
     
-    signal bit_counter : std_logic_vector(3 downto 0);
-    signal shift_data : std_logic_vector(7 downto 0);
+    signal done_dbg        : std_logic;
+    signal bit_counter_dbg : std_logic_vector(3 downto 0);
+    signal shift_data_dbg  : std_logic_vector(7 downto 0);
     
 begin
     
@@ -92,8 +94,9 @@ begin
                   data => data,
                   
                   -- Debug
-                  bit_counter => bit_counter,
-                  shift_data  => shift_data
+                  done_dbg        => done_dbg,
+                  bit_counter_dbg => bit_counter_dbg,
+                  shift_data_dbg  => shift_data_dbg
                 );
                 
     -- Stimulus processes

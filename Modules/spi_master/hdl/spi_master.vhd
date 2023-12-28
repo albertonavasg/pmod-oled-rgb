@@ -43,8 +43,9 @@ entity spi_master is
          data : in std_logic_vector(7 downto 0);
          
          -- Debug 
-         bit_counter : out std_logic_vector(3 downto 0);
-         shift_data  : out std_logic_vector(7 downto 0)
+         done_dbg        : out std_logic;
+         bit_counter_dbg : out std_logic_vector(3 downto 0);
+         shift_data_dbg  : out std_logic_vector(7 downto 0)
         );
 end spi_master;
 
@@ -85,10 +86,10 @@ begin
     tx_proc: process(clk, reset)
     begin
         if (reset = '1') then
-            sck_signal <= '1';
+            sck_signal         <= '1';
             bit_counter_signal <= 0;
-            shift_data_signal <= "00000000";
-            done_signal <= '0';
+            shift_data_signal  <= "00000000";
+            done_signal        <= '0';
         elsif (rising_edge(clk)) then
             if (state = s_busy) then
                 if (sck_signal = '1') then
@@ -98,8 +99,9 @@ begin
                     elsif (done_signal = '0') then
                         shift_data_signal <= shift_data_signal(6 downto 0) & '0';
                     else
-                        shift_data_signal <= "00000000";
+                        shift_data_signal  <= "00000000";
                         bit_counter_signal <= 0;
+                        done_signal        <= '0';
                     end if;
                 else
                     sck_signal <= '1';
@@ -110,10 +112,10 @@ begin
                     end if;
                 end if;
              else
-                sck_signal <= '1';
+                sck_signal         <= '1';
                 bit_counter_signal <= 0;
-                shift_data_signal <= "00000000";
-                done_signal <= '0';
+                shift_data_signal  <= "00000000";
+                done_signal        <= '0';
             end if;
         end if;
     end process;
@@ -123,7 +125,8 @@ begin
     sck  <= sck_signal when (state = s_busy) else '1';
     
     -- Debug signals
-    bit_counter <= std_logic_vector(to_unsigned(bit_counter_signal, 4));
-    shift_data <= shift_data_signal;
+    done_dbg        <= done_signal;
+    bit_counter_dbg <= std_logic_vector(to_unsigned(bit_counter_signal, 4));
+    shift_data_dbg  <= shift_data_signal;
     
 end Behavioral;
