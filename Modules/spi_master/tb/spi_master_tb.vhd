@@ -58,7 +58,7 @@ component spi_master is
          
          -- Debug
          done_dbg        : out std_logic;
-         bit_counter_dbg : out std_logic_vector(3 downto 0);
+         bit_counter_dbg : out std_logic_vector(2 downto 0);
          shift_data_dbg  : out std_logic_vector(7 downto 0)
         );
 end component;
@@ -71,7 +71,7 @@ end component;
     signal data : std_logic_vector(7 downto 0);
     
     signal done_dbg        : std_logic;
-    signal bit_counter_dbg : std_logic_vector(3 downto 0);
+    signal bit_counter_dbg : std_logic_vector(2 downto 0);
     signal shift_data_dbg  : std_logic_vector(7 downto 0);
     
 begin

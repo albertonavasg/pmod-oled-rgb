@@ -44,7 +44,7 @@ entity spi_master is
          
          -- Debug 
          done_dbg        : out std_logic;
-         bit_counter_dbg : out std_logic_vector(3 downto 0);
+         bit_counter_dbg : out std_logic_vector(2 downto 0);
          shift_data_dbg  : out std_logic_vector(7 downto 0)
         );
 end spi_master;
@@ -54,7 +54,7 @@ architecture Behavioral of spi_master is
     -- Signals
     signal sck_signal : std_logic := '0';
     signal done_signal: std_logic := '0';
-    signal bit_counter_signal : integer range 0 to 7 := 0;
+    signal bit_counter_signal : unsigned (2 downto 0) := "000";
     signal shift_data_signal : std_logic_vector(7 downto 0) := "00000000";
     
     -- FSM
@@ -87,7 +87,7 @@ begin
     begin
         if (reset = '1') then
             sck_signal         <= '1';
-            bit_counter_signal <= 0;
+            bit_counter_signal <= "000";
             shift_data_signal  <= "00000000";
             done_signal        <= '0';
         elsif (rising_edge(clk)) then
@@ -100,7 +100,7 @@ begin
                         shift_data_signal <= shift_data_signal(6 downto 0) & '0';
                     else
                         shift_data_signal  <= "00000000";
-                        bit_counter_signal <= 0;
+                        bit_counter_signal <= "000";
                         done_signal        <= '0';
                     end if;
                 else
@@ -113,7 +113,7 @@ begin
                 end if;
              else
                 sck_signal         <= '1';
-                bit_counter_signal <= 0;
+                bit_counter_signal <= "000";
                 shift_data_signal  <= "00000000";
                 done_signal        <= '0';
             end if;
@@ -126,7 +126,7 @@ begin
     
     -- Debug signals
     done_dbg        <= done_signal;
-    bit_counter_dbg <= std_logic_vector(to_unsigned(bit_counter_signal, 4));
+    bit_counter_dbg <= std_logic_vector(bit_counter_signal);
     shift_data_dbg  <= shift_data_signal;
     
 end Behavioral;
