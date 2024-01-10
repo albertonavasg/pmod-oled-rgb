@@ -45,7 +45,9 @@ entity spi_master is
           -- Debug 
           done_dbg        : out std_logic;
           bit_counter_dbg : out std_logic_vector(2 downto 0);
-          shift_data_dbg  : out std_logic_vector(7 downto 0)
+          shift_data_dbg  : out std_logic_vector(7 downto 0);
+          start_delay_signal_dbg : out std_logic;
+          start_rising_edge_flag_dbg : out std_logic
         );
 end spi_master;
 
@@ -68,7 +70,7 @@ begin
     start_rise_proc: process(clk, reset)
     begin
         if (reset = '1') then
-            start_delay_signal <= '0';
+            start_delay_signal     <= '0';
             start_rising_edge_flag <= '0';
         elsif (rising_edge(clk)) then
             if (start_delay_signal = '0' and start = '1') then

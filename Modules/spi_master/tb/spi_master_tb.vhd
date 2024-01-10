@@ -59,7 +59,9 @@ component spi_master is
          -- Debug
          done_dbg        : out std_logic;
          bit_counter_dbg : out std_logic_vector(2 downto 0);
-         shift_data_dbg  : out std_logic_vector(7 downto 0)
+         shift_data_dbg  : out std_logic_vector(7 downto 0);
+         start_delay_signal_dbg : out std_logic;
+         start_rising_edge_flag_dbg : out std_logic
         );
 end component;
     
@@ -70,9 +72,11 @@ end component;
     signal clk, reset, start, ready, mosi, sck, cs : std_logic;
     signal data : std_logic_vector(7 downto 0);
     
-    signal done_dbg        : std_logic;
-    signal bit_counter_dbg : std_logic_vector(2 downto 0);
-    signal shift_data_dbg  : std_logic_vector(7 downto 0);
+    signal done_dbg                   : std_logic;
+    signal bit_counter_dbg            : std_logic_vector(2 downto 0);
+    signal shift_data_dbg             : std_logic_vector(7 downto 0);
+    signal start_delay_signal_dbg     : std_logic;
+    signal start_rising_edge_flag_dbg : std_logic;
     
 begin
     
@@ -96,7 +100,9 @@ begin
                   -- Debug
                   done_dbg        => done_dbg,
                   bit_counter_dbg => bit_counter_dbg,
-                  shift_data_dbg  => shift_data_dbg
+                  shift_data_dbg  => shift_data_dbg,
+                  start_delay_signal_dbg => start_delay_signal_dbg,
+                  start_rising_edge_flag_dbg => start_rising_edge_flag_dbg
                 );
                 
     -- Stimulus processes
