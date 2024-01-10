@@ -25,33 +25,35 @@ use IEEE.NUMERIC_STD.ALL;
 
 
 entity spi_master is
-  Port ( 
-         -- Basic
-         clk   : in std_logic;
-         reset : in std_logic;
-         
-         -- Control
-         start : in  std_logic;
-         ready : out std_logic;
-         
-         -- SPI
-         mosi         : out std_logic;
-         sck          : out std_logic;
-         cs           : out std_logic;
-         
-         -- Data
-         data : in std_logic_vector(7 downto 0);
-         
-         -- Debug 
-         done_dbg        : out std_logic;
-         bit_counter_dbg : out std_logic_vector(2 downto 0);
-         shift_data_dbg  : out std_logic_vector(7 downto 0)
+    Port ( 
+          -- Basic
+          clk   : in std_logic;
+          reset : in std_logic;
+          
+          -- Control
+          start : in  std_logic;
+          ready : out std_logic;
+          
+          -- SPI
+          mosi         : out std_logic;
+          sck          : out std_logic;
+          cs           : out std_logic;
+          
+          -- Data
+          data : in std_logic_vector(7 downto 0);
+          
+          -- Debug 
+          done_dbg        : out std_logic;
+          bit_counter_dbg : out std_logic_vector(2 downto 0);
+          shift_data_dbg  : out std_logic_vector(7 downto 0)
         );
 end spi_master;
 
 architecture Behavioral of spi_master is
     
     -- Signals
+    signal start_delay_signal : std_logic := '0';
+    signal start_rising_edge_flag : std_logic := '0';
     signal sck_signal : std_logic := '0';
     signal done_signal: std_logic := '0';
     signal bit_counter_signal : unsigned (2 downto 0) := "000";
@@ -63,6 +65,22 @@ architecture Behavioral of spi_master is
     
 begin
     
+    start_rise_proc: process(clk, reset)
+    begin
+        if (reset = '1') then
+            start_delay_signal <= '0';
+            start_rising_edge_flag <= '0';
+        elsif (rising_edge(clk)) then
+            if (start_delay_signal = '0' and start = '1') then
+                start_rising_edge_flag <= '1';
+            else
+                start_rising_edge_flag <= '0';
+            end if;
+            start_delay_signal <= start;
+        end if;
+    end process;
+    
+   
     FSM_proc: process(clk, reset)
     begin
         if (reset = '1') then
@@ -70,7 +88,7 @@ begin
         elsif (rising_edge(clk)) then
             case state is
                 when s_ready =>
-                    if (start = '1') then
+                    if (start_rising_edge_flag = '1') then
                         state <= s_busy;
                     end if;
                 when s_busy =>
