@@ -148,5 +148,7 @@ begin
     done_dbg        <= done_signal;
     bit_counter_dbg <= std_logic_vector(bit_counter_signal);
     shift_data_dbg  <= shift_data_signal;
+    start_delay_signal_dbg <= start_delay_signal;
+    start_rising_edge_flag_dbg <= start_rising_edge_flag;
     
 end Behavioral;
