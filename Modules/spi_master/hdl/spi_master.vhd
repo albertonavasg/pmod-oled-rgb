@@ -116,12 +116,8 @@ begin
                     sck_signal <= '0';
                     if (bit_counter_signal = 0) then
                         shift_data_signal <= data;
-                    elsif (done_signal = '0') then
-                        shift_data_signal <= shift_data_signal(6 downto 0) & '0';
                     else
-                        shift_data_signal  <= "00000000";
-                        bit_counter_signal <= "000";
-                        done_signal        <= '0';
+                        shift_data_signal <= shift_data_signal(6 downto 0) & '0';
                     end if;
                 else
                     sck_signal <= '1';
