@@ -67,7 +67,7 @@ architecture Behavioral of spi_master is
 
 begin
 
-    start_rise_proc : process(clk, reset)
+    start_rising_edge_proc : process(clk, reset)
     begin
         if (reset = '1') then
             start_delay_signal     <= '0';

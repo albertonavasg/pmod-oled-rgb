@@ -37,7 +37,7 @@ end spi_master_tb;
 
 architecture Behavioral of spi_master_tb is
 
-    -- Instantiate the COmponent Under Test
+    -- Instantiate the Component Under Test
     component spi_master is
         Port (
             -- Basic
