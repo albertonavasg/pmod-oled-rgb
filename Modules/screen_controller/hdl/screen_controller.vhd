@@ -141,7 +141,7 @@ architecture Behavioral of screen_controller is
     constant max_counter_5us     : integer                              := 10; -- 625      -- 10 for simulation
     constant max_counter_20ms    : integer                              := 20; -- 2500000  -- 20 for simulation
     constant max_counter_25ms    : integer                              := 25; -- 3125000  -- 25 for simulation
-    constant max_counter_100ms   : integer                              := 20; -- 12500000 -- 30 for simulation
+    constant max_counter_100ms   : integer                              := 30; -- 12500000 -- 30 for simulation
     constant max_counter_spi     : integer                              := 3;  -- Wait 3 clock cycles until trying to send new spi 
     signal counter_5us           : integer range 0 to max_counter_5us   := 0;
     signal counter_20ms          : integer range 0 to max_counter_20ms  := 0;
@@ -344,7 +344,7 @@ begin
                         enable_counter_spi   <= '0';
                         enable_counter_100ms <= '1';
                         seq_counter          <= seq_counter + 1;
-                    elsif (seq_counter = 13 and expired_counter_100ms = '1') then
+                    elsif (seq_counter = 14 and expired_counter_100ms = '1') then
                         enable_counter_100ms <= '0';
                         transition_completed <= '1';
                     end if;
@@ -365,7 +365,7 @@ begin
 
     -------------------- Counters --------------------
 
-    timer_3us_proc : process(clk, reset)
+    timer_5us_proc : process(clk, reset)
     begin
         if (reset = '1') then
             counter_5us <= 0;
@@ -405,8 +405,8 @@ begin
             counter_25ms <= 0;
         elsif (rising_edge(clk)) then
             if (enable_counter_25ms = '1') then
-                if (counter_25ms < max_counter_20ms) then
-                    counter_25ms <= counter_20ms + 1;
+                if (counter_25ms < max_counter_25ms) then
+                    counter_25ms <= counter_25ms + 1;
                 else
                     counter_25ms <= 0;
                 end if;
