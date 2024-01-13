@@ -350,6 +350,13 @@ begin
                     end if;
 
                 when s_on =>
+                    power_reset           <= '1';
+                    vcc_enable            <= '1';
+                    pmod_enable           <= '1';
+                    data_internal         <= "00000000";
+                    start_internal        <= '0';
+                    data_command_internal <= '0';
+                    seq_counter           <= (others => '0');
 
                 when s_turning_off =>
 
