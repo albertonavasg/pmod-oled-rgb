@@ -215,9 +215,9 @@ begin
     end process;
 
     on_off_status <= "00" when (state = s_off) else
-        "01"              when (state = s_turning_on) else
-        "10"              when (state = s_turning_off) else
-        "11"              when (state = s_on);
+                     "01" when (state = s_turning_on) else
+                     "10" when (state = s_turning_off) else
+                     "11" when (state = s_on);
 
     turning_on_proc : process(clk, reset)
     begin
