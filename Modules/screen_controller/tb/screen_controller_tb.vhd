@@ -149,6 +149,8 @@ begin
         wait for 1*clk_period;
         reset  <= '0';
         on_off <= '1';
+        wait for 400*clk_period;
+        on_off <= '0';
         wait for 1000*clk_period;
     end process;
 
