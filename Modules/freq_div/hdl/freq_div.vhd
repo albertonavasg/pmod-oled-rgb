@@ -32,16 +32,16 @@ library IEEE;
 
 entity freq_div is
     Port (
-            clk        : in  std_logic;
-            reset       : in  std_logic;
-            enable     : in  std_logic;
+            clk       : in  std_logic;
+            reset     : in  std_logic;
+            enable    : in  std_logic;
             clk_1_MHz : out std_logic
     );
 end entity;
 
 architecture Behavioral of freq_div is
 
-    constant max_counter : integer := 125; -- From 125MHz to 1 MHz
+    constant max_counter : integer := 12500000; -- From 125MHz to 1 MHz
     signal counter       : integer range 0 to max_counter := 0;
 
 begin

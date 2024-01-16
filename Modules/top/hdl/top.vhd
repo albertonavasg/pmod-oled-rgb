@@ -36,8 +36,14 @@ entity top is
         clk   : in std_logic;
         reset : in std_logic;
 
-        sw    : in  std_logic_vector(1 downto 0);
-        led   : out std_logic_vector(3 downto 0);
+        sw     : in  std_logic_vector(1 downto 0);
+        led    : out std_logic_vector(3 downto 0);
+        led4_b : out std_logic;
+        led4_g : out std_logic;
+        led4_r : out std_logic;
+        led5_b : out std_logic;
+        led5_g : out std_logic;
+        led5_r : out std_logic;
 
         -- PmodA
         ja : out std_logic_vector(7 downto 0)
@@ -95,6 +101,7 @@ architecture Behavioral of top is
 
     -- Signals 
      signal clk_1_MHz : std_logic;
+     signal on_off_status_signal : std_logic_vector(1 downto 0);
 
     -- Debug signals
     signal seq_counter_dbg_signal           : std_logic_vector(9 downto 0); 
@@ -119,25 +126,25 @@ begin
             reset => reset,
 
             -- Power 
-            on_off      => sw(0),
+            on_off      => sw(1),
             power_reset => ja(5),
             vcc_enable  => ja(6),
             pmod_enable => ja(7),
 
             -- Control
-            on_off_status => led(1 downto 0),
+            on_off_status => on_off_status_signal,
             start         => start_signal, 
-            ready         => led(2), 
+            ready         => led4_g, 
 
             -- Data
             data             => data_signal,
             data_command_in  => data_command_in_signal,
-            data_command_out => ja(4),
+            data_command_out => led(1),
 
             -- SPI
-            mosi => ja(1),
-            sck  => ja(3),
-            cs   => ja(0),
+            mosi => led(0),
+            sck  => led(3),
+            cs   => led(2),
 
             -- Debug
             seq_counter_dbg           => seq_counter_dbg_signal,
@@ -151,8 +158,12 @@ begin
         Port Map (
             clk       => clk,
             reset     => reset,
-            enable    => sw(1),
+            enable    => sw(0),
             clk_1_MHz => clk_1_MHz
         );
+
+    led5_b <= on_off_status_signal(1);
+    led4_b <= on_off_status_signal(0);
+    led5_g <= clk_1_MHz;
 
 end Behavioral;
