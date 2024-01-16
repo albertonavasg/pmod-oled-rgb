@@ -43,7 +43,7 @@ architecture Behavioral of freq_div_tb is
             clk        : in  std_logic;
             reset       : in  std_logic;
             enable     : in  std_logic;
-            clk_10_MHz : out std_logic
+            clk_1_MHz : out std_logic
     );
     end component;
 
@@ -51,7 +51,7 @@ architecture Behavioral of freq_div_tb is
     constant clk_period : time := 1 ns;
 
     -- Signals 
-    signal clk, reset, enable, clk_10_MHz : std_logic := '0';
+    signal clk, reset, enable, clk_1_MHz : std_logic := '0';
 
 begin
 
@@ -61,7 +61,7 @@ begin
             clk        => clk,
             reset      => reset,
             enable     => enable,
-            clk_10_MHz => clk_10_MHz
+            clk_1_MHz => clk_1_MHz
         );
 
 

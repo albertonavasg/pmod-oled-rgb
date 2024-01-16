@@ -35,7 +35,7 @@ entity freq_div is
             clk        : in  std_logic;
             reset       : in  std_logic;
             enable     : in  std_logic;
-            clk_10_MHz : out std_logic
+            clk_1_MHz : out std_logic
     );
 end entity;
 
@@ -63,6 +63,6 @@ begin
         end if;
     end process;
 
-    clk_10_MHz <= '1' when (counter = max_counter) else '0';
+    clk_1_MHz <= '1' when (counter = max_counter) else '0';
 
 end architecture;
