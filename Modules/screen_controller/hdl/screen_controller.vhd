@@ -59,7 +59,7 @@ entity screen_controller is
         cs   : out std_logic;
 
         -- Debug
-        seq_counter_dbg           : out std_logic_vector(4 downto 0);
+        seq_counter_dbg           : out std_logic_vector(9 downto 0);
         start_signal_dbg          : out std_logic;
         ready_signal_dbg          : out std_logic;
         data_signal_dbg           : out std_logic_vector(7 downto 0);
@@ -114,6 +114,7 @@ architecture Behavioral of screen_controller is
     constant MAX_COLUMN           : std_logic_vector(7 downto 0) := x"5F";
     constant MIN_ROW              : std_logic_vector(7 downto 0) := x"00";
     constant MAX_ROW              : std_logic_vector(7 downto 0) := x"3F";
+    constant DRAW_LINE_COMMAND    : std_logic_vector(7 downto 0) := x"21";
 
     -- Data/Command
     constant DATA_TYPE    : std_logic := '1';
@@ -129,7 +130,7 @@ architecture Behavioral of screen_controller is
 
     signal transition_completed : std_logic := '0';
 
-    signal seq_counter : unsigned(4 downto 0) := "00000";
+    signal seq_counter : unsigned(9 downto 0) := (others => '0');
 
     -- Counter signals
     signal enable_counter_5us    : std_logic                            := '0';
@@ -362,6 +363,90 @@ begin
                         seq_counter          <= seq_counter + 1;
                     elsif (seq_counter = 23 and expired_counter_100ms = '1') then
                         enable_counter_100ms <= '0';
+-------------------------------------------------------------------------------------------------------------------
+                        -- transition_completed <= '1'; -- Add some instructions to check if it works
+                        seq_counter <= seq_counter + 1;
+                    elsif (seq_counter = 24) then
+                        data_internal         <= DRAW_LINE_COMMAND;
+                        data_command_internal <= COMMAND_TYPE;
+                        start_internal        <= '1';
+                        seq_counter           <= seq_counter + 1;
+                    elsif (seq_counter = 25 and start_internal = '1') then
+                        start_internal     <= '0';
+                        enable_counter_spi <= '1';
+                        seq_counter        <= seq_counter + 1;
+                    elsif (seq_counter = 26 and expired_counter_spi = '1' and ready_signal = '1') then
+                        enable_counter_spi <= '0';
+                        data_internal         <= x"01";
+                        data_command_internal <= DATA_TYPE;
+                        start_internal        <= '1';
+                        seq_counter           <= seq_counter + 1;
+                    elsif (seq_counter = 27 and start_internal = '1') then
+                        start_internal     <= '0';
+                        enable_counter_spi <= '1';
+                        seq_counter        <= seq_counter + 1;
+                    elsif (seq_counter = 28 and expired_counter_spi = '1' and ready_signal = '1') then
+                        enable_counter_spi    <= '0';
+                        data_internal         <= x"10";
+                        data_command_internal <= DATA_TYPE;
+                        start_internal        <= '1';
+                        seq_counter           <= seq_counter + 1;
+                    elsif (seq_counter = 29 and start_internal = '1') then
+                        start_internal     <= '0';
+                        enable_counter_spi <= '1';
+                        seq_counter        <= seq_counter + 1;
+                    elsif (seq_counter = 30 and expired_counter_spi = '1' and ready_signal = '1') then
+                        enable_counter_spi    <= '0';
+                        data_internal         <= x"28";
+                        data_command_internal <= DATA_TYPE;
+                        start_internal        <= '1';
+                        seq_counter           <= seq_counter + 1;
+                    elsif (seq_counter = 31 and start_internal = '1') then
+                        start_internal     <= '0';
+                        enable_counter_spi <= '1';
+                        seq_counter        <= seq_counter + 1;
+                    elsif (seq_counter = 32 and expired_counter_spi = '1' and ready_signal = '1') then
+                        enable_counter_spi <= '0';
+                        data_internal         <= x"04";
+                        data_command_internal <= DATA_TYPE;
+                        start_internal        <= '1';
+                        seq_counter           <= seq_counter + 1;
+                    elsif (seq_counter = 33 and start_internal = '1') then
+                        start_internal     <= '0';
+                        enable_counter_spi <= '1';
+                        seq_counter        <= seq_counter + 1;
+                    elsif (seq_counter = 34 and expired_counter_spi = '1' and ready_signal = '1') then
+                        enable_counter_spi <= '0';
+                        data_internal         <= x"35";
+                        data_command_internal <= DATA_TYPE;
+                        start_internal        <= '1';
+                        seq_counter           <= seq_counter + 1;
+                    elsif (seq_counter = 35 and start_internal = '1') then
+                        start_internal     <= '0';
+                        enable_counter_spi <= '1';
+                        seq_counter        <= seq_counter + 1;
+                    elsif (seq_counter = 36 and expired_counter_spi = '1' and ready_signal = '1') then
+                        enable_counter_spi    <= '0';
+                        data_internal         <= x"00";
+                        data_command_internal <= DATA_TYPE;
+                        start_internal        <= '1';
+                        seq_counter           <= seq_counter + 1;
+                    elsif (seq_counter = 37 and start_internal = '1') then
+                        start_internal     <= '0';
+                        enable_counter_spi <= '1';
+                        seq_counter        <= seq_counter + 1;
+                    elsif (seq_counter = 38 and expired_counter_spi = '1' and ready_signal = '1') then
+                        enable_counter_spi    <= '0';
+                        data_internal         <= x"00";
+                        data_command_internal <= DATA_TYPE;
+                        start_internal        <= '1';
+                        seq_counter           <= seq_counter + 1;
+                    elsif (seq_counter = 39 and start_internal = '1') then
+                        start_internal     <= '0';
+                        enable_counter_spi <= '1';
+                        seq_counter        <= seq_counter + 1;
+                    elsif (seq_counter = 40 and expired_counter_spi = '1' and ready_signal = '1') then
+                        enable_counter_spi   <= '0';
                         transition_completed <= '1';
                     end if;
 

@@ -65,7 +65,7 @@ architecture Behavioral of screen_controller_tb is
             cs   : out std_logic;
 
             -- Debug
-            seq_counter_dbg           : out std_logic_vector(4 downto 0);
+            seq_counter_dbg           : out std_logic_vector(9 downto 0);
             start_signal_dbg          : out std_logic;
             ready_signal_dbg          : out std_logic;
             data_signal_dbg           : out std_logic_vector(7 downto 0);
@@ -86,7 +86,7 @@ architecture Behavioral of screen_controller_tb is
     signal mosi, sck, cs                                : std_logic                    := '0';
 
     -- Debug signals
-    signal seq_counter_dbg           : std_logic_vector(4 downto 0) := "00000";
+    signal seq_counter_dbg           : std_logic_vector(9 downto 0) := (Others => '0');
     signal start_signal_dbg          : std_logic                    := '0';
     signal ready_signal_dbg          : std_logic                    := '0';
     signal data_signal_dbg           : std_logic_vector(7 downto 0) := "00000000";
@@ -149,7 +149,7 @@ begin
         wait for 1*clk_period;
         reset  <= '0';
         on_off <= '1';
-        wait for 400*clk_period;
+        wait for 700*clk_period;
         on_off <= '0';
         wait for 1000*clk_period;
     end process;
