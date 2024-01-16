@@ -100,7 +100,7 @@ architecture Behavioral of top is
     end component;
 
     -- Signals 
-     signal clk_1_MHz : std_logic;
+     signal clk_1_MHz_signal : std_logic;
      signal on_off_status_signal : std_logic_vector(1 downto 0);
 
     -- Debug signals
@@ -122,7 +122,7 @@ begin
     screen_controller_inst: screen_controller
         Port Map (
             -- Basic
-            clk   => clk_1_MHz,
+            clk   => clk_1_MHz_signal,
             reset => reset,
 
             -- Power 
@@ -134,17 +134,17 @@ begin
             -- Control
             on_off_status => on_off_status_signal,
             start         => start_signal, 
-            ready         => led4_g, 
+            ready         => led(0), 
 
             -- Data
             data             => data_signal,
             data_command_in  => data_command_in_signal,
-            data_command_out => led(1),
+            data_command_out => ja(4),
 
             -- SPI
-            mosi => led(0),
-            sck  => led(3),
-            cs   => led(2),
+            mosi => ja(1),
+            sck  => ja(3),
+            cs   => ja(0),
 
             -- Debug
             seq_counter_dbg           => seq_counter_dbg_signal,
@@ -159,11 +159,10 @@ begin
             clk       => clk,
             reset     => reset,
             enable    => sw(0),
-            clk_1_MHz => clk_1_MHz
+            clk_1_MHz => clk_1_MHz_signal
         );
 
     led5_b <= on_off_status_signal(1);
     led4_b <= on_off_status_signal(0);
-    led5_g <= clk_1_MHz;
 
 end Behavioral;
