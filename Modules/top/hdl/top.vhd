@@ -164,5 +164,6 @@ begin
 
     led5_b <= on_off_status_signal(1);
     led4_b <= on_off_status_signal(0);
+    led(3) <= sw(0);
 
 end Behavioral;
