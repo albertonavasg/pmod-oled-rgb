@@ -102,6 +102,9 @@ architecture Behavioral of top is
     -- Signals 
      signal clk_1_MHz_signal : std_logic;
      signal on_off_status_signal : std_logic_vector(1 downto 0);
+     signal power_reset_signal :std_logic;
+     signal vcc_enable_signal :std_logic;
+     signal pmod_enable_signal :std_logic;
 
     -- Debug signals
     signal seq_counter_dbg_signal           : std_logic_vector(9 downto 0); 
@@ -110,8 +113,9 @@ architecture Behavioral of top is
     signal data_signal_dbg_signal           : std_logic_vector(7 downto 0);
     signal data_command_internal_dbg_signal : std_logic;
 
-    -- Not used signals (they will come from PS when AXI mapped)
+    -- Unused signals (they will come from PS when AXI mapped)
     signal start_signal           : std_logic;
+    signal ready_signal           : std_logic;
     signal data_signal            : std_logic_vector(7 downto 0);
     signal data_command_in_signal : std_logic;
 
@@ -127,14 +131,14 @@ begin
 
             -- Power 
             on_off      => sw(1),
-            power_reset => ja(5),
-            vcc_enable  => ja(6),
-            pmod_enable => ja(7),
+            power_reset => power_reset_signal,
+            vcc_enable  => vcc_enable_signal,
+            pmod_enable => pmod_enable_signal,
 
             -- Control
             on_off_status => on_off_status_signal,
             start         => start_signal, 
-            ready         => led(0), 
+            ready         => ready_signal, 
 
             -- Data
             data             => data_signal,
@@ -164,6 +168,14 @@ begin
 
     led5_b <= on_off_status_signal(1);
     led4_b <= on_off_status_signal(0);
-    led(3) <= sw(0);
+
+    ja(5) <= power_reset_signal;
+    ja(6) <= vcc_enable_signal;
+    ja(7) <= pmod_enable_signal;
+
+    led(3) <= sw(1);
+    led(2) <= pmod_enable_signal;
+    led(1) <= vcc_enable_signal;
+    led(0) <= ready_signal;
 
 end Behavioral;
