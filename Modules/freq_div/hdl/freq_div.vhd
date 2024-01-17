@@ -32,9 +32,9 @@ library IEEE;
 
 entity freq_div is
     Port (
-            clk        : in  std_logic;
-            reset       : in  std_logic;
-            enable     : in  std_logic;
+            clk       : in  std_logic;
+            reset     : in  std_logic;
+            enable    : in  std_logic;
             clk_1_MHz : out std_logic
     );
 end entity;
