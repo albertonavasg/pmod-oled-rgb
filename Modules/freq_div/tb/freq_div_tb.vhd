@@ -48,7 +48,7 @@ architecture Behavioral of freq_div_tb is
     end component;
 
     -- Clock
-    constant clk_period : time := 1 ns;
+    constant clk_period : time := 8 ns;
 
     -- Signals 
     signal clk, reset, enable, clk_1_MHz : std_logic := '0';

@@ -63,6 +63,6 @@ begin
         end if;
     end process;
 
-    clk_1_MHz <= '1' when (counter = max_counter) else '0';
+    clk_1_MHz <= '1' when (counter >= max_counter/2) else '0';
 
 end architecture;
