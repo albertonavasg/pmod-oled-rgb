@@ -173,10 +173,9 @@ begin
     led5_b <= on_off_status_signal(1);
     led4_b <= on_off_status_signal(0);
 
+    led(3) <= clk_1_MHz_signal;
     led(2) <= power_reset_signal;
     led(1) <= vcc_enable_signal;
     led(0) <= pmod_enable_signal;
-
-    led(3) <= clk_1_MHz_signal;
 
 end Behavioral;
