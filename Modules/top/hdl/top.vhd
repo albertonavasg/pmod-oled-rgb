@@ -146,9 +146,9 @@ begin
             data_command_out => ja(4),
 
             -- SPI
-            mosi => ja(1),
-            sck  => ja(3),
-            cs   => ja(0),
+            mosi => led(0),
+            sck  => led(2),
+            cs   => led(1),
 
             -- Debug
             seq_counter_dbg           => seq_counter_dbg_signal,
@@ -173,9 +173,6 @@ begin
     ja(6) <= vcc_enable_signal;
     ja(7) <= pmod_enable_signal;
 
-    led(3) <= sw(1);
-    led(2) <= pmod_enable_signal;
-    led(1) <= vcc_enable_signal;
-    led(0) <= ready_signal;
+    led(3) <= clk_1_MHz_signal;
 
 end Behavioral;
