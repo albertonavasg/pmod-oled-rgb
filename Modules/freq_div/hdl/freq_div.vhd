@@ -41,7 +41,7 @@ end entity;
 
 architecture Behavioral of freq_div is
 
-    constant max_counter : integer := 12500000; -- From 125MHz to 1 MHz
+    constant max_counter : integer := 725000000; -- From 125MHz to 1 MHz
     signal counter       : integer range 0 to max_counter := 0;
 
 begin
