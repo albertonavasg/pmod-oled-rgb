@@ -86,7 +86,13 @@ architecture Behavioral of top is
             start_signal_dbg          : out std_logic;
             ready_signal_dbg          : out std_logic;
             data_signal_dbg           : out std_logic_vector(7 downto 0);
-            data_command_internal_dbg : out std_logic
+            data_command_internal_dbg : out std_logic;
+            expired_counter_5us_dbg   : out std_logic;
+            expired_counter_20ms_dbg  : out std_logic;
+            expired_counter_25ms_dbg  : out std_logic;
+            expired_counter_100ms_dbg : out std_logic;
+            expired_counter_400ms_dbg : out std_logic;
+            expired_counter_spi_dbg   : out std_logic
         );
     end component;
 
@@ -122,6 +128,12 @@ architecture Behavioral of top is
     signal ready_signal_dbg_signal          : std_logic;
     signal data_signal_dbg_signal           : std_logic_vector(7 downto 0);
     signal data_command_internal_dbg_signal : std_logic;
+    signal expired_counter_5us_dbg_signal   : std_logic;
+    signal expired_counter_20ms_dbg_signal  : std_logic;
+    signal expired_counter_25ms_dbg_signal  : std_logic;
+    signal expired_counter_100ms_dbg_signal : std_logic;
+    signal expired_counter_400ms_dbg_signal : std_logic;
+    signal expired_counter_spi_dbg_signal   : std_logic;
 
 begin
 
@@ -175,7 +187,7 @@ begin
 
     led(3) <= clk_1_MHz_signal;
     led(2) <= power_reset_signal;
-    led(1) <= vcc_enable_signal;
-    led(0) <= pmod_enable_signal;
+    led(1) <= pmod_enable_signal;
+    led(0) <= expired_counter_20ms_dbg_signal;
 
 end Behavioral;

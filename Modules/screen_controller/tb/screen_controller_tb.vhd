@@ -69,7 +69,13 @@ architecture Behavioral of screen_controller_tb is
             start_signal_dbg          : out std_logic;
             ready_signal_dbg          : out std_logic;
             data_signal_dbg           : out std_logic_vector(7 downto 0);
-            data_command_internal_dbg : out std_logic
+            data_command_internal_dbg : out std_logic;
+            expired_counter_5us_dbg   : out std_logic;
+            expired_counter_20ms_dbg  : out std_logic;
+            expired_counter_25ms_dbg  : out std_logic;
+            expired_counter_100ms_dbg : out std_logic;
+            expired_counter_400ms_dbg : out std_logic;
+            expired_counter_spi_dbg   : out std_logic
         );
     end component;
 
@@ -91,6 +97,13 @@ architecture Behavioral of screen_controller_tb is
     signal ready_signal_dbg          : std_logic                    := '0';
     signal data_signal_dbg           : std_logic_vector(7 downto 0) := "00000000";
     signal data_command_internal_dbg : std_logic                    := '0';
+    signal expired_counter_5us_dbg   : std_logic := '0';
+    signal expired_counter_20ms_dbg  : std_logic := '0';
+    signal expired_counter_25ms_dbg  : std_logic := '0';
+    signal expired_counter_100ms_dbg : std_logic := '0';
+    signal expired_counter_400ms_dbg : std_logic := '0';
+    signal expired_counter_spi_dbg   : std_logic := '0';
+
 begin
 
     -- Port Map
@@ -126,7 +139,13 @@ begin
             start_signal_dbg          => start_signal_dbg,
             ready_signal_dbg          => ready_signal_dbg,
             data_signal_dbg           => data_signal_dbg,
-            data_command_internal_dbg => data_command_internal_dbg
+            data_command_internal_dbg => data_command_internal_dbg,
+            expired_counter_5us_dbg   => expired_counter_5us_dbg,
+            expired_counter_20ms_dbg  => expired_counter_20ms_dbg,
+            expired_counter_25ms_dbg  => expired_counter_25ms_dbg,
+            expired_counter_100ms_dbg => expired_counter_100ms_dbg,
+            expired_counter_400ms_dbg => expired_counter_400ms_dbg,
+            expired_counter_spi_dbg   => expired_counter_spi_dbg
         );
 
     -- Stimulus processes

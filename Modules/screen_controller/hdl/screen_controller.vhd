@@ -63,7 +63,13 @@ entity screen_controller is
         start_signal_dbg          : out std_logic;
         ready_signal_dbg          : out std_logic;
         data_signal_dbg           : out std_logic_vector(7 downto 0);
-        data_command_internal_dbg : out std_logic
+        data_command_internal_dbg : out std_logic;
+        expired_counter_5us_dbg   : out std_logic;
+        expired_counter_20ms_dbg  : out std_logic;
+        expired_counter_25ms_dbg  : out std_logic;
+        expired_counter_100ms_dbg : out std_logic;
+        expired_counter_400ms_dbg : out std_logic;
+        expired_counter_spi_dbg   : out std_logic
     );
 end screen_controller;
 
@@ -917,5 +923,11 @@ begin
     ready_signal_dbg          <= ready_signal;
     data_signal_dbg           <= data_signal;
     data_command_internal_dbg <= data_command_internal;
+    expired_counter_5us_dbg   <= expired_counter_5us;
+    expired_counter_20ms_dbg  <= expired_counter_20ms;
+    expired_counter_25ms_dbg  <= expired_counter_25ms;
+    expired_counter_100ms_dbg <= expired_counter_100ms;
+    expired_counter_400ms_dbg <= expired_counter_400ms;
+    expired_counter_spi_dbg   <= expired_counter_spi;
 
 end Behavioral;
