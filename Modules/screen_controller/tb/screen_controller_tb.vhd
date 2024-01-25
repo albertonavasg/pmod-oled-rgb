@@ -40,42 +40,42 @@ architecture Behavioral of screen_controller_tb is
     component screen_controller is
         Port (
             -- Basic
-            clk   : in std_logic;
-            reset : in std_logic;
+            CLK   : in std_logic;
+            RESET : in std_logic;
 
             -- Power 
-            on_off      : in  std_logic;
-            power_reset : out std_logic;
-            vcc_enable  : out std_logic;
-            pmod_enable : out std_logic;
+            ON_OFF      : in  std_logic;
+            POWER_RESET : out std_logic;
+            VCC_ENABLE  : out std_logic;
+            PMOD_ENABLE : out std_logic;
 
             -- Control
-            on_off_status : out std_logic_vector(1 downto 0);
-            start         : in  std_logic;
-            ready         : out std_logic;
+            ON_OFF_STATUS : out std_logic_vector(1 downto 0);
+            START         : in  std_logic;
+            READY         : out std_logic;
 
             -- Data
-            data             : in  std_logic_vector(7 downto 0);
-            data_command_in  : in  std_logic;
-            data_command_out : out std_logic;
+            DATA             : in  std_logic_vector(7 downto 0);
+            DATA_COMMAND_IN  : in  std_logic;
+            DATA_COMMAND_OUT : out std_logic;
 
             -- SPI
-            mosi : out std_logic;
-            sck  : out std_logic;
-            cs   : out std_logic;
+            MOSI : out std_logic;
+            SCK  : out std_logic;
+            CS   : out std_logic;
 
             -- Debug
-            seq_counter_dbg           : out std_logic_vector(9 downto 0);
-            start_signal_dbg          : out std_logic;
-            ready_signal_dbg          : out std_logic;
-            data_signal_dbg           : out std_logic_vector(7 downto 0);
-            data_command_internal_dbg : out std_logic;
-            expired_counter_5us_dbg   : out std_logic;
-            expired_counter_20ms_dbg  : out std_logic;
-            expired_counter_25ms_dbg  : out std_logic;
-            expired_counter_100ms_dbg : out std_logic;
-            expired_counter_400ms_dbg : out std_logic;
-            expired_counter_spi_dbg   : out std_logic
+            SEQ_COUNTER_DBG           : out std_logic_vector(9 downto 0);
+            START_SIGNAL_DBG          : out std_logic;
+            READY_SIGNAL_DBG          : out std_logic;
+            DATA_SIGNAL_DBG           : out std_logic_vector(7 downto 0);
+            DATA_COMMAND_INTERNAL_DBG : out std_logic;
+            EXPIRED_COUNTER_5US_DBG   : out std_logic;
+            EXPIRED_COUNTER_20MS_DBG  : out std_logic;
+            EXPIRED_COUNTER_25MS_DBG  : out std_logic;
+            EXPIRED_COUNTER_100MS_DBG : out std_logic;
+            EXPIRED_COUNTER_400MS_DBG : out std_logic;
+            EXPIRED_COUNTER_SPI_DBG   : out std_logic
         );
     end component;
 

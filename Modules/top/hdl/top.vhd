@@ -57,83 +57,88 @@ architecture Behavioral of top is
     component screen_controller is
         Port (
             -- Basic
-            clk   : in std_logic;
-            reset : in std_logic;
+            CLK   : in std_logic;
+            RESET : in std_logic;
 
             -- Power 
-            on_off      : in  std_logic;
-            power_reset : out std_logic;
-            vcc_enable  : out std_logic;
-            pmod_enable : out std_logic;
+            ON_OFF      : in  std_logic;
+            POWER_RESET : out std_logic;
+            VCC_ENABLE  : out std_logic;
+            PMOD_ENABLE : out std_logic;
 
             -- Control
-            on_off_status : out std_logic_vector(1 downto 0);
-            start         : in  std_logic;
-            ready         : out std_logic;
+            ON_OFF_STATUS : out std_logic_vector(1 downto 0);
+            START         : in  std_logic;
+            READY         : out std_logic;
 
             -- Data
-            data             : in  std_logic_vector(7 downto 0);
-            data_command_in  : in  std_logic;
-            data_command_out : out std_logic;
+            DATA             : in  std_logic_vector(7 downto 0);
+            DATA_COMMAND_IN  : in  std_logic;
+            DATA_COMMAND_OUT : out std_logic;
 
             -- SPI
-            mosi : out std_logic;
-            sck  : out std_logic;
-            cs   : out std_logic;
+            MOSI : out std_logic;
+            SCK  : out std_logic;
+            CS   : out std_logic;
 
             -- Debug
-            seq_counter_dbg           : out std_logic_vector(9 downto 0);
-            start_signal_dbg          : out std_logic;
-            ready_signal_dbg          : out std_logic;
-            data_signal_dbg           : out std_logic_vector(7 downto 0);
-            data_command_internal_dbg : out std_logic;
-            expired_counter_5us_dbg   : out std_logic;
-            expired_counter_20ms_dbg  : out std_logic;
-            expired_counter_25ms_dbg  : out std_logic;
-            expired_counter_100ms_dbg : out std_logic;
-            expired_counter_400ms_dbg : out std_logic;
-            expired_counter_spi_dbg   : out std_logic
+            SEQ_COUNTER_DBG           : out std_logic_vector(9 downto 0);
+            START_SIGNAL_DBG          : out std_logic;
+            READY_SIGNAL_DBG          : out std_logic;
+            DATA_SIGNAL_DBG           : out std_logic_vector(7 downto 0);
+            DATA_COMMAND_INTERNAL_DBG : out std_logic;
+            EXPIRED_COUNTER_5US_DBG   : out std_logic;
+            EXPIRED_COUNTER_20MS_DBG  : out std_logic;
+            EXPIRED_COUNTER_25MS_DBG  : out std_logic;
+            EXPIRED_COUNTER_100MS_DBG : out std_logic;
+            EXPIRED_COUNTER_400MS_DBG : out std_logic;
+            EXPIRED_COUNTER_SPI_DBG   : out std_logic
         );
     end component;
 
     component freq_div is
         Port (
-                clk       : in  std_logic;
-                reset     : in  std_logic;
-                enable    : in  std_logic;
-                clk_1_MHz : out std_logic
+                CLK       : in  std_logic;
+                RESET     : in  std_logic;
+                ENABLE    : in  std_logic;
+                CLK_1_MHZ : out std_logic
         );
     end component;
 
     -- Signals 
-     signal clk_1_MHz_signal     : std_logic;
-     signal on_off_status_signal : std_logic_vector(1 downto 0);
-     signal power_reset_signal   : std_logic;
-     signal vcc_enable_signal    : std_logic;
-     signal pmod_enable_signal   : std_logic;
+     signal clk_1_MHz     : std_logic;
+     signal enable        : std_logic;
 
-    signal start_signal            : std_logic;
-    signal ready_signal            : std_logic;
-    signal data_signal             : std_logic_vector(7 downto 0);
-    signal data_command_in_signal  : std_logic;
-    signal data_command_out_signal : std_logic;
+     signal on_off        : std_logic;
+     signal power_reset   : std_logic;
+     signal vcc_enable    : std_logic;
+     signal pmod_enable   : std_logic;
 
-    signal mosi_signal : std_logic;
-    signal sck_signal  : std_logic;
-    signal cs_signal   : std_logic;
+    signal on_off_status    : std_logic_vector(1 downto 0);
+    signal start            : std_logic;
+    signal ready            : std_logic;
+
+    signal data             : std_logic_vector(7 downto 0);
+    signal data_command_in  : std_logic;
+    signal data_command_out : std_logic;
+
+    signal mosi : std_logic;
+    signal sck  : std_logic;
+    signal cs   : std_logic;
 
     -- Debug signals
-    signal seq_counter_dbg_signal           : std_logic_vector(9 downto 0); 
-    signal start_signal_dbg_signal          : std_logic;
-    signal ready_signal_dbg_signal          : std_logic;
-    signal data_signal_dbg_signal           : std_logic_vector(7 downto 0);
-    signal data_command_internal_dbg_signal : std_logic;
-    signal expired_counter_5us_dbg_signal   : std_logic;
-    signal expired_counter_20ms_dbg_signal  : std_logic;
-    signal expired_counter_25ms_dbg_signal  : std_logic;
-    signal expired_counter_100ms_dbg_signal : std_logic;
-    signal expired_counter_400ms_dbg_signal : std_logic;
-    signal expired_counter_spi_dbg_signal   : std_logic;
+    signal seq_counter_dbg           : std_logic_vector(9 downto 0); 
+    signal start_signal_dbg          : std_logic;
+    signal ready_signal_dbg          : std_logic;
+    signal data_signal_dbg           : std_logic_vector(7 downto 0);
+    signal data_command_internal_dbg : std_logic;
+
+    signal expired_counter_5us_dbg   : std_logic;
+    signal expired_counter_20ms_dbg  : std_logic;
+    signal expired_counter_25ms_dbg  : std_logic;
+    signal expired_counter_100ms_dbg : std_logic;
+    signal expired_counter_400ms_dbg : std_logic;
+    signal expired_counter_spi_dbg   : std_logic;
 
 begin
 
@@ -142,52 +147,52 @@ begin
     screen_controller_inst: screen_controller
         Port Map (
             -- Basic
-            clk   => clk_1_MHz_signal,
-            reset => reset,
+            CLK   => clk_1_MHz,
+            RESET => reset,
 
             -- Power 
-            on_off      => sw(1),
-            power_reset => power_reset_signal,
-            vcc_enable  => vcc_enable_signal,
-            pmod_enable => pmod_enable_signal,
+            ON_OFF      => on_off,
+            POWER_RESET => power_reset,
+            VCC_ENABLE  => vcc_enable,
+            PMOD_ENABLE => pmod_enable,
 
             -- Control
-            on_off_status => on_off_status_signal,
-            start         => start_signal, 
-            ready         => ready_signal, 
+            ON_OFF_STATUS => on_off_status,
+            START         => start, 
+            READY         => ready, 
 
             -- Data
-            data             => data_signal,
-            data_command_in  => data_command_in_signal,
-            data_command_out => ja(4),
+            DATA             => data,
+            DATA_COMMAND_IN  => data_command_in,
+            DATA_COMMAND_OUT => data_command_out,
 
             -- SPI
-            mosi => ja(1),
-            sck  => ja(3),
-            cs   => ja(0),
+            MOSI => mosi,
+            SCK  => sck,
+            CS   => cs,
 
             -- Debug
-            seq_counter_dbg           => seq_counter_dbg_signal,
-            start_signal_dbg          => start_signal_dbg_signal,
-            ready_signal_dbg          => ready_signal_dbg_signal,
-            data_signal_dbg           => data_signal_dbg_signal,
-            data_command_internal_dbg => data_command_internal_dbg_signal
+            SEQ_COUNTER_DBG           => seq_counter_dbg,
+            START_SIGNAL_DBG          => start_signal_dbg,
+            READY_SIGNAL_DBG          => ready_signal_dbg,
+            DATA_SIGNAL_DBG           => data_signal_dbg,
+            DATA_COMMAND_INTERNAL_DBG => data_command_internal_dbg
         );
 
     freq_div_inst: freq_div
         Port Map (
-            clk       => clk,
-            reset     => reset,
-            enable    => sw(0),
-            clk_1_MHz => clk_1_MHz_signal
+            CLK       => clk,
+            RESET     => reset,
+            ENABLE    => enable,
+            CLK_1_MHZ => clk_1_MHz
         );
 
-    led5_b <= on_off_status_signal(1);
-    led4_b <= on_off_status_signal(0);
+    led5_b <= on_off_status(1);
+    led4_b <= on_off_status(0);
 
-    led(3) <= clk_1_MHz_signal;
-    led(2) <= power_reset_signal;
-    led(1) <= pmod_enable_signal;
-    led(0) <= expired_counter_20ms_dbg_signal;
+    led(3) <= clk_1_MHz;
+    led(2) <= power_reset;
+    led(1) <= pmod_enable;
+    led(0) <= expired_counter_20ms_dbg;
 
 end Behavioral;

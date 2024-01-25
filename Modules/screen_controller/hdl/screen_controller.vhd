@@ -34,42 +34,42 @@ use IEEE.NUMERIC_STD.ALL;
 entity screen_controller is
     Port (
         -- Basic
-        clk   : in std_logic;
-        reset : in std_logic;
+        CLK   : in std_logic;
+        RESET : in std_logic;
 
         -- Power 
-        on_off      : in  std_logic;
-        power_reset : out std_logic;
-        vcc_enable  : out std_logic;
-        pmod_enable : out std_logic;
+        ON_OFF      : in  std_logic;
+        POWER_RESET : out std_logic;
+        VCC_ENABLE  : out std_logic;
+        PMOD_ENABLE : out std_logic;
 
         -- Control
-        on_off_status : out std_logic_vector(1 downto 0);
-        start         : in  std_logic;
-        ready         : out std_logic;
+        ON_OFF_STATUS : out std_logic_vector(1 downto 0);
+        START         : in  std_logic;
+        READY         : out std_logic;
 
         -- Data
-        data             : in  std_logic_vector(7 downto 0);
-        data_command_in  : in  std_logic;
-        data_command_out : out std_logic;
+        DATA             : in  std_logic_vector(7 downto 0);
+        DATA_COMMAND_IN  : in  std_logic;
+        DATA_COMMAND_OUT : out std_logic;
 
         -- SPI
-        mosi : out std_logic;
-        sck  : out std_logic;
-        cs   : out std_logic;
+        MOSI : out std_logic;
+        SCK  : out std_logic;
+        CS   : out std_logic;
 
         -- Debug
-        seq_counter_dbg           : out std_logic_vector(9 downto 0);
-        start_signal_dbg          : out std_logic;
-        ready_signal_dbg          : out std_logic;
-        data_signal_dbg           : out std_logic_vector(7 downto 0);
-        data_command_internal_dbg : out std_logic;
-        expired_counter_5us_dbg   : out std_logic;
-        expired_counter_20ms_dbg  : out std_logic;
-        expired_counter_25ms_dbg  : out std_logic;
-        expired_counter_100ms_dbg : out std_logic;
-        expired_counter_400ms_dbg : out std_logic;
-        expired_counter_spi_dbg   : out std_logic
+        SEQ_COUNTER_DBG           : out std_logic_vector(9 downto 0);
+        START_SIGNAL_DBG          : out std_logic;
+        READY_SIGNAL_DBG          : out std_logic;
+        DATA_SIGNAL_DBG           : out std_logic_vector(7 downto 0);
+        DATA_COMMAND_INTERNAL_DBG : out std_logic;
+        EXPIRED_COUNTER_5US_DBG   : out std_logic;
+        EXPIRED_COUNTER_20MS_DBG  : out std_logic;
+        EXPIRED_COUNTER_25MS_DBG  : out std_logic;
+        EXPIRED_COUNTER_100MS_DBG : out std_logic;
+        EXPIRED_COUNTER_400MS_DBG : out std_logic;
+        EXPIRED_COUNTER_SPI_DBG   : out std_logic
     );
 end screen_controller;
 
@@ -79,32 +79,36 @@ architecture Behavioral of screen_controller is
     component spi_master is
         Port (
             -- Basic
-            clk   : in std_logic;
-            reset : in std_logic;
+            CLK   : in std_logic;
+            RESET : in std_logic;
 
             -- Control
-            start : in  std_logic;
-            ready : out std_logic;
+            START : in  std_logic;
+            READY : out std_logic;
 
             -- SPI
-            mosi : out std_logic;
-            sck  : out std_logic;
-            cs   : out std_logic;
+            MOSI : out std_logic;
+            SCK  : out std_logic;
+            CS   : out std_logic;
 
             -- Data
-            data : in std_logic_vector(7 downto 0);
+            DATA : in std_logic_vector(7 downto 0);
 
             -- Debug 
-            done_dbg                   : out std_logic;
-            bit_counter_dbg            : out std_logic_vector(2 downto 0);
-            shift_data_dbg             : out std_logic_vector(7 downto 0);
-            start_delay_signal_dbg     : out std_logic;
-            start_rising_edge_flag_dbg : out std_logic
+            DONE_DBG              : out std_logic;
+            BIT_COUNTER_DBG       : out std_logic_vector(2 downto 0);
+            SHIFT_DATA_DBG        : out std_logic_vector(7 downto 0);
+            START_DELAY_DBG       : out std_logic;
+            START_RISING_EDGE_DBG : out std_logic
         );
     end component;
 
     -- Debug signals
-    signal dbg_signals : std_logic_vector (13 downto 0);
+    signal done_dbg              : std_logic;
+    signal bit_counter_dbg       : std_logic_vector(2 downto 0);
+    signal shift_data_dbg        : std_logic_vector(7 downto 0);
+    signal start_delay_dbg       : std_logic;
+    signal start_rising_edge_dbg : std_logic;
 
     -- FSM
     type state_t is (s_off, s_turning_on, s_on, s_turning_off);
@@ -141,14 +145,11 @@ architecture Behavioral of screen_controller is
     constant CONTRAST_B_COMMAND            : std_logic_vector(7 downto 0) := x"82";
     constant CONTRAST_C_COMMAND            : std_logic_vector(7 downto 0) := x"83";
     constant DISABLE_SCROLL_COMMAND        : std_logic_vector(7 downto 0) := x"2E";
-
-
-    constant MIN_COLUMN                 : std_logic_vector(7 downto 0) := x"00";
-    constant MAX_COLUMN                 : std_logic_vector(7 downto 0) := x"5F";
-    constant MIN_ROW                    : std_logic_vector(7 downto 0) := x"00";
-    constant MAX_ROW                    : std_logic_vector(7 downto 0) := x"3F";
-    
-    constant DRAW_LINE_COMMAND          : std_logic_vector(7 downto 0) := x"21";
+    constant MIN_COLUMN                    : std_logic_vector(7 downto 0) := x"00";
+    constant MAX_COLUMN                    : std_logic_vector(7 downto 0) := x"5F";
+    constant MIN_ROW                       : std_logic_vector(7 downto 0) := x"00";
+    constant MAX_ROW                       : std_logic_vector(7 downto 0) := x"3F";
+    constant DRAW_LINE_COMMAND             : std_logic_vector(7 downto 0) := x"21";
 
     -- Data/Command
     constant DATA_TYPE    : std_logic := '1';
@@ -173,12 +174,12 @@ architecture Behavioral of screen_controller is
     signal enable_counter_100ms  : std_logic                            := '0';
     signal enable_counter_400ms  : std_logic                            := '0';
     signal enable_counter_spi    : std_logic                            := '0';
-    constant max_counter_5us     : integer                              := 5;      -- 5      -- 10 for simulation
+    constant max_counter_5us     : integer                              := 5;      -- 5      -- 5 for simulation
     constant max_counter_20ms    : integer                              := 20;  -- 20000  -- 20 for simulation
     constant max_counter_25ms    : integer                              := 25;  -- 25000  -- 25 for simulation
     constant max_counter_100ms   : integer                              := 10; -- 100000 -- 30 for simulation
     constant max_counter_400ms   : integer                              := 40; -- 400000 -- 40 for simulation
-    constant max_counter_spi     : integer                              := 10;  -- Wait 20 clock cycles until trying to send new spi 
+    constant max_counter_spi     : integer                              := 10;  -- Wait 10 clock cycles until trying to send new spi 
     signal counter_5us           : integer range 0 to max_counter_5us   := 0;
     signal counter_20ms          : integer range 0 to max_counter_20ms  := 0;
     signal counter_25ms          : integer range 0 to max_counter_25ms  := 0;
@@ -198,82 +199,82 @@ begin
     spi_master_inst : spi_master
         Port Map (
             -- Basic
-            clk   => clk,
-            reset => reset,
+            CLK   => CLK,
+            RESET => RESET,
 
             -- Control
-            start => start_signal,
-            ready => ready_signal,
+            START => start_signal,
+            READY => ready_signal,
 
             -- SPI
-            mosi => mosi,
-            sck  => sck,
-            cs   => cs,
+            MOSI => MOSI,
+            SCK  => SCK,
+            CS   => CS,
 
             -- Data
-            data => data_signal,
+            DATA => data_signal,
 
             -- Debug 
-            done_dbg                   => dbg_signals(0),
-            bit_counter_dbg            => dbg_signals(3 downto 1),
-            shift_data_dbg             => dbg_signals(11 downto 4),
-            start_delay_signal_dbg     => dbg_signals(12),
-            start_rising_edge_flag_dbg => dbg_signals(13)
+            DONE_DBG              => done_dbg,
+            BIT_COUNTER_DBG       => bit_counter_dbg,
+            SHIFT_DATA_DBG        => shift_data_dbg,
+            START_DELAY_DBG       => start_delay_dbg,
+            START_RISING_EDGE_DBG => start_rising_edge_dbg
         );
 
     -------------------- Processes --------------------
 
-    FSM_proc : process(clk, reset)
+    FSM_proc : process(CLK, RESET)
     begin
-        if (reset = '1') then
+        if (RESET = '1') then
             state <= s_off;
-        elsif (rising_edge(clk)) then
+        elsif (rising_edge(CLK)) then
             case state is
                 when s_off =>
-                    if (on_off = '1') then
+                    if (ON_OFF = '1') then
                         state <= s_turning_on;
                     end if;
                 when s_turning_on =>
-                    if (transition_completed = '1' and on_off = '1') then
+                    if (transition_completed = '1' and ON_OFF = '1') then
                         state <= s_on;
                     end if;
                 when s_on =>
-                    if (on_off = '0') then
+                    if (ON_OFF = '0') then
                         state <= s_turning_off;
                     end if;
                 when s_turning_off =>
-                    if (transition_completed = '1' and on_off = '0') then
+                    if (transition_completed = '1' and ON_OFF = '0') then
                         state <= s_off;
                     end if;
             end case;
         end if;
     end process;
 
-    on_off_status <= "00" when (state = s_off) else
+    ON_OFF_STATUS <= "00" when (state = s_off) else
                      "01" when (state = s_turning_on) else
                      "10" when (state = s_turning_off) else
                      "11";
 
-    on_off_proc : process(clk, reset)
+    on_off_proc : process(CLK, RESET)
     begin
-        if (reset = '1') then
-            power_reset           <= '1';
-            vcc_enable            <= '0';
-            pmod_enable           <= '0';
+        if (RESET = '1') then
+            POWER_RESET           <= '1';
+            VCC_ENABLE            <= '0';
+            PMOD_ENABLE           <= '0';
             data_internal         <= "00000000";
             start_internal        <= '0';
             data_command_internal <= '0';
             seq_counter           <= (others => '0');
             transition_completed  <= '0';
 
-        elsif (rising_edge(clk)) then
+        elsif (rising_edge(CLK)) then
 
             case state is
 
                 when s_off =>
-                    power_reset           <= '1';
-                    vcc_enable            <= '0';
-                    pmod_enable           <= '0';
+                    POWER_RESET           <= '1';
+                    VCC_ENABLE            <= '0';
+                    PMOD_ENABLE           <= '0';
                     data_internal         <= "00000000";
                     start_internal        <= '0';
                     data_command_internal <= '0';
@@ -282,17 +283,17 @@ begin
 
                 when s_turning_on =>
                     if (seq_counter = 0) then
-                        pmod_enable         <= '1';
+                        PMOD_ENABLE         <= '1';
                         enable_counter_20ms <= '1';
                         seq_counter         <= seq_counter + 1;
                     elsif (seq_counter = 1 and expired_counter_20ms = '1') then
                         enable_counter_20ms <= '0';
-                        power_reset         <= '0';
+                        POWER_RESET         <= '0';
                         enable_counter_5us  <= '1';
                         seq_counter         <= seq_counter + 1;
                     elsif (seq_counter = 2 and expired_counter_5us = '1') then
                         enable_counter_5us  <= '0';
-                        power_reset         <= '1';
+                        POWER_RESET         <= '1';
                         seq_counter         <= seq_counter + 1;
                     elsif (seq_counter = 3) then
                         enable_counter_5us  <= '1';
@@ -739,7 +740,7 @@ begin
                         seq_counter        <= seq_counter + 1;
                     elsif (seq_counter = 92 and expired_counter_spi = '1' and ready_signal = '1') then
                         enable_counter_spi  <= '0';
-                        vcc_enable          <= '1';
+                        VCC_ENABLE          <= '1';
                         enable_counter_25ms <= '1';
                         seq_counter         <= seq_counter + 1;
                     elsif (seq_counter = 93 and expired_counter_25ms = '1') then
@@ -775,9 +776,9 @@ begin
                     end if;
 
                 when s_on =>
-                    power_reset           <= '1';
-                    vcc_enable            <= '1';
-                    pmod_enable           <= '1';
+                    POWER_RESET           <= '1';
+                    VCC_ENABLE            <= '1';
+                    PMOD_ENABLE           <= '1';
                     data_internal         <= "00000000";
                     start_internal        <= '0';
                     data_command_internal <= '0';
@@ -796,7 +797,7 @@ begin
                         seq_counter        <= seq_counter + 1;
                     elsif (seq_counter = 2 and expired_counter_spi = '1' and ready_signal = '1') then
                         enable_counter_spi   <= '0';
-                        vcc_enable           <= '0';
+                        VCC_ENABLE           <= '0';
                         enable_counter_400ms <= '1';
                         seq_counter          <= seq_counter + 1;
                     elsif (seq_counter = 3 and expired_counter_400ms = '1') then
@@ -807,19 +808,19 @@ begin
         end if;
     end process;
 
-    data_signal      <= data            when (state = s_on) else data_internal;
-    data_command_out <= data_command_in when (state = s_on) else data_command_internal;
-    start_signal     <= start           when (state = s_on) else start_internal;
-    ready            <= ready_signal    when (state = s_on) else '0';
+    data_signal      <= DATA            when (state = s_on) else data_internal;
+    DATA_COMMAND_OUT <= DATA_COMMAND_IN when (state = s_on) else data_command_internal;
+    start_signal     <= START           when (state = s_on) else start_internal;
+    READY            <= ready_signal    when (state = s_on) else '0';
 
 
     -------------------- Counters --------------------
 
-    timer_5us_proc : process(clk, reset)
+    timer_5us_proc : process(CLK, RESET)
     begin
-        if (reset = '1') then
+        if (RESET = '1') then
             counter_5us <= 0;
-        elsif (rising_edge(clk)) then
+        elsif (rising_edge(CLK)) then
             if (enable_counter_5us = '1') then
                 if (counter_5us < max_counter_5us) then
                     counter_5us <= counter_5us + 1;
@@ -832,11 +833,11 @@ begin
 
     expired_counter_5us <= '1' when (counter_5us = max_counter_5us) else '0';
 
-    timer_20ms_proc : process(clk, reset)
+    timer_20ms_proc : process(CLK, RESET)
     begin
-        if (reset = '1') then
+        if (RESET = '1') then
             counter_20ms <= 0;
-        elsif (rising_edge(clk)) then
+        elsif (rising_edge(CLK)) then
             if (enable_counter_20ms = '1') then
                 if (counter_20ms < max_counter_20ms) then
                     counter_20ms <= counter_20ms + 1;
@@ -849,11 +850,11 @@ begin
 
     expired_counter_20ms <= '1' when (counter_20ms = max_counter_20ms) else '0';
 
-    timer_25ms_proc : process(clk, reset)
+    timer_25ms_proc : process(CLK, RESET)
     begin
-        if (reset = '1') then
+        if (RESET = '1') then
             counter_25ms <= 0;
-        elsif (rising_edge(clk)) then
+        elsif (rising_edge(CLK)) then
             if (enable_counter_25ms = '1') then
                 if (counter_25ms < max_counter_25ms) then
                     counter_25ms <= counter_25ms + 1;
@@ -866,11 +867,11 @@ begin
 
     expired_counter_25ms <= '1' when (counter_25ms = max_counter_25ms) else '0';
 
-    timer_100ms_proc : process(clk, reset)
+    timer_100ms_proc : process(CLK, RESET)
     begin
-        if (reset = '1') then
+        if (RESET = '1') then
             counter_100ms <= 0;
-        elsif (rising_edge(clk)) then
+        elsif (rising_edge(CLK)) then
             if (enable_counter_100ms = '1') then
                 if (counter_100ms < max_counter_100ms) then
                     counter_100ms <= counter_100ms + 1;
@@ -883,11 +884,11 @@ begin
 
     expired_counter_100ms <= '1' when (counter_100ms = max_counter_100ms) else '0';
 
-    timer_400ms_proc : process(clk, reset)
+    timer_400ms_proc : process(CLK, RESET)
     begin
-        if (reset = '1') then
+        if (RESET = '1') then
             counter_400ms <= 0;
-        elsif (rising_edge(clk)) then
+        elsif (rising_edge(CLK)) then
             if (enable_counter_400ms = '1') then
                 if (counter_400ms < max_counter_400ms) then
                     counter_400ms <= counter_400ms + 1;
@@ -900,11 +901,11 @@ begin
 
     expired_counter_400ms <= '1' when (counter_400ms = max_counter_400ms) else '0';
 
-    timer_spi_proc : process(clk, reset)
+    timer_spi_proc : process(CLK, RESET)
     begin
-        if (reset = '1') then
+        if (RESET = '1') then
             counter_spi <= 0;
-        elsif (rising_edge(clk)) then
+        elsif (rising_edge(CLK)) then
             if (enable_counter_spi = '1') then
                 if (counter_spi < max_counter_spi) then
                     counter_spi <= counter_spi + 1;
@@ -918,16 +919,16 @@ begin
     expired_counter_spi <= '1' when (counter_spi = max_counter_spi) else '0';
 
     -------------------- Debug --------------------
-    seq_counter_dbg           <= std_logic_vector(seq_counter);
-    start_signal_dbg          <= start_signal;
-    ready_signal_dbg          <= ready_signal;
-    data_signal_dbg           <= data_signal;
-    data_command_internal_dbg <= data_command_internal;
-    expired_counter_5us_dbg   <= expired_counter_5us;
-    expired_counter_20ms_dbg  <= expired_counter_20ms;
-    expired_counter_25ms_dbg  <= expired_counter_25ms;
-    expired_counter_100ms_dbg <= expired_counter_100ms;
-    expired_counter_400ms_dbg <= expired_counter_400ms;
-    expired_counter_spi_dbg   <= expired_counter_spi;
+    SEQ_COUNTER_DBG           <= std_logic_vector(seq_counter);
+    START_SIGNAL_DBG          <= start_signal;
+    READY_SIGNAL_DBG          <= ready_signal;
+    DATA_SIGNAL_DBG           <= data_signal;
+    DATA_COMMAND_INTERNAL_DBG <= data_command_internal;
+    EXPIRED_COUNTER_5US_DBG   <= expired_counter_5us;
+    EXPIRED_COUNTER_20MS_DBG  <= expired_counter_20ms;
+    EXPIRED_COUNTER_25MS_DBG  <= expired_counter_25ms;
+    EXPIRED_COUNTER_100MS_DBG <= expired_counter_100ms;
+    EXPIRED_COUNTER_400MS_DBG <= expired_counter_400ms;
+    EXPIRED_COUNTER_SPI_DBG   <= expired_counter_spi;
 
 end Behavioral;

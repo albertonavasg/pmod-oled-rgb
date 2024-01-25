@@ -40,10 +40,10 @@ architecture Behavioral of freq_div_tb is
     -- Instantiate the component
     component freq_div is
     Port (
-            clk        : in  std_logic;
-            reset       : in  std_logic;
-            enable     : in  std_logic;
-            clk_1_MHz : out std_logic
+            CLK        : in  std_logic;
+            RESET       : in  std_logic;
+            ENABLE     : in  std_logic;
+            CLK_1_MHZ : out std_logic
     );
     end component;
 
@@ -58,10 +58,10 @@ begin
     -- Port Mapping
     freq_div_inst: freq_div
         Port Map(
-            clk        => clk,
-            reset      => reset,
-            enable     => enable,
-            clk_1_MHz => clk_1_MHz
+            CLK        => CLK,
+            RESET      => reset,
+            ENABLE     => enable,
+            CLK_1_MHZ  => clk_1_MHz
         );
 
 

@@ -41,27 +41,27 @@ architecture Behavioral of spi_master_tb is
     component spi_master is
         Port (
             -- Basic
-            clk   : in std_logic;
-            reset : in std_logic;
+            CLK   : in std_logic;
+            RESET : in std_logic;
 
             -- Control
-            start : in  std_logic;
-            ready : out std_logic;
+            START : in  std_logic;
+            READY : out std_logic;
 
             -- SPI
-            mosi : out std_logic;
-            sck  : out std_logic;
-            cs   : out std_logic;
+            MOSI : out std_logic;
+            SCK  : out std_logic;
+            CS   : out std_logic;
 
             -- Data
-            data : in std_logic_vector(7 downto 0);
+            DATA : in std_logic_vector(7 downto 0);
 
-            -- Debug
-            done_dbg                   : out std_logic;
-            bit_counter_dbg            : out std_logic_vector(2 downto 0);
-            shift_data_dbg             : out std_logic_vector(7 downto 0);
-            start_delay_signal_dbg     : out std_logic;
-            start_rising_edge_flag_dbg : out std_logic
+            -- Debug 
+            DONE_DBG              : out std_logic;
+            BIT_COUNTER_DBG       : out std_logic_vector(2 downto 0);
+            SHIFT_DATA_DBG        : out std_logic_vector(7 downto 0);
+            START_DELAY_DBG       : out std_logic;
+            START_RISING_EDGE_DBG : out std_logic
         );
     end component;
 
@@ -72,38 +72,39 @@ architecture Behavioral of spi_master_tb is
     signal clk, reset, start, ready, mosi, sck, cs : std_logic;
     signal data                                    : std_logic_vector(7 downto 0);
 
-    signal done_dbg                   : std_logic;
-    signal bit_counter_dbg            : std_logic_vector(2 downto 0);
-    signal shift_data_dbg             : std_logic_vector(7 downto 0);
-    signal start_delay_signal_dbg     : std_logic;
-    signal start_rising_edge_flag_dbg : std_logic;
+    signal done_dbg              : std_logic;
+    signal bit_counter_dbg       : std_logic_vector(2 downto 0);
+    signal shift_data_dbg        : std_logic_vector(7 downto 0);
+    signal start_delay_dbg       : std_logic;
+    signal start_rising_edge_dbg : std_logic;
 
 begin
 
     -- Port Mapping
     UUT: spi_master
         Port Map ( 
-            clk => clk,
-            reset => reset,
+            -- Basic
+            CLK   => clk,
+            RESET => reset,
 
             -- Control
-            start => start,
-            ready => ready,
+            START => start,
+            READY => ready,
 
             -- SPI
-            mosi => mosi,
-            sck  => sck,
-            cs   => cs,
+            MOSI => mosi,
+            SCK  => sck,
+            CS   => cs,
 
             -- Data
-            data => data,
+            DATA => data,
 
             -- Debug
-            done_dbg                   => done_dbg,
-            bit_counter_dbg            => bit_counter_dbg,
-            shift_data_dbg             => shift_data_dbg,
-            start_delay_signal_dbg     => start_delay_signal_dbg,
-            start_rising_edge_flag_dbg => start_rising_edge_flag_dbg
+            DONE_DBG              => done_dbg,
+            BIT_COUNTER_DBG       => bit_counter_dbg,
+            SHIFT_DATA_DBG        => shift_data_dbg,
+            START_DELAY_DBG       => start_delay_dbg,
+            START_RISING_EDGE_DBG => start_rising_edge_dbg
         );
 
     -- Stimulus processes
