@@ -56,7 +56,7 @@ architecture Behavioral of spi_master is
     -- Signals
     signal start_delay_signal     : std_logic                    := '0';
     signal start_rising_edge_flag : std_logic                    := '0';
-    signal sck_signal             : std_logic                    := '0';
+    signal sck_signal             : std_logic                    := '1';
     signal done_signal            : std_logic                    := '0';
     signal bit_counter_signal     : unsigned (2 downto 0)        := "000";
     signal shift_data_signal      : std_logic_vector(7 downto 0) := "00000000";

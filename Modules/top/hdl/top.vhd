@@ -86,7 +86,13 @@ architecture Behavioral of top is
             start_signal_dbg          : out std_logic;
             ready_signal_dbg          : out std_logic;
             data_signal_dbg           : out std_logic_vector(7 downto 0);
-            data_command_internal_dbg : out std_logic
+            data_command_internal_dbg : out std_logic;
+            expired_counter_5us_dbg   : out std_logic;
+            expired_counter_20ms_dbg  : out std_logic;
+            expired_counter_25ms_dbg  : out std_logic;
+            expired_counter_100ms_dbg : out std_logic;
+            expired_counter_400ms_dbg : out std_logic;
+            expired_counter_spi_dbg   : out std_logic
         );
     end component;
 
@@ -106,18 +112,28 @@ architecture Behavioral of top is
      signal vcc_enable_signal    : std_logic;
      signal pmod_enable_signal   : std_logic;
 
+    signal start_signal            : std_logic;
+    signal ready_signal            : std_logic;
+    signal data_signal             : std_logic_vector(7 downto 0);
+    signal data_command_in_signal  : std_logic;
+    signal data_command_out_signal : std_logic;
+
+    signal mosi_signal : std_logic;
+    signal sck_signal  : std_logic;
+    signal cs_signal   : std_logic;
+
     -- Debug signals
     signal seq_counter_dbg_signal           : std_logic_vector(9 downto 0); 
     signal start_signal_dbg_signal          : std_logic;
     signal ready_signal_dbg_signal          : std_logic;
     signal data_signal_dbg_signal           : std_logic_vector(7 downto 0);
     signal data_command_internal_dbg_signal : std_logic;
-
-    -- Unused signals (they will come from PS when AXI mapped)
-    signal start_signal           : std_logic;
-    signal ready_signal           : std_logic;
-    signal data_signal            : std_logic_vector(7 downto 0);
-    signal data_command_in_signal : std_logic;
+    signal expired_counter_5us_dbg_signal   : std_logic;
+    signal expired_counter_20ms_dbg_signal  : std_logic;
+    signal expired_counter_25ms_dbg_signal  : std_logic;
+    signal expired_counter_100ms_dbg_signal : std_logic;
+    signal expired_counter_400ms_dbg_signal : std_logic;
+    signal expired_counter_spi_dbg_signal   : std_logic;
 
 begin
 
@@ -169,13 +185,9 @@ begin
     led5_b <= on_off_status_signal(1);
     led4_b <= on_off_status_signal(0);
 
-    ja(5) <= power_reset_signal;
-    ja(6) <= vcc_enable_signal;
-    ja(7) <= pmod_enable_signal;
-
-    led(3) <= sw(1);
-    led(2) <= pmod_enable_signal;
-    led(1) <= vcc_enable_signal;
-    led(0) <= ready_signal;
+    led(3) <= clk_1_MHz_signal;
+    led(2) <= power_reset_signal;
+    led(1) <= pmod_enable_signal;
+    led(0) <= expired_counter_20ms_dbg_signal;
 
 end Behavioral;

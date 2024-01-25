@@ -63,7 +63,13 @@ entity screen_controller is
         start_signal_dbg          : out std_logic;
         ready_signal_dbg          : out std_logic;
         data_signal_dbg           : out std_logic_vector(7 downto 0);
-        data_command_internal_dbg : out std_logic
+        data_command_internal_dbg : out std_logic;
+        expired_counter_5us_dbg   : out std_logic;
+        expired_counter_20ms_dbg  : out std_logic;
+        expired_counter_25ms_dbg  : out std_logic;
+        expired_counter_100ms_dbg : out std_logic;
+        expired_counter_400ms_dbg : out std_logic;
+        expired_counter_spi_dbg   : out std_logic
     );
 end screen_controller;
 
@@ -168,11 +174,11 @@ architecture Behavioral of screen_controller is
     signal enable_counter_400ms  : std_logic                            := '0';
     signal enable_counter_spi    : std_logic                            := '0';
     constant max_counter_5us     : integer                              := 5;      -- 5      -- 10 for simulation
-    constant max_counter_20ms    : integer                              := 20000;  -- 20000  -- 20 for simulation
-    constant max_counter_25ms    : integer                              := 25000;  -- 25000  -- 25 for simulation
-    constant max_counter_100ms   : integer                              := 100000; -- 100000 -- 30 for simulation
-    constant max_counter_400ms   : integer                              := 400000; -- 400000 -- 40 for simulation
-    constant max_counter_spi     : integer                              := 20;  -- Wait 20 clock cycles until trying to send new spi 
+    constant max_counter_20ms    : integer                              := 20;  -- 20000  -- 20 for simulation
+    constant max_counter_25ms    : integer                              := 25;  -- 25000  -- 25 for simulation
+    constant max_counter_100ms   : integer                              := 10; -- 100000 -- 30 for simulation
+    constant max_counter_400ms   : integer                              := 40; -- 400000 -- 40 for simulation
+    constant max_counter_spi     : integer                              := 10;  -- Wait 20 clock cycles until trying to send new spi 
     signal counter_5us           : integer range 0 to max_counter_5us   := 0;
     signal counter_20ms          : integer range 0 to max_counter_20ms  := 0;
     signal counter_25ms          : integer range 0 to max_counter_25ms  := 0;
@@ -917,5 +923,11 @@ begin
     ready_signal_dbg          <= ready_signal;
     data_signal_dbg           <= data_signal;
     data_command_internal_dbg <= data_command_internal;
+    expired_counter_5us_dbg   <= expired_counter_5us;
+    expired_counter_20ms_dbg  <= expired_counter_20ms;
+    expired_counter_25ms_dbg  <= expired_counter_25ms;
+    expired_counter_100ms_dbg <= expired_counter_100ms;
+    expired_counter_400ms_dbg <= expired_counter_400ms;
+    expired_counter_spi_dbg   <= expired_counter_spi;
 
 end Behavioral;
