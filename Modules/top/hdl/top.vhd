@@ -187,8 +187,11 @@ begin
             CLK_1_MHZ => clk_1_MHz
         );
 
-    led5_b <= on_off_status(1);
-    led4_b <= on_off_status(0);
+    enable <= sw(1);
+    on_off <= sw(0);
+
+    led5_g <= on_off_status(1);
+    led4_g <= on_off_status(0);
 
     led(3) <= clk_1_MHz;
     led(2) <= power_reset;
