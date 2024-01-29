@@ -198,4 +198,13 @@ begin
     led(1) <= pmod_enable;
     led(0) <= expired_counter_20ms_dbg;
 
+    ja(7) <= pmod_enable;
+    ja(6) <= vcc_enable;
+    ja(5) <= pmod_enable;
+    ja(4) <= data_command_out;
+    ja(3) <= sck;
+    ja(2) <= '0';
+    ja(1) <= mosi;
+    ja(0) <= cs;
+
 end Behavioral;
