@@ -40,50 +40,70 @@ architecture Behavioral of top_tb is
     -- Instantiate the component
     component top is
     Port ( 
-        clk   : in std_logic;
-        reset : in std_logic;
+        CLK   : in std_logic;
+        RESET : in std_logic;
 
-        sw     : in  std_logic_vector(1 downto 0);
-        led    : out std_logic_vector(3 downto 0);
-        led4_b : out std_logic;
-        led4_g : out std_logic;
-        led4_r : out std_logic;
-        led5_b : out std_logic;
-        led5_g : out std_logic;
-        led5_r : out std_logic;
+        SW     : in  std_logic_vector(1 downto 0);
+        LED    : out std_logic_vector(3 downto 0);
+        LED4_B : out std_logic;
+        LED4_G : out std_logic;
+        LED4_R : out std_logic;
+        LED5_B : out std_logic;
+        LED5_G : out std_logic;
+        LED5_R : out std_logic;
 
         -- PmodA
-        ja : out std_logic_vector(7 downto 0)
+        JA_0_CS     : out std_logic;
+        JA_1_MOSI   : out std_logic;
+        JA_2_NC     : out std_logic;
+        JA_3_SCK    : out std_logic;
+        JA_4_DC     : out std_logic;
+        JA_5_RES    : out std_logic;
+        JA_6_VCCEN  : out std_logic;
+        JA_7_PMODEN : out std_logic
     );
     end component;
 
     -- Clock
-    constant clk_period : time := 1 ns;
+    constant clk_period : time := 8 ns;
 
     -- Signals
     signal clk, reset : std_logic := '0';
     signal sw : std_logic_vector(1 downto 0) := "00";
     signal led : std_logic_vector(3 downto 0) := "0000";
     signal led4_b, led4_g, led4_r, led5_b, led5_g, led5_r : std_logic := '0';
-    signal ja : std_logic_vector(7 downto 0);
-
+    signal ja_0_cs     : std_logic := '0';
+    signal ja_1_mosi   : std_logic := '0';
+    signal ja_2_nc     : std_logic := '0';
+    signal ja_3_sck    : std_logic := '0';
+    signal ja_4_dc     : std_logic := '0';
+    signal ja_5_res    : std_logic := '0';
+    signal ja_6_vccen  : std_logic := '0';
+    signal ja_7_pmoden : std_logic := '0';
 
 begin
 
     -- Port Map
     UUT: top
         Port Map (
-            clk    => clk, 
-            reset  => reset, 
-            sw     => sw,
-            led    => led,
-            led4_b => led4_b,
-            led4_g => led4_g,
-            led4_r => led4_r,
-            led5_b => led5_b,
-            led5_g => led5_g,
-            led5_r => led5_r,
-            ja     => ja
+            CLK         => clk, 
+            RESET       => reset, 
+            SW          => sw,
+            LED         => led,
+            LED4_B      => led4_b,
+            LED4_G      => led4_g,
+            LED4_R      => led4_r,
+            LED5_B      => led5_b,
+            LED5_G      => led5_g,
+            LED5_R      => led5_r,
+            JA_0_CS     => ja_0_cs,
+            JA_1_MOSI   => ja_1_mosi,
+            JA_2_NC     => ja_2_nc,
+            JA_3_SCK    => ja_3_sck,
+            JA_4_DC     => ja_4_dc,
+            JA_5_RES    => ja_5_res,
+            JA_6_VCCEN  => ja_6_vccen,
+            JA_7_PMODEN => ja_7_pmoden
         );
 
     -- Stimulus processes
@@ -103,7 +123,7 @@ begin
         sw (0) <= '1';
         wait for 10*clk_period;
         sw(1) <= '1';
-        wait for 500*clk_period;
+        wait for 125000000*clk_period;
     end process;
 
 end Behavioral;

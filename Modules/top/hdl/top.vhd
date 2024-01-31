@@ -33,20 +33,27 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity top is
     Port ( 
-        clk   : in std_logic;
-        reset : in std_logic;
+        CLK   : in std_logic;
+        RESET : in std_logic;
 
-        sw     : in  std_logic_vector(1 downto 0);
-        led    : out std_logic_vector(3 downto 0);
-        led4_b : out std_logic;
-        led4_g : out std_logic;
-        led4_r : out std_logic;
-        led5_b : out std_logic;
-        led5_g : out std_logic;
-        led5_r : out std_logic;
+        SW     : in  std_logic_vector(1 downto 0);
+        LED    : out std_logic_vector(3 downto 0);
+        LED4_B : out std_logic;
+        LED4_G : out std_logic;
+        LED4_R : out std_logic;
+        LED5_B : out std_logic;
+        LED5_G : out std_logic;
+        LED5_R : out std_logic;
 
         -- PmodA
-        ja : out std_logic_vector(7 downto 0)
+        JA_0_CS     : out std_logic;
+        JA_1_MOSI   : out std_logic;
+        JA_2_NC     : out std_logic;
+        JA_3_SCK    : out std_logic;
+        JA_4_DC     : out std_logic;
+        JA_5_RES    : out std_logic;
+        JA_6_VCCEN  : out std_logic;
+        JA_7_PMODEN : out std_logic
     );
 end top;
 
@@ -172,11 +179,17 @@ begin
             CS   => cs,
 
             -- Debug
-            SEQ_COUNTER_DBG           => seq_counter_dbg,
-            START_SIGNAL_DBG          => start_signal_dbg,
-            READY_SIGNAL_DBG          => ready_signal_dbg,
-            DATA_SIGNAL_DBG           => data_signal_dbg,
-            DATA_COMMAND_INTERNAL_DBG => data_command_internal_dbg
+            SEQ_COUNTER_DBG            => seq_counter_dbg,
+            START_SIGNAL_DBG           => start_signal_dbg,
+            READY_SIGNAL_DBG           => ready_signal_dbg,
+            DATA_SIGNAL_DBG            => data_signal_dbg,
+            DATA_COMMAND_INTERNAL_DBG  => data_command_internal_dbg,
+            EXPIRED_COUNTER_5US_DBG    => expired_counter_5us_dbg,
+            EXPIRED_COUNTER_20MS_DBG   => expired_counter_20ms_dbg,
+            EXPIRED_COUNTER_25MS_DBG   => expired_counter_25ms_dbg,
+            EXPIRED_COUNTER_100MS_DBG  => expired_counter_100ms_dbg,
+            EXPIRED_COUNTER_400MS_DBG  => expired_counter_400ms_dbg,
+            EXPIRED_COUNTER_SPI_DBG    => expired_counter_spi_dbg
         );
 
     freq_div_inst: freq_div
@@ -190,21 +203,21 @@ begin
     enable <= sw(1);
     on_off <= sw(0);
 
-    led5_g <= on_off_status(1);
-    led4_g <= on_off_status(0);
+    LED5_G <= on_off_status(1);
+    LED4_G <= on_off_status(0);
 
-    led(3) <= clk_1_MHz;
-    led(2) <= power_reset;
-    led(1) <= pmod_enable;
-    led(0) <= expired_counter_20ms_dbg;
+    LED(3) <= clk_1_MHz;
+    LED(2) <= power_reset;
+    LED(1) <= pmod_enable;
+    LED(0) <= expired_counter_20ms_dbg;
 
-    ja(7) <= pmod_enable;
-    ja(6) <= vcc_enable;
-    ja(5) <= pmod_enable;
-    ja(4) <= data_command_out;
-    ja(3) <= sck;
-    ja(2) <= '0';
-    ja(1) <= mosi;
-    ja(0) <= cs;
+    JA_0_CS     <= cs;
+    JA_1_MOSI   <= mosi;
+    JA_2_NC     <= '0';
+    JA_3_SCK    <= sck;
+    JA_4_DC     <= data_command_out;
+    JA_5_RES    <= power_reset;
+    JA_6_VCCEN  <= vcc_enable;
+    JA_7_PMODEN <= pmod_enable;
 
 end Behavioral;
