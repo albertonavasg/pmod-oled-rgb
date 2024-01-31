@@ -155,7 +155,7 @@ begin
         Port Map (
             -- Basic
             CLK   => clk_1_MHz,
-            RESET => reset,
+            RESET => RESET,
 
             -- Power 
             ON_OFF      => on_off,
@@ -194,14 +194,14 @@ begin
 
     freq_div_inst: freq_div
         Port Map (
-            CLK       => clk,
-            RESET     => reset,
+            CLK       => CLK,
+            RESET     => RESET,
             ENABLE    => enable,
             CLK_1_MHZ => clk_1_MHz
         );
 
-    enable <= sw(1);
-    on_off <= sw(0);
+    enable <= SW(1);
+    on_off <= SW(0);
 
     LED5_G <= on_off_status(1);
     LED4_G <= on_off_status(0);
@@ -209,7 +209,7 @@ begin
     LED(3) <= clk_1_MHz;
     LED(2) <= power_reset;
     LED(1) <= pmod_enable;
-    LED(0) <= expired_counter_20ms_dbg;
+    LED(0) <= expired_counter_5us_dbg;
 
     JA_0_CS     <= cs;
     JA_1_MOSI   <= mosi;

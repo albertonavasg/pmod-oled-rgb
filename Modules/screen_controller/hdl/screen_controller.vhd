@@ -167,6 +167,10 @@ architecture Behavioral of screen_controller is
 
     signal seq_counter : unsigned(9 downto 0) := (others => '0');
 
+    signal on_off_delay        : std_logic := '0';
+    signal on_off_rising_edge  : std_logic := '0';
+    signal on_off_falling_edge : std_logic := '0';
+
     -- Counter signals
     signal enable_counter_5us    : std_logic                            := '0';
     signal enable_counter_20ms   : std_logic                            := '0';
@@ -224,6 +228,28 @@ begin
 
     -------------------- Processes --------------------
 
+    on_off_edge_proc: process(CLK, RESET)
+    begin
+        if (RESET = '1') then
+            on_off_delay        <= '0';
+            on_off_rising_edge  <= '0';
+            on_off_falling_edge <= '0';
+        elsif (rising_edge(CLK)) then
+            if (on_off_delay = '0' and ON_OFF = '1') then
+                on_off_rising_edge <= '1';
+            else
+                on_off_rising_edge <= '0';
+            end if;
+            if (on_off_delay = '1' and ON_OFF = '0') then
+                on_off_falling_edge <= '1';
+            else
+                on_off_falling_edge <= '0';
+            end if;
+            on_off_delay <= on_off;
+        end if;
+    end process;
+
+
     FSM_proc : process(CLK, RESET)
     begin
         if (RESET = '1') then
@@ -231,7 +257,7 @@ begin
         elsif (rising_edge(CLK)) then
             case state is
                 when s_off =>
-                    if (ON_OFF = '1') then
+                    if (on_off_rising_edge = '1') then
                         state <= s_turning_on;
                     end if;
                 when s_turning_on =>
@@ -239,7 +265,7 @@ begin
                         state <= s_on;
                     end if;
                 when s_on =>
-                    if (ON_OFF = '0') then
+                    if (on_off_falling_edge = '1') then
                         state <= s_turning_off;
                     end if;
                 when s_turning_off =>
