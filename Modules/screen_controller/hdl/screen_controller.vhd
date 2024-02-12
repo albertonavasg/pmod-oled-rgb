@@ -276,10 +276,10 @@ begin
         end if;
     end process;
 
-    ON_OFF_STATUS <= "00" when (state = s_off) else
-                     "01" when (state = s_turning_on) else
-                     "10" when (state = s_turning_off) else
-                     "11";
+    ON_OFF_STATUS <=    "00" when (state = s_off) else
+                        "01" when (state = s_turning_on) else
+                        "10" when (state = s_turning_off) else
+                        "11";
 
     on_off_proc : process(CLK, RESET)
     begin

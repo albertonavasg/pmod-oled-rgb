@@ -113,13 +113,13 @@ architecture Behavioral of top is
     end component;
 
     -- Signals 
-     signal clk_1_MHz     : std_logic;
-     signal enable        : std_logic;
+    signal clk_1_MHz     : std_logic;
+    signal enable        : std_logic;
 
-     signal on_off        : std_logic;
-     signal power_reset   : std_logic;
-     signal vcc_enable    : std_logic;
-     signal pmod_enable   : std_logic;
+    signal on_off        : std_logic;
+    signal power_reset   : std_logic;
+    signal vcc_enable    : std_logic;
+    signal pmod_enable   : std_logic;
 
     signal on_off_status    : std_logic_vector(1 downto 0);
     signal start            : std_logic;
