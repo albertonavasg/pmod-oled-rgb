@@ -59,6 +59,9 @@ end top;
 
 architecture Behavioral of top is
 
+    -- For ILA debug
+    attribute mark_debug : string;
+
     -- Instantiate the components
 
     component screen_controller is
@@ -147,6 +150,40 @@ architecture Behavioral of top is
     signal expired_counter_400ms_dbg : std_logic;
     signal expired_counter_spi_dbg   : std_logic;
 
+    -- All ILA mark_debug
+    attribute mark_debug of clk_1_MHz : signal is "true";
+    attribute mark_debug of enable : signal is "true";
+    
+    attribute mark_debug of on_off : signal is "true";
+    attribute mark_debug of power_reset : signal is "true";
+    attribute mark_debug of vcc_enable : signal is "true";
+    attribute mark_debug of pmod_enable : signal is "true";
+
+    attribute mark_debug of on_off_status : signal is "true";
+    attribute mark_debug of start : signal is "true";
+    attribute mark_debug of ready : signal is "true";
+    
+    attribute mark_debug of data : signal is "true";
+    attribute mark_debug of data_command_in : signal is "true";
+    attribute mark_debug of data_command_out : signal is "true";
+    
+    attribute mark_debug of mosi : signal is "true";
+    attribute mark_debug of sck : signal is "true";
+    attribute mark_debug of cs : signal is "true";
+
+    attribute mark_debug of seq_counter_dbg : signal is "true";
+    attribute mark_debug of start_signal_dbg : signal is "true";
+    attribute mark_debug of ready_signal_dbg : signal is "true";
+    attribute mark_debug of data_signal_dbg : signal is "true";
+    attribute mark_debug of data_command_internal_dbg : signal is "true";
+
+    attribute mark_debug of expired_counter_5us_dbg : signal is "true";
+    attribute mark_debug of expired_counter_20ms_dbg : signal is "true";
+    attribute mark_debug of expired_counter_25ms_dbg : signal is "true";
+    attribute mark_debug of expired_counter_100ms_dbg : signal is "true";
+    attribute mark_debug of expired_counter_400ms_dbg : signal is "true";
+    attribute mark_debug of expired_counter_spi_dbg : signal is "true";
+    
 begin
 
     -- Port Maping
