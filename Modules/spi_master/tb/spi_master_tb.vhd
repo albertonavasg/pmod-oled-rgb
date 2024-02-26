@@ -138,7 +138,7 @@ begin
         start <= '1';
         wait for 1*clk_period;
         start <= '0';
-        wait for 20*clk_period;
+        wait for 50*clk_period;
     end process;
 
 end Behavioral;

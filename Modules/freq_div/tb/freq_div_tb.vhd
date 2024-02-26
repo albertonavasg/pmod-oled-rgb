@@ -81,7 +81,7 @@ begin
         wait for 5*clk_period;
         reset  <= '0';
         enable <= '1';
-        wait for 500*clk_period;
+        wait for 5000*clk_period;
     end process;
 
 end Behavioral;
