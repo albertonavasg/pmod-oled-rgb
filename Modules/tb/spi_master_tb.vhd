@@ -57,26 +57,38 @@ architecture Behavioral of spi_master_tb is
             DATA : in std_logic_vector(7 downto 0);
 
             -- Debug 
-            DONE_DBG              : out std_logic;
-            BIT_COUNTER_DBG       : out std_logic_vector(2 downto 0);
-            SHIFT_DATA_DBG        : out std_logic_vector(7 downto 0);
-            START_DELAY_DBG       : out std_logic;
-            START_RISING_EDGE_DBG : out std_logic
+            STATE_DBG                       : out std_logic_vector(1 downto 0);
+            DONE_DBG                        : out std_logic;
+            BIT_COUNTER_DBG                 : out std_logic_vector(2 downto 0);
+            SHIFT_DATA_DBG                  : out std_logic_vector(7 downto 0);
+            START_DELAY_DBG                 : out std_logic;
+            START_RISING_EDGE_DBG           : out std_logic;
+            CLK_1_MHZ_DBG                   : out std_logic;
+            CLK_1MHZ_DELAY_DBG              : out std_logic;
+            CLK_1MHZ_RISING_EDGE_DBG        : out std_logic;
+            CLK_1MHZ_FALLING_EDGE_DBG       : out std_logic;
+            FIRST_CLK_1MHZ_FALLING_EDGE_DBG : out std_logic
         );
     end component;
 
     -- Clock
-    constant clk_period : time := 1 ns;
+    constant clk_period : time := 8 ns;
 
     -- Signals
     signal clk, reset, start, ready, mosi, sck, cs : std_logic;
     signal data                                    : std_logic_vector(7 downto 0);
 
-    signal done_dbg              : std_logic;
-    signal bit_counter_dbg       : std_logic_vector(2 downto 0);
-    signal shift_data_dbg        : std_logic_vector(7 downto 0);
-    signal start_delay_dbg       : std_logic;
-    signal start_rising_edge_dbg : std_logic;
+    signal state_dbg                       : std_logic_vector(1 downto 0);
+    signal done_dbg                        : std_logic;
+    signal bit_counter_dbg                 : std_logic_vector(2 downto 0);
+    signal shift_data_dbg                  : std_logic_vector(7 downto 0);
+    signal start_delay_dbg                 : std_logic;
+    signal start_rising_edge_dbg           : std_logic;
+    signal clk_1_mhz_dbg                   : std_logic;
+    signal clk_1mhz_delay_dbg              : std_logic;
+    signal clk_1mhz_rising_edge_dbg        : std_logic;
+    signal clk_1mhz_falling_edge_dbg       : std_logic;
+    signal first_clk_1mhz_falling_edge_dbg : std_logic;
 
 begin
 
@@ -100,11 +112,17 @@ begin
             DATA => data,
 
             -- Debug
-            DONE_DBG              => done_dbg,
-            BIT_COUNTER_DBG       => bit_counter_dbg,
-            SHIFT_DATA_DBG        => shift_data_dbg,
-            START_DELAY_DBG       => start_delay_dbg,
-            START_RISING_EDGE_DBG => start_rising_edge_dbg
+            STATE_DBG                       => state_dbg,
+            DONE_DBG                        => done_dbg,
+            BIT_COUNTER_DBG                 => bit_counter_dbg,
+            SHIFT_DATA_DBG                  => shift_data_dbg,
+            START_DELAY_DBG                 => start_delay_dbg,
+            START_RISING_EDGE_DBG           => start_rising_edge_dbg,
+            CLK_1_MHZ_DBG                   => clk_1_mhz_dbg,
+            CLK_1MHZ_DELAY_DBG              => clk_1mhz_delay_dbg,
+            CLK_1MHZ_RISING_EDGE_DBG        => clk_1mhz_rising_edge_dbg,
+            CLK_1MHZ_FALLING_EDGE_DBG       => clk_1mhz_falling_edge_dbg,
+            FIRST_CLK_1MHZ_FALLING_EDGE_DBG => first_clk_1mhz_falling_edge_dbg
         );
 
     -- Stimulus processes
@@ -129,16 +147,12 @@ begin
         start <= '1';
         wait for 3*clk_period;
         start <= '0';
-        wait for 10*clk_period;
+        wait for 1325*clk_period;
         start <= '1';
         data  <= "00110010";
         wait for 1*clk_period;
         start <= '0';
-        wait for 5*clk_period;
-        start <= '1';
-        wait for 1*clk_period;
-        start <= '0';
-        wait for 50*clk_period;
+        wait for 1500*clk_period;
     end process;
 
 end Behavioral;
