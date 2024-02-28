@@ -36,14 +36,8 @@ entity top is
         CLK   : in std_logic;
         RESET : in std_logic;
 
-        SW     : in  std_logic_vector(1 downto 0);
-        LED    : out std_logic_vector(3 downto 0);
-        LED4_B : out std_logic;
-        LED4_G : out std_logic;
-        LED4_R : out std_logic;
-        LED5_B : out std_logic;
-        LED5_G : out std_logic;
-        LED5_R : out std_logic;
+        SW     : in  std_logic;
+        LED    : out std_logic_vector(1 downto 0);
 
         -- PmodA
         JA_0_CS     : out std_logic;
@@ -59,11 +53,7 @@ end top;
 
 architecture Behavioral of top is
 
-    -- For ILA debug
-    attribute mark_debug : string;
-
-    -- Instantiate the components
-
+    -- Instantiate the component
     component screen_controller is
         Port (
             -- Basic
@@ -106,30 +96,18 @@ architecture Behavioral of top is
         );
     end component;
 
-    component freq_div is
-        Port (
-                CLK       : in  std_logic;
-                RESET     : in  std_logic;
-                ENABLE    : in  std_logic;
-                CLK_1_MHZ : out std_logic
-        );
-    end component;
-
     -- Signals 
-    signal clk_1_MHz     : std_logic;
-    signal enable        : std_logic;
-
     signal on_off        : std_logic;
     signal power_reset   : std_logic;
     signal vcc_enable    : std_logic;
     signal pmod_enable   : std_logic;
 
     signal on_off_status    : std_logic_vector(1 downto 0);
-    signal start            : std_logic;
+    signal start            : std_logic := '0';
     signal ready            : std_logic;
 
-    signal data             : std_logic_vector(7 downto 0);
-    signal data_command_in  : std_logic;
+    signal data             : std_logic_vector(7 downto 0) := "00000000";
+    signal data_command_in  : std_logic                    := '0';
     signal data_command_out : std_logic;
 
     signal mosi : std_logic;
@@ -149,49 +127,14 @@ architecture Behavioral of top is
     signal expired_counter_100ms_dbg : std_logic;
     signal expired_counter_400ms_dbg : std_logic;
     signal expired_counter_spi_dbg   : std_logic;
-
-    -- All ILA mark_debug
-    attribute mark_debug of clk_1_MHz : signal is "true";
-    attribute mark_debug of enable : signal is "true";
-    
-    attribute mark_debug of on_off : signal is "true";
-    attribute mark_debug of power_reset : signal is "true";
-    attribute mark_debug of vcc_enable : signal is "true";
-    attribute mark_debug of pmod_enable : signal is "true";
-
-    attribute mark_debug of on_off_status : signal is "true";
-    attribute mark_debug of start : signal is "true";
-    attribute mark_debug of ready : signal is "true";
-    
-    attribute mark_debug of data : signal is "true";
-    attribute mark_debug of data_command_in : signal is "true";
-    attribute mark_debug of data_command_out : signal is "true";
-    
-    attribute mark_debug of mosi : signal is "true";
-    attribute mark_debug of sck : signal is "true";
-    attribute mark_debug of cs : signal is "true";
-
-    attribute mark_debug of seq_counter_dbg : signal is "true";
-    attribute mark_debug of start_signal_dbg : signal is "true";
-    attribute mark_debug of ready_signal_dbg : signal is "true";
-    attribute mark_debug of data_signal_dbg : signal is "true";
-    attribute mark_debug of data_command_internal_dbg : signal is "true";
-
-    attribute mark_debug of expired_counter_5us_dbg : signal is "true";
-    attribute mark_debug of expired_counter_20ms_dbg : signal is "true";
-    attribute mark_debug of expired_counter_25ms_dbg : signal is "true";
-    attribute mark_debug of expired_counter_100ms_dbg : signal is "true";
-    attribute mark_debug of expired_counter_400ms_dbg : signal is "true";
-    attribute mark_debug of expired_counter_spi_dbg : signal is "true";
     
 begin
 
     -- Port Maping
-
     screen_controller_inst: screen_controller
         Port Map (
             -- Basic
-            CLK   => clk_1_MHz,
+            CLK   => CLK,
             RESET => RESET,
 
             -- Power 
@@ -229,24 +172,8 @@ begin
             EXPIRED_COUNTER_SPI_DBG    => expired_counter_spi_dbg
         );
 
-    freq_div_inst: freq_div
-        Port Map (
-            CLK       => CLK,
-            RESET     => RESET,
-            ENABLE    => enable,
-            CLK_1_MHZ => clk_1_MHz
-        );
-
-    enable <= SW(1);
-    on_off <= SW(0);
-
-    LED5_G <= on_off_status(1);
-    LED4_G <= on_off_status(0);
-
-    LED(3) <= clk_1_MHz;
-    LED(2) <= power_reset;
-    LED(1) <= pmod_enable;
-    LED(0) <= expired_counter_5us_dbg;
+    on_off <= SW;
+    led <= on_off_status;
 
     JA_0_CS     <= cs;
     JA_1_MOSI   <= mosi;

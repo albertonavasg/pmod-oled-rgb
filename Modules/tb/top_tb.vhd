@@ -43,14 +43,8 @@ architecture Behavioral of top_tb is
         CLK   : in std_logic;
         RESET : in std_logic;
 
-        SW     : in  std_logic_vector(1 downto 0);
-        LED    : out std_logic_vector(3 downto 0);
-        LED4_B : out std_logic;
-        LED4_G : out std_logic;
-        LED4_R : out std_logic;
-        LED5_B : out std_logic;
-        LED5_G : out std_logic;
-        LED5_R : out std_logic;
+        SW     : in  std_logic;
+        LED    : out std_logic_vector(1 downto 0);
 
         -- PmodA
         JA_0_CS     : out std_logic;
@@ -69,9 +63,10 @@ architecture Behavioral of top_tb is
 
     -- Signals
     signal clk, reset : std_logic := '0';
-    signal sw : std_logic_vector(1 downto 0) := "00";
-    signal led : std_logic_vector(3 downto 0) := "0000";
-    signal led4_b, led4_g, led4_r, led5_b, led5_g, led5_r : std_logic := '0';
+
+    signal sw  : std_logic := '0';
+    signal led : std_logic_vector(1 downto 0) := "00";
+
     signal ja_0_cs     : std_logic := '0';
     signal ja_1_mosi   : std_logic := '0';
     signal ja_2_nc     : std_logic := '0';
@@ -90,12 +85,6 @@ begin
             RESET       => reset, 
             SW          => sw,
             LED         => led,
-            LED4_B      => led4_b,
-            LED4_G      => led4_g,
-            LED4_R      => led4_r,
-            LED5_B      => led5_b,
-            LED5_G      => led5_g,
-            LED5_R      => led5_r,
             JA_0_CS     => ja_0_cs,
             JA_1_MOSI   => ja_1_mosi,
             JA_2_NC     => ja_2_nc,
@@ -120,10 +109,10 @@ begin
         reset <= '1';
         wait for 10*clk_period;
         reset <= '0';
-        sw (0) <= '1';
-        wait for 10*clk_period;
-        sw(1) <= '1';
-        wait for 125000000*clk_period;
+        sw <= '1';
+        wait for 100000*clk_period;
+        sw <= '0';
+        wait for 100000*clk_period;
     end process;
 
 end Behavioral;
