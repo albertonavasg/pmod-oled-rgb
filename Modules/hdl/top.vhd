@@ -100,6 +100,8 @@ architecture Behavioral of top is
     end component;
 
     -- Signals 
+    signal clk_signal : std_logic;
+
     signal on_off        : std_logic;
     signal power_reset   : std_logic;
     signal vcc_enable    : std_logic;
@@ -133,8 +135,7 @@ architecture Behavioral of top is
     
 
     -- All ILA mark_debug
-    attribute mark_debug of CLK : signal is "true";
-    attribute mark_debug of RESET : signal is "true";
+    attribute mark_debug of clk_signal : signal is "true";
     
     attribute mark_debug of on_off : signal is "true";
     attribute mark_debug of power_reset : signal is "true";
@@ -210,6 +211,8 @@ begin
             EXPIRED_COUNTER_SPI_DBG    => expired_counter_spi_dbg
         );
 
+    clk_signal <= CLK;
+    
     on_off <= SW;
     led <= on_off_status;
 
