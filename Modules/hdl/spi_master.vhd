@@ -149,8 +149,7 @@ begin
                     else
                         shift_data <= shift_data(6 downto 0) & '0';
                     end if;
-                end if;
-                if (clk_1mhz_rising_edge = '1') then
+                elsif (clk_1mhz_rising_edge = '1') then
                     if (bit_counter < 7) then
                         bit_counter <= bit_counter + 1;
                     elsif (bit_counter = 7) then
