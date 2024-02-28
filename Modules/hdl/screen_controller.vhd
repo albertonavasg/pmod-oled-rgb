@@ -188,9 +188,9 @@ architecture Behavioral of screen_controller is
     signal enable_counter_100ms  : std_logic                            := '0';
     signal enable_counter_400ms  : std_logic                            := '0';
     signal enable_counter_spi    : std_logic                            := '0';
-    constant max_counter_5us     : integer                              := 625;    -- 625    -- 5 for simulation
-    constant max_counter_20ms    : integer                              := 2500000;  -- 2500000  -- 20 for simulation
-    constant max_counter_25ms    : integer                              := 3125000;  -- 3125000  -- 25 for simulation
+    constant max_counter_5us     : integer                              := 625;  -- 625          -- 5 for simulation
+    constant max_counter_20ms    : integer                              := 2500000; -- 2500000   -- 20 for simulation
+    constant max_counter_25ms    : integer                              := 3125000; -- 3125000   -- 25 for simulation
     constant max_counter_100ms   : integer                              := 12500000; -- 12500000 -- 30 for simulation
     constant max_counter_400ms   : integer                              := 50000000; -- 50000000 -- 40 for simulation
     constant max_counter_spi     : integer                              := 100;  -- Wait 100 clock cycles until trying to send new spi 
