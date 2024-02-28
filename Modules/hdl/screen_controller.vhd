@@ -95,20 +95,28 @@ architecture Behavioral of screen_controller is
             DATA : in std_logic_vector(7 downto 0);
 
             -- Debug 
-            DONE_DBG              : out std_logic;
-            BIT_COUNTER_DBG       : out std_logic_vector(2 downto 0);
-            SHIFT_DATA_DBG        : out std_logic_vector(7 downto 0);
-            START_DELAY_DBG       : out std_logic;
-            START_RISING_EDGE_DBG : out std_logic
+            DONE_DBG                        : out std_logic;
+            BIT_COUNTER_DBG                 : out std_logic_vector(2 downto 0);
+            SHIFT_DATA_DBG                  : out std_logic_vector(7 downto 0);
+            START_DELAY_DBG                 : out std_logic;
+            START_RISING_EDGE_DBG           : out std_logic;
+            CLK_1_MHZ_DBG                   : out std_logic;
+            CLK_1MHZ_DELAY_DBG              : out std_logic;
+            CLK_1MHZ_RISING_EDGE_DBG        : out std_logic;
+            CLK_1MHZ_FALLING_EDGE_DBG       : out std_logic
         );
     end component;
 
-    -- Debug signals
-    signal done_dbg              : std_logic;
-    signal bit_counter_dbg       : std_logic_vector(2 downto 0);
-    signal shift_data_dbg        : std_logic_vector(7 downto 0);
-    signal start_delay_dbg       : std_logic;
-    signal start_rising_edge_dbg : std_logic;
+    -- Debug signals from spi_master
+    signal done_dbg                  : std_logic;
+    signal bit_counter_dbg           : std_logic_vector(2 downto 0);
+    signal shift_data_dbg            : std_logic_vector(7 downto 0);
+    signal start_delay_dbg           : std_logic;
+    signal start_rising_edge_dbg     : std_logic;
+    signal clk_1_mhz_dbg             : std_logic;
+    signal clk_1mhz_delay_dbg        : std_logic;
+    signal clk_1mhz_rising_edge_dbg  : std_logic;
+    signal clk_1mhz_falling_edge_dbg : std_logic;
 
     -- FSM
     type state_t is (s_off, s_turning_on, s_on, s_turning_off);
@@ -178,12 +186,12 @@ architecture Behavioral of screen_controller is
     signal enable_counter_100ms  : std_logic                            := '0';
     signal enable_counter_400ms  : std_logic                            := '0';
     signal enable_counter_spi    : std_logic                            := '0';
-    constant max_counter_5us     : integer                              := 5;      -- 5      -- 5 for simulation
-    constant max_counter_20ms    : integer                              := 20000;  -- 20000  -- 20 for simulation
-    constant max_counter_25ms    : integer                              := 25000;  -- 25000  -- 25 for simulation
-    constant max_counter_100ms   : integer                              := 100000; -- 100000 -- 30 for simulation
-    constant max_counter_400ms   : integer                              := 400000; -- 400000 -- 40 for simulation
-    constant max_counter_spi     : integer                              := 20;  -- Wait 10 clock cycles until trying to send new spi 
+    constant max_counter_5us     : integer                              := 5;    -- 625    -- 5 for simulation
+    constant max_counter_20ms    : integer                              := 20;  -- 2500000  -- 20 for simulation
+    constant max_counter_25ms    : integer                              := 25;  -- 3125000  -- 25 for simulation
+    constant max_counter_100ms   : integer                              := 30; -- 12500000 -- 30 for simulation
+    constant max_counter_400ms   : integer                              := 40; -- 50000000 -- 40 for simulation
+    constant max_counter_spi     : integer                              := 20;  -- Wait 20 clock cycles until trying to send new spi 
     signal counter_5us           : integer range 0 to max_counter_5us   := 0;
     signal counter_20ms          : integer range 0 to max_counter_20ms  := 0;
     signal counter_25ms          : integer range 0 to max_counter_25ms  := 0;
@@ -219,33 +227,40 @@ begin
             DATA => data_signal,
 
             -- Debug 
-            DONE_DBG              => done_dbg,
-            BIT_COUNTER_DBG       => bit_counter_dbg,
-            SHIFT_DATA_DBG        => shift_data_dbg,
-            START_DELAY_DBG       => start_delay_dbg,
-            START_RISING_EDGE_DBG => start_rising_edge_dbg
+            DONE_DBG                  => done_dbg,
+            BIT_COUNTER_DBG           => bit_counter_dbg,
+            SHIFT_DATA_DBG            => shift_data_dbg,
+            START_DELAY_DBG           => start_delay_dbg,
+            START_RISING_EDGE_DBG     => start_rising_edge_dbg,
+            CLK_1_MHZ_DBG             => clk_1_mhz_dbg,
+            CLK_1MHZ_DELAY_DBG        => clk_1mhz_delay_dbg,
+            CLK_1MHZ_RISING_EDGE_DBG  => clk_1mhz_rising_edge_dbg,
+            CLK_1MHZ_FALLING_EDGE_DBG => clk_1mhz_falling_edge_dbg
         );
 
     -------------------- Processes --------------------
 
-    on_off_edge_proc: process(CLK, RESET)
+    on_off_edge_detect_proc: process(CLK, RESET)
     begin
         if (RESET = '1') then
             on_off_delay        <= '0';
             on_off_rising_edge  <= '0';
             on_off_falling_edge <= '0';
         elsif (rising_edge(CLK)) then
+            -- Get delay signal
+            on_off_delay <= on_off;
+            -- Rising edge in on_off
             if (on_off_delay = '0' and ON_OFF = '1') then
                 on_off_rising_edge <= '1';
             else
                 on_off_rising_edge <= '0';
             end if;
+            -- Rising edge in on_off
             if (on_off_delay = '1' and ON_OFF = '0') then
                 on_off_falling_edge <= '1';
             else
                 on_off_falling_edge <= '0';
             end if;
-            on_off_delay <= on_off;
         end if;
     end process;
 
