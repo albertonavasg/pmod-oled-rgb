@@ -196,7 +196,7 @@ architecture Behavioral of screen_controller is
     signal counter_20ms          : integer range 0 to max_counter_20ms  := 0;
     signal counter_25ms          : integer range 0 to max_counter_25ms  := 0;
     signal counter_100ms         : integer range 0 to max_counter_100ms := 0;
-    signal counter_400ms         : integer range 0 to max_counter_100ms := 0;
+    signal counter_400ms         : integer range 0 to max_counter_400ms := 0;
     signal counter_spi           : integer range 0 to max_counter_spi   := 0;
     signal expired_counter_5us   : std_logic                            := '0';
     signal expired_counter_20ms  : std_logic                            := '0';
@@ -828,6 +828,7 @@ begin
 
                 when s_turning_off =>
                     if (seq_counter = 0) then
+                        transition_completed <= '1';
                         data_internal         <= DISPLAY_OFF_COMMAND;
                         data_command_internal <= COMMAND_TYPE;
                         start_internal        <= '1';
