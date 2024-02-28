@@ -80,7 +80,7 @@ architecture Behavioral of screen_controller_tb is
     end component;
 
     -- Clock
-    constant clk_period : time := 1 ns;
+    constant clk_period : time := 8 ns;
 
     -- Signals
     signal clk, reset                                   : std_logic                    := '0';
