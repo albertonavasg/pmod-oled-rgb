@@ -828,7 +828,6 @@ begin
 
                 when s_turning_off =>
                     if (seq_counter = 0) then
-                        transition_completed <= '1';
                         data_internal         <= DISPLAY_OFF_COMMAND;
                         data_command_internal <= COMMAND_TYPE;
                         start_internal        <= '1';
