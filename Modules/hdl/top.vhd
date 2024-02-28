@@ -133,6 +133,8 @@ architecture Behavioral of top is
     
 
     -- All ILA mark_debug
+    attribute mark_debug of CLK : signal is "true";
+    attribute mark_debug of RESET : signal is "true";
     
     attribute mark_debug of on_off : signal is "true";
     attribute mark_debug of power_reset : signal is "true";
