@@ -95,15 +95,16 @@ architecture Behavioral of screen_controller is
             DATA : in std_logic_vector(7 downto 0);
 
             -- Debug 
-            DONE_DBG                        : out std_logic;
-            BIT_COUNTER_DBG                 : out std_logic_vector(2 downto 0);
-            SHIFT_DATA_DBG                  : out std_logic_vector(7 downto 0);
-            START_DELAY_DBG                 : out std_logic;
-            START_RISING_EDGE_DBG           : out std_logic;
-            CLK_1_MHZ_DBG                   : out std_logic;
-            CLK_1MHZ_DELAY_DBG              : out std_logic;
-            CLK_1MHZ_RISING_EDGE_DBG        : out std_logic;
-            CLK_1MHZ_FALLING_EDGE_DBG       : out std_logic
+            DONE_DBG                  : out std_logic;
+            BIT_COUNTER_DBG           : out std_logic_vector(2 downto 0);
+            SHIFT_DATA_DBG            : out std_logic_vector(7 downto 0);
+            START_DELAY_DBG           : out std_logic;
+            START_RISING_EDGE_DBG     : out std_logic;
+            CLK_1_MHZ_DBG             : out std_logic;
+            CLK_1MHZ_DELAY_DBG        : out std_logic;
+            CLK_1MHZ_RISING_EDGE_DBG  : out std_logic;
+            CLK_1MHZ_FALLING_EDGE_DBG : out std_logic;
+            EXPIRED_TIMER_1US_DBG     : out std_logic
         );
     end component;
 
@@ -117,6 +118,7 @@ architecture Behavioral of screen_controller is
     signal clk_1mhz_delay_dbg        : std_logic;
     signal clk_1mhz_rising_edge_dbg  : std_logic;
     signal clk_1mhz_falling_edge_dbg : std_logic;
+    signal expired_timer_1us_dbg     : std_logic;
 
     -- FSM
     type state_t is (s_off, s_turning_on, s_on, s_turning_off);
@@ -235,7 +237,8 @@ begin
             CLK_1_MHZ_DBG             => clk_1_mhz_dbg,
             CLK_1MHZ_DELAY_DBG        => clk_1mhz_delay_dbg,
             CLK_1MHZ_RISING_EDGE_DBG  => clk_1mhz_rising_edge_dbg,
-            CLK_1MHZ_FALLING_EDGE_DBG => clk_1mhz_falling_edge_dbg
+            CLK_1MHZ_FALLING_EDGE_DBG => clk_1mhz_falling_edge_dbg,
+            EXPIRED_TIMER_1US_DBG     => expired_timer_1us_dbg
         );
 
     -------------------- Processes --------------------

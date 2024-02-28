@@ -43,15 +43,16 @@ entity spi_master is
         DATA : in std_logic_vector(7 downto 0);
 
         -- Debug 
-        DONE_DBG                        : out std_logic;
-        BIT_COUNTER_DBG                 : out std_logic_vector(2 downto 0);
-        SHIFT_DATA_DBG                  : out std_logic_vector(7 downto 0);
-        START_DELAY_DBG                 : out std_logic;
-        START_RISING_EDGE_DBG           : out std_logic;
-        CLK_1_MHZ_DBG                   : out std_logic;
-        CLK_1MHZ_DELAY_DBG              : out std_logic;
-        CLK_1MHZ_RISING_EDGE_DBG        : out std_logic;
-        CLK_1MHZ_FALLING_EDGE_DBG       : out std_logic
+        DONE_DBG                  : out std_logic;
+        BIT_COUNTER_DBG           : out std_logic_vector(2 downto 0);
+        SHIFT_DATA_DBG            : out std_logic_vector(7 downto 0);
+        START_DELAY_DBG           : out std_logic;
+        START_RISING_EDGE_DBG     : out std_logic;
+        CLK_1_MHZ_DBG             : out std_logic;
+        CLK_1MHZ_DELAY_DBG        : out std_logic;
+        CLK_1MHZ_RISING_EDGE_DBG  : out std_logic;
+        CLK_1MHZ_FALLING_EDGE_DBG : out std_logic;
+        EXPIRED_TIMER_1US_DBG     : out std_logic
     );
 end spi_master;
 
@@ -73,8 +74,13 @@ architecture Behavioral of spi_master is
     signal counter_1mhz        : integer range 0 to max_counter_1mhz - 1 := 0;
     signal clk_1mhz            : std_logic := '0';
 
+    constant max_timer_1us   : integer := 125; 
+    signal enable_timer_1us  : std_logic := '0';
+    signal timer_1us         : integer range 0 to max_timer_1us := 0;
+    signal expired_timer_1us : std_logic := '0';
+
     -- FSM
-    type state_t is (s_idle, s_tx);
+    type state_t is (s_idle, s_tx, s_last);
     signal state : state_t := s_idle;
 
 begin
@@ -84,7 +90,7 @@ begin
         if (RESET = '1') then
             start_delay           <= '0';
             start_rising_edge     <= '0';
-            clk_1mhz_delay        <= '0';
+            clk_1mhz_delay        <= '1';
             clk_1mhz_rising_edge  <= '0';
             clk_1mhz_falling_edge <= '0';
         elsif (rising_edge(CLK)) then
@@ -127,8 +133,14 @@ begin
                     end if;
                 when s_tx =>
                     if (done = '1') then
-                        state <= s_idle;
+                        state <= s_last;
                         enable_counter_1mhz <= '0';
+                        enable_timer_1us <= '1';
+                    end if;
+                when s_last => 
+                    if (expired_timer_1us = '1') then
+                        state <= s_idle;
+                        enable_timer_1us <= '0';
                     end if;
             end case;
         end if;
@@ -138,9 +150,9 @@ begin
     tx_proc : process(CLK, RESET)
     begin
         if (RESET = '1') then
-            bit_counter                 <= "000";
-            shift_data                  <= "00000000";
-            done                        <= '0';
+            bit_counter <= "000";
+            shift_data  <= "00000000";
+            done        <= '0';
         elsif (rising_edge(CLK)) then
             if (state = s_tx) then
                 if(clk_1mhz_falling_edge = '1') then
@@ -156,17 +168,17 @@ begin
                         done <= '1';
                     end if;
                 end if;
-            else
-                bit_counter                 <= "000";
-                shift_data                  <= "00000000";
-                done                        <= '0';
+            elsif (state = s_idle) then
+                bit_counter <= "000";
+                shift_data  <= "00000000";
+                done        <= '0';
             end if;
         end if;
     end process;
 
-    MOSI <= shift_data(7) when (state = s_tx) else '0';
-    CS   <= '0'           when (state = s_tx) else '1';
-    SCK  <= clk_1mhz      when (state = s_tx) else '1';
+    MOSI <= shift_data(7) when (state = s_tx or state = s_last) else '0';
+    CS   <= '0'           when (state = s_tx or state = s_last) else '1';
+    SCK  <= clk_1mhz      when (state = s_tx or state = s_last) else '1';
 
     
     counter_1MHz_proc: process(CLK, RESET)
@@ -188,15 +200,33 @@ begin
 
     clk_1mhz <= '0' when (counter_1mhz >= max_counter_1mhz/2) else '1'; -- clk stays on if disabled
 
+    timer_1us_proc : process(CLK, RESET)
+    begin
+        if (RESET = '1') then
+            timer_1us <= 0;
+        elsif (rising_edge(CLK)) then
+            if (enable_timer_1us = '1') then
+                if (timer_1us < max_timer_1us) then
+                    timer_1us <= timer_1us + 1;
+                end if;
+            else
+                timer_1us <= 0;
+            end if;
+        end if;
+    end process;
+
+    expired_timer_1us <= '1' when (timer_1us = max_timer_1us) else '0';
+
     -- Debug signals
-    DONE_DBG                        <= done;
-    BIT_COUNTER_DBG                 <= std_logic_vector(bit_counter);
-    SHIFT_DATA_DBG                  <= shift_data;
-    START_DELAY_DBG                 <= start_delay;
-    START_RISING_EDGE_DBG           <= start_rising_edge;
-    CLK_1_MHZ_DBG                   <= clk_1mhz;
-    CLK_1MHZ_DELAY_DBG              <= clk_1mhz_delay;
-    CLK_1MHZ_RISING_EDGE_DBG        <= clk_1mhz_rising_edge;
-    CLK_1MHZ_FALLING_EDGE_DBG       <= clk_1mhz_falling_edge; 
+    DONE_DBG                  <= done;
+    BIT_COUNTER_DBG           <= std_logic_vector(bit_counter);
+    SHIFT_DATA_DBG            <= shift_data;
+    START_DELAY_DBG           <= start_delay;
+    START_RISING_EDGE_DBG     <= start_rising_edge;
+    CLK_1_MHZ_DBG             <= clk_1mhz;
+    CLK_1MHZ_DELAY_DBG        <= clk_1mhz_delay;
+    CLK_1MHZ_RISING_EDGE_DBG  <= clk_1mhz_rising_edge;
+    CLK_1MHZ_FALLING_EDGE_DBG <= clk_1mhz_falling_edge; 
+    EXPIRED_TIMER_1US_DBG     <= expired_timer_1us;
 
 end Behavioral;
