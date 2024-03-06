@@ -302,8 +302,8 @@ begin
     on_off_proc : process(CLK, RESET)
     begin
         if (RESET = '1') then
-            POWER_RESET           <= '1';
-            VCC_ENABLE            <= '0';
+            POWER_RESET           <= '0';
+            VCC_ENABLE            <= '1';
             PMOD_ENABLE           <= '0';
             data_internal         <= "00000000";
             start_internal        <= '0';
@@ -316,8 +316,8 @@ begin
             case state is
 
                 when s_off =>
-                    POWER_RESET           <= '1';
-                    VCC_ENABLE            <= '0';
+                    POWER_RESET           <= '0';
+                    VCC_ENABLE            <= '1';
                     PMOD_ENABLE           <= '0';
                     data_internal         <= "00000000";
                     start_internal        <= '0';
@@ -327,6 +327,8 @@ begin
 
                 when s_turning_on =>
                     if (seq_counter = 0) then
+                        POWER_RESET         <= '1';
+                        VCC_ENABLE          <= '0';
                         PMOD_ENABLE         <= '1';
                         enable_counter_20ms <= '1';
                         seq_counter         <= seq_counter + 1;
