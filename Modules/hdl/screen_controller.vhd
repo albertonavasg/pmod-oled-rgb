@@ -302,8 +302,8 @@ begin
     on_off_proc : process(CLK, RESET)
     begin
         if (RESET = '1') then
-            POWER_RESET           <= '0';
-            VCC_ENABLE            <= '1';
+            POWER_RESET           <= '1';
+            VCC_ENABLE            <= '0';
             PMOD_ENABLE           <= '0';
             data_internal         <= "00000000";
             start_internal        <= '0';
@@ -316,8 +316,8 @@ begin
             case state is
 
                 when s_off =>
-                    POWER_RESET           <= '0';
-                    VCC_ENABLE            <= '1';
+                    POWER_RESET           <= '1';
+                    VCC_ENABLE            <= '0';
                     PMOD_ENABLE           <= '0';
                     data_internal         <= "00000000";
                     start_internal        <= '0';
@@ -327,8 +327,6 @@ begin
 
                 when s_turning_on =>
                     if (seq_counter = 0) then
-                        POWER_RESET         <= '1';
-                        VCC_ENABLE          <= '0';
                         PMOD_ENABLE         <= '1';
                         enable_counter_20ms <= '1';
                         seq_counter         <= seq_counter + 1;
@@ -357,7 +355,7 @@ begin
                     elsif (seq_counter = 6 and expired_counter_spi = '1' and ready_signal = '1') then
                         enable_counter_spi    <= '0';
                         data_internal         <= UNLOCK_DATA;
-                        data_command_internal <= DATA_TYPE;
+                        data_command_internal <= COMMAND_TYPE;
                         start_internal        <= '1';
                         seq_counter           <= seq_counter + 1;
                     elsif (seq_counter = 7 and start_internal = '1') then
@@ -387,7 +385,7 @@ begin
                     elsif (seq_counter = 12 and expired_counter_spi = '1' and ready_signal = '1') then
                         enable_counter_spi    <= '0';
                         data_internal         <= x"72";
-                        data_command_internal <= DATA_TYPE;
+                        data_command_internal <= COMMAND_TYPE;
                         start_internal        <= '1';
                         seq_counter           <= seq_counter + 1;
                     elsif (seq_counter = 13 and start_internal = '1') then
@@ -407,7 +405,7 @@ begin
                     elsif (seq_counter = 16 and expired_counter_spi = '1' and ready_signal = '1') then
                         enable_counter_spi    <= '0';
                         data_internal         <= MIN_ROW;
-                        data_command_internal <= DATA_TYPE;
+                        data_command_internal <= COMMAND_TYPE;
                         start_internal        <= '1';
                         seq_counter           <= seq_counter + 1;
                     elsif (seq_counter = 17 and start_internal = '1') then
@@ -427,7 +425,7 @@ begin
                     elsif (seq_counter = 20 and expired_counter_spi = '1' and ready_signal = '1') then
                         enable_counter_spi    <= '0';
                         data_internal         <= x"00";
-                        data_command_internal <= DATA_TYPE;
+                        data_command_internal <= COMMAND_TYPE;
                         start_internal        <= '1';
                         seq_counter           <= seq_counter + 1;
                     elsif (seq_counter = 21 and start_internal = '1') then
@@ -457,7 +455,7 @@ begin
                     elsif (seq_counter = 26 and expired_counter_spi = '1' and ready_signal = '1') then
                         enable_counter_spi    <= '0';
                         data_internal         <= x"3F";
-                        data_command_internal <= DATA_TYPE;
+                        data_command_internal <= COMMAND_TYPE;
                         start_internal        <= '1';
                         seq_counter           <= seq_counter + 1;
                     elsif (seq_counter = 27 and start_internal = '1') then
@@ -477,7 +475,7 @@ begin
                     elsif (seq_counter = 30 and expired_counter_spi = '1' and ready_signal = '1') then
                         enable_counter_spi    <= '0';
                         data_internal         <= EXT_VCC_SUPPLY_DATA;
-                        data_command_internal <= DATA_TYPE;
+                        data_command_internal <= COMMAND_TYPE;
                         start_internal        <= '1';
                         seq_counter           <= seq_counter + 1;
                     elsif (seq_counter = 31 and start_internal = '1') then
@@ -497,7 +495,7 @@ begin
                     elsif (seq_counter = 34 and expired_counter_spi = '1' and ready_signal = '1') then
                         enable_counter_spi    <= '0';
                         data_internal         <= DISABLE_POWER_SAVE_MODE_DATA;
-                        data_command_internal <= DATA_TYPE;
+                        data_command_internal <= COMMAND_TYPE;
                         start_internal        <= '1';
                         seq_counter           <= seq_counter + 1;
                     elsif (seq_counter = 35 and start_internal = '1') then
@@ -517,7 +515,7 @@ begin
                     elsif (seq_counter = 38 and expired_counter_spi = '1' and ready_signal = '1') then
                         enable_counter_spi    <= '0';
                         data_internal         <= x"31";
-                        data_command_internal <= DATA_TYPE;
+                        data_command_internal <= COMMAND_TYPE;
                         start_internal        <= '1';
                         seq_counter           <= seq_counter + 1;
                     elsif (seq_counter = 39 and start_internal = '1') then
@@ -537,7 +535,7 @@ begin
                     elsif (seq_counter = 42 and expired_counter_spi = '1' and ready_signal = '1') then
                         enable_counter_spi    <= '0';
                         data_internal         <= x"F0";
-                        data_command_internal <= DATA_TYPE;
+                        data_command_internal <= COMMAND_TYPE;
                         start_internal        <= '1';
                         seq_counter           <= seq_counter + 1;
                     elsif (seq_counter = 43 and start_internal = '1') then
@@ -557,7 +555,7 @@ begin
                     elsif (seq_counter = 46 and expired_counter_spi = '1' and ready_signal = '1') then
                         enable_counter_spi    <= '0';
                         data_internal         <= x"64";
-                        data_command_internal <= DATA_TYPE;
+                        data_command_internal <= COMMAND_TYPE;
                         start_internal        <= '1';
                         seq_counter           <= seq_counter + 1;
                     elsif (seq_counter = 47 and start_internal = '1') then
@@ -577,7 +575,7 @@ begin
                     elsif (seq_counter = 50 and expired_counter_spi = '1' and ready_signal = '1') then
                         enable_counter_spi    <= '0';
                         data_internal         <= x"78";
-                        data_command_internal <= DATA_TYPE;
+                        data_command_internal <= COMMAND_TYPE;
                         start_internal        <= '1';
                         seq_counter           <= seq_counter + 1;
                     elsif (seq_counter = 51 and start_internal = '1') then
@@ -597,7 +595,7 @@ begin
                     elsif (seq_counter = 54 and expired_counter_spi = '1' and ready_signal = '1') then
                         enable_counter_spi    <= '0';
                         data_internal         <= x"64";
-                        data_command_internal <= DATA_TYPE;
+                        data_command_internal <= COMMAND_TYPE;
                         start_internal        <= '1';
                         seq_counter           <= seq_counter + 1;
                     elsif (seq_counter = 55 and start_internal = '1') then
@@ -617,7 +615,7 @@ begin
                     elsif (seq_counter = 58 and expired_counter_spi = '1' and ready_signal = '1') then
                         enable_counter_spi    <= '0';
                         data_internal         <= x"3A";
-                        data_command_internal <= DATA_TYPE;
+                        data_command_internal <= COMMAND_TYPE;
                         start_internal        <= '1';
                         seq_counter           <= seq_counter + 1;
                     elsif (seq_counter = 59 and start_internal = '1') then
@@ -637,7 +635,7 @@ begin
                     elsif (seq_counter = 62 and expired_counter_spi = '1' and ready_signal = '1') then
                         enable_counter_spi    <= '0';
                         data_internal         <= x"3E";
-                        data_command_internal <= DATA_TYPE;
+                        data_command_internal <= COMMAND_TYPE;
                         start_internal        <= '1';
                         seq_counter           <= seq_counter + 1;
                     elsif (seq_counter = 63 and start_internal = '1') then
@@ -657,7 +655,7 @@ begin
                     elsif (seq_counter = 66 and expired_counter_spi = '1' and ready_signal = '1') then
                         enable_counter_spi    <= '0';
                         data_internal         <= x"06";
-                        data_command_internal <= DATA_TYPE;
+                        data_command_internal <= COMMAND_TYPE;
                         start_internal        <= '1';
                         seq_counter           <= seq_counter + 1;
                     elsif (seq_counter = 67 and start_internal = '1') then
@@ -677,7 +675,7 @@ begin
                     elsif (seq_counter = 70 and expired_counter_spi = '1' and ready_signal = '1') then
                         enable_counter_spi    <= '0';
                         data_internal         <= x"91";
-                        data_command_internal <= DATA_TYPE;
+                        data_command_internal <= COMMAND_TYPE;
                         start_internal        <= '1';
                         seq_counter           <= seq_counter + 1;
                     elsif (seq_counter = 71 and start_internal = '1') then
@@ -697,7 +695,7 @@ begin
                     elsif (seq_counter = 74 and expired_counter_spi = '1' and ready_signal = '1') then
                         enable_counter_spi    <= '0';
                         data_internal         <= x"50";
-                        data_command_internal <= DATA_TYPE;
+                        data_command_internal <= COMMAND_TYPE;
                         start_internal        <= '1';
                         seq_counter           <= seq_counter + 1;
                     elsif (seq_counter = 75 and start_internal = '1') then
@@ -717,7 +715,7 @@ begin
                     elsif (seq_counter = 78 and expired_counter_spi = '1' and ready_signal = '1') then
                         enable_counter_spi    <= '0';
                         data_internal         <= x"7D";
-                        data_command_internal <= DATA_TYPE;
+                        data_command_internal <= COMMAND_TYPE;
                         start_internal        <= '1';
                         seq_counter           <= seq_counter + 1;
                     elsif (seq_counter = 79 and start_internal = '1') then
@@ -747,7 +745,7 @@ begin
                     elsif (seq_counter = 84 and expired_counter_spi = '1' and ready_signal = '1') then
                         enable_counter_spi    <= '0';
                         data_internal         <= MIN_COLUMN;
-                        data_command_internal <= DATA_TYPE;
+                        data_command_internal <= COMMAND_TYPE;
                         start_internal        <= '1';
                         seq_counter           <= seq_counter + 1;
                     elsif (seq_counter = 85 and start_internal = '1') then
@@ -757,7 +755,7 @@ begin
                     elsif (seq_counter = 86 and expired_counter_spi = '1' and ready_signal = '1') then
                         enable_counter_spi    <= '0';
                         data_internal         <= MIN_ROW;
-                        data_command_internal <= DATA_TYPE;
+                        data_command_internal <= COMMAND_TYPE;
                         start_internal        <= '1';
                         seq_counter           <= seq_counter + 1;
                     elsif (seq_counter = 87 and start_internal = '1') then
@@ -767,7 +765,7 @@ begin
                     elsif (seq_counter = 88 and expired_counter_spi = '1'  and ready_signal = '1') then
                         enable_counter_spi    <= '0';
                         data_internal         <= MAX_COLUMN;
-                        data_command_internal <= DATA_TYPE;
+                        data_command_internal <= COMMAND_TYPE;
                         start_internal        <= '1';
                         seq_counter           <= seq_counter + 1;
                     elsif (seq_counter = 89 and start_internal = '1') then
@@ -777,7 +775,7 @@ begin
                     elsif (seq_counter = 90 and expired_counter_spi = '1' and ready_signal = '1') then
                         enable_counter_spi    <= '0';
                         data_internal         <= MAX_ROW;
-                        data_command_internal <= DATA_TYPE;
+                        data_command_internal <= COMMAND_TYPE;
                         start_internal        <= '1';
                         seq_counter           <= seq_counter + 1;
                     elsif (seq_counter = 91 and start_internal = '1') then
