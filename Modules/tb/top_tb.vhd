@@ -1,35 +1,5 @@
-----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date: 29.01.2024 16:50:03
--- Design Name: 
--- Module Name: top_tb - Behavioral
--- Project Name: 
--- Target Devices: 
--- Tool Versions: 
--- Description: 
--- 
--- Dependencies: 
--- 
--- Revision:
--- Revision 0.01 - File Created
--- Additional Comments:
--- 
-----------------------------------------------------------------------------------
-
-
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
-
--- Uncomment the following library declaration if instantiating
--- any Xilinx leaf cells in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
 
 entity top_tb is
 --  Port ( );
@@ -43,8 +13,8 @@ architecture Behavioral of top_tb is
         CLK   : in std_logic;
         RESET : in std_logic;
 
-        SW     : in  std_logic;
-        LED    : out std_logic_vector(1 downto 0);
+        SW     : in  std_logic_vector(1 downto 0);
+        LED    : out std_logic_vector(2 downto 0);
 
         -- PmodA
         JA_0_CS     : out std_logic;
@@ -64,8 +34,8 @@ architecture Behavioral of top_tb is
     -- Signals
     signal clk, reset : std_logic := '0';
 
-    signal sw  : std_logic := '0';
-    signal led : std_logic_vector(1 downto 0) := "00";
+    signal sw  : std_logic_vector(1 downto 0) := "00";
+    signal led : std_logic_vector(2 downto 0) := "000";
 
     signal ja_0_cs     : std_logic := '0';
     signal ja_1_mosi   : std_logic := '0';
@@ -109,10 +79,14 @@ begin
         reset <= '1';
         wait for 10*clk_period;
         reset <= '0';
-        sw <= '1';
-        wait for 100000*clk_period;
-        sw <= '0';
-        wait for 100000*clk_period;
+        sw(0) <= '1';
+        wait for 55000*clk_period;
+        sw(1) <= '1';
+        wait for 5000*clk_period;
+        sw(1) <= '0';
+        wait for 5000*clk_period;
+        sw(0) <= '0';
+        wait for 50000*clk_period;
     end process;
 
 end Behavioral;

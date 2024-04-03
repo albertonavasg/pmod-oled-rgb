@@ -1,43 +1,13 @@
-----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date: 16.01.2024 19:04:30
--- Design Name: 
--- Module Name: top - Behavioral
--- Project Name: 
--- Target Devices: 
--- Tool Versions: 
--- Description: 
--- 
--- Dependencies: 
--- 
--- Revision:
--- Revision 0.01 - File Created
--- Additional Comments:
--- 
-----------------------------------------------------------------------------------
-
-
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
-
--- Uncomment the following library declaration if instantiating
--- any Xilinx leaf cells in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
 
 entity top is
     Port ( 
         CLK   : in std_logic;
         RESET : in std_logic;
 
-        SW     : in  std_logic;
-        LED    : out std_logic_vector(1 downto 0);
+        SW     : in  std_logic_vector(1 downto 0);
+        LED    : out std_logic_vector(2 downto 0);
 
         -- PmodA
         JA_0_CS     : out std_logic;
@@ -56,7 +26,7 @@ architecture Behavioral of top is
     -- For ILA DEBUG
     attribute mark_debug : string;
 
-    -- Instantiate the component
+    -- Instantiate the components
     component screen_controller is
         Port (
             -- Basic
@@ -99,9 +69,36 @@ architecture Behavioral of top is
         );
     end component;
 
-    -- Signals 
-    signal clk_signal : std_logic;
+    component screen_tester is
+        Port ( 
+            -- Basic
+            CLK    : in std_logic;
+            RESET  : in std_logic;
 
+            -- Enable
+            ENABLE : in std_logic;
+
+            -- Control
+            ON_OFF_STATUS : in  std_logic_vector(1 downto 0);
+            START         : out std_logic;
+            READY         : in  std_logic;
+
+            -- Data
+            DATA         : out std_logic_vector(7 downto 0);
+            DATA_COMMAND : out std_logic;
+
+            -- Debug
+            ENABLE_DELAY_DBG        : out std_logic;
+            ENABLE_RISING_EDGE_DBG  : out std_logic;
+            ENABLE_FALLING_EDGE_DBG : out std_logic;
+            SEQ_COUNTER_DBG         : out std_logic_vector(9 downto 0);
+            SEND_ON_FLAG_DBG        : out std_logic;
+            SEND_OFF_FLAG_DBG       : out std_logic;
+            COMMAND_SENT_FLAG_DBG   : out std_logic
+        );
+    end component;
+
+    -- Signals (screen_controller)
     signal on_off        : std_logic;
     signal power_reset   : std_logic;
     signal vcc_enable    : std_logic;
@@ -119,7 +116,7 @@ architecture Behavioral of top is
     signal sck  : std_logic;
     signal cs   : std_logic;
 
-    -- Debug signals
+    -- Debug signals (screen_controller)
     signal seq_counter_dbg           : std_logic_vector(9 downto 0); 
     signal start_signal_dbg          : std_logic;
     signal ready_signal_dbg          : std_logic;
@@ -133,6 +130,17 @@ architecture Behavioral of top is
     signal expired_counter_400ms_dbg : std_logic;
     signal expired_counter_spi_dbg   : std_logic;
     
+    -- Signals (screen_tester)
+    signal enable        : std_logic := '0';
+
+    -- Debug signals (screen_tester)
+    signal enable_delay_dbg              : std_logic := '0';
+    signal enable_rising_edge_dbg        : std_logic := '0';
+    signal enable_falling_edge_dbg       : std_logic := '0';
+    signal seq_counter_dbg_screen_tester : std_logic_vector(9 downto 0) := (others => '0');
+    signal send_on_flag_dbg              : std_logic := '0';
+    signal send_off_flag_dbg             : std_logic := '0';
+    signal command_sent_flag_dbg         : std_logic := '0';
 
     -- All ILA mark_debug
     attribute mark_debug of on_off : signal is "true";
@@ -208,11 +216,37 @@ begin
             EXPIRED_COUNTER_400MS_DBG  => expired_counter_400ms_dbg,
             EXPIRED_COUNTER_SPI_DBG    => expired_counter_spi_dbg
         );
-
-    clk_signal <= CLK;
     
-    on_off <= SW;
-    led <= on_off_status;
+    screen_tester_inst: screen_tester
+        Port Map (
+            CLK   => CLK,
+            RESET => RESET,
+
+            -- Enable
+            ENABLE => enable,
+
+            -- Control
+            ON_OFF_STATUS => on_off_status,
+            START         => start,
+            READY         => ready,
+
+            -- Data
+            DATA         => data,
+            DATA_COMMAND => data_command_in,
+
+            -- Debug
+            ENABLE_DELAY_DBG        => enable_delay_dbg,
+            ENABLE_RISING_EDGE_DBG  => enable_rising_edge_dbg,
+            ENABLE_FALLING_EDGE_DBG => enable_falling_edge_dbg,
+            SEQ_COUNTER_DBG         => seq_counter_dbg_screen_tester,
+            SEND_ON_FLAG_DBG        => send_on_flag_dbg,
+            SEND_OFF_FLAG_DBG       => send_off_flag_dbg,
+            COMMAND_SENT_FLAG_DBG   => command_sent_flag_dbg
+        );
+
+    enable <= SW(1);
+    on_off <= SW(0);
+    led    <= ready & on_off_status;
 
     JA_0_CS     <= cs;
     JA_1_MOSI   <= mosi;
