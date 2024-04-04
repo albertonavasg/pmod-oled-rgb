@@ -96,8 +96,6 @@ begin
         end if;
     end process;
 
-    READY <= '1' when (state = s_idle) else '0';
-
     FSM_proc: process(CLK, RESET)
     begin
         if (RESET = '1') then
@@ -124,6 +122,7 @@ begin
         end if;
     end process;
 
+    READY <= '1' when (state = s_idle) else '0';
 
     tx_proc : process(CLK, RESET)
     begin
@@ -159,7 +158,7 @@ begin
     SCK  <= clk_1mhz      when (state = s_tx or state = s_last) else '1';
 
     
-    counter_1MHz_proc: process(CLK, RESET)
+    clk_1MHz_proc: process(CLK, RESET)
     begin
         if (RESET = '1') then
             counter_1mhz <= 0;
@@ -176,7 +175,7 @@ begin
         end if;
     end process;
 
-    clk_1mhz <= '0' when (counter_1mhz >= max_counter_1mhz/2) else '1'; -- clk stays on if disabled
+    clk_1mhz <= '0' when (counter_1mhz >= max_counter_1mhz/2) else '1'; -- clk stays ON if disabled
 
     timer_1us_proc : process(CLK, RESET)
     begin

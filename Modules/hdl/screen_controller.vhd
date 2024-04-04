@@ -8,16 +8,16 @@ entity screen_controller is
         CLK   : in std_logic;
         RESET : in std_logic;
 
-        -- Power 
-        ON_OFF      : in  std_logic;
-        POWER_RESET : out std_logic;
-        VCC_ENABLE  : out std_logic;
-        PMOD_ENABLE : out std_logic;
-
         -- Control
+        ON_OFF        : in  std_logic;
         ON_OFF_STATUS : out std_logic_vector(1 downto 0);
         START         : in  std_logic;
         READY         : out std_logic;
+
+        -- Power 
+        POWER_RESET : out std_logic;
+        VCC_ENABLE  : out std_logic;
+        PMOD_ENABLE : out std_logic;
 
         -- Data
         DATA             : in  std_logic_vector(7 downto 0);
@@ -164,7 +164,7 @@ architecture Behavioral of screen_controller is
     constant max_counter_25ms    : integer                              := 3125000; -- 3125000   -- 25 for simulation
     constant max_counter_100ms   : integer                              := 12500000; -- 12500000 -- 30 for simulation
     constant max_counter_400ms   : integer                              := 50000000; -- 50000000 -- 40 for simulation
-    constant max_counter_spi     : integer                              := 20;  -- Wait 100 clock cycles until trying to send new spi 
+    constant max_counter_spi     : integer                              := 20;  -- Wait 20 clock cycles until trying to send new spi 
     signal counter_5us           : integer range 0 to max_counter_5us   := 0;
     signal counter_20ms          : integer range 0 to max_counter_20ms  := 0;
     signal counter_25ms          : integer range 0 to max_counter_25ms  := 0;
@@ -180,7 +180,8 @@ architecture Behavioral of screen_controller is
 
 begin
 
-    -------------------- Port Mapping --------------------
+    -------------------- Port Map --------------------
+
     spi_master_inst : spi_master
         Port Map (
             -- Basic
@@ -817,7 +818,7 @@ begin
     READY            <= ready_signal    when (state = s_on) else '0';
 
 
-    -------------------- Counters --------------------
+    -------------------- Tiners --------------------
 
     timer_5us_proc : process(CLK, RESET)
     begin
@@ -922,6 +923,7 @@ begin
     expired_counter_spi <= '1' when (counter_spi = max_counter_spi) else '0';
 
     -------------------- Debug --------------------
+
     SEQ_COUNTER_DBG           <= std_logic_vector(seq_counter);
     START_SIGNAL_DBG          <= start_signal;
     READY_SIGNAL_DBG          <= ready_signal;

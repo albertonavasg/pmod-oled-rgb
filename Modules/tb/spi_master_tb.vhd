@@ -60,7 +60,8 @@ architecture Behavioral of spi_master_tb is
 
 begin
 
-    -- Port Mapping
+    -- Port Map
+    
     UUT: spi_master
         Port Map ( 
             -- Basic
@@ -93,6 +94,7 @@ begin
         );
 
     -- Stimulus processes
+
     clk_proc : process
     begin
         clk <= '0';

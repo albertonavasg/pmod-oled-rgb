@@ -14,17 +14,17 @@ architecture Behavioral of screen_controller_tb is
             CLK   : in std_logic;
             RESET : in std_logic;
 
-            -- Power 
-            ON_OFF      : in  std_logic;
-            POWER_RESET : out std_logic;
-            VCC_ENABLE  : out std_logic;
-            PMOD_ENABLE : out std_logic;
-
             -- Control
+            ON_OFF        : in  std_logic;
             ON_OFF_STATUS : out std_logic_vector(1 downto 0);
             START         : in  std_logic;
             READY         : out std_logic;
 
+            -- Power 
+            POWER_RESET : out std_logic;
+            VCC_ENABLE  : out std_logic;
+            PMOD_ENABLE : out std_logic;
+            
             -- Data
             DATA             : in  std_logic_vector(7 downto 0);
             DATA_COMMAND_IN  : in  std_logic;
@@ -78,22 +78,23 @@ architecture Behavioral of screen_controller_tb is
 begin
 
     -- Port Map
+    
     UUT : screen_controller
         Port Map (
             -- Basic       
             clk   => clk,
             reset => reset,
 
-            -- Power      
-            on_off      => on_off,
-            power_reset => power_reset,
-            vcc_enable  => vcc_enable,
-            pmod_enable => pmod_enable,
-
-            -- Control    
+            -- Control  
+            on_off        => on_off,  
             on_off_status => on_off_status,
             start         => start,
             ready         => ready,
+
+            -- Power      
+            power_reset => power_reset,
+            vcc_enable  => vcc_enable,
+            pmod_enable => pmod_enable,
 
             -- Data       
             data             => data,

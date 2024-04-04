@@ -33,17 +33,17 @@ architecture Behavioral of top is
             CLK   : in std_logic;
             RESET : in std_logic;
 
-            -- Power 
-            ON_OFF      : in  std_logic;
-            POWER_RESET : out std_logic;
-            VCC_ENABLE  : out std_logic;
-            PMOD_ENABLE : out std_logic;
-
             -- Control
+            ON_OFF        : in  std_logic;
             ON_OFF_STATUS : out std_logic_vector(1 downto 0);
             START         : in  std_logic;
             READY         : out std_logic;
 
+            -- Power 
+            POWER_RESET : out std_logic;
+            VCC_ENABLE  : out std_logic;
+            PMOD_ENABLE : out std_logic;
+            
             -- Data
             DATA             : in  std_logic_vector(7 downto 0);
             DATA_COMMAND_IN  : in  std_logic;
@@ -142,7 +142,7 @@ architecture Behavioral of top is
     signal send_off_flag_dbg             : std_logic := '0';
     signal command_sent_flag_dbg         : std_logic := '0';
 
-    -- All ILA mark_debug
+    -- ILA mark_debug (screen controller)
     attribute mark_debug of on_off : signal is "true";
     attribute mark_debug of power_reset : signal is "true";
     attribute mark_debug of vcc_enable : signal is "true";
@@ -172,26 +172,37 @@ architecture Behavioral of top is
     attribute mark_debug of expired_counter_100ms_dbg : signal is "true";
     attribute mark_debug of expired_counter_400ms_dbg : signal is "true";
     attribute mark_debug of expired_counter_spi_dbg : signal is "true";
+
+    -- ILA mark_debug (screen_tester)
+    attribute mark_debug of enable : signal is "true";
     
+    attribute mark_debug of enable_delay_dbg : signal is "true";
+    attribute mark_debug of enable_rising_edge_dbg : signal is "true";
+    attribute mark_debug of enable_falling_edge_dbg : signal is "true";
+    attribute mark_debug of seq_counter_dbg_screen_tester : signal is "true";
+    attribute mark_debug of send_on_flag_dbg : signal is "true";
+    attribute mark_debug of send_off_flag_dbg : signal is "true";
+    attribute mark_debug of command_sent_flag_dbg : signal is "true";
+
 begin
 
-    -- Port Maping
+    -- Port Map
     screen_controller_inst: screen_controller
         Port Map (
             -- Basic
             CLK   => CLK,
             RESET => RESET,
 
-            -- Power 
-            ON_OFF      => on_off,
-            POWER_RESET => power_reset,
-            VCC_ENABLE  => vcc_enable,
-            PMOD_ENABLE => pmod_enable,
-
             -- Control
+            ON_OFF        => on_off,
             ON_OFF_STATUS => on_off_status,
             START         => start, 
             READY         => ready, 
+
+            -- Power 
+            POWER_RESET => power_reset,
+            VCC_ENABLE  => vcc_enable,
+            PMOD_ENABLE => pmod_enable,
 
             -- Data
             DATA             => data,

@@ -59,7 +59,8 @@ architecture Behavioral of screen_tester_tb is
 
 begin
 
-    -- Port Mapping
+    -- Port Map
+    
     screen_tester_inst: screen_tester
         Port Map (
             CLK   => clk,

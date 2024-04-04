@@ -49,6 +49,7 @@ architecture Behavioral of top_tb is
 begin
 
     -- Port Map
+    
     UUT: top
         Port Map (
             CLK         => clk, 

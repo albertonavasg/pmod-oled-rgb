@@ -1,0 +1,36 @@
+Version: 1.0
+Date: April 4rd 2024
+Description:
+
+This is the first functional release of screen_controller. 
+In order to test it, aside from the testbenches, we have "screen_tester" and "top" to deploy it in the PYNQ-Z2.
+			   	   
+└── top
+    ├── screen_tester
+    └── screen_controller
+        └── spi_master
+
+SW(0) controls the "ON_OFF" of screen_controller.
+SW(1) controls the "ENABLE" of screen_tester.
+
+First we activate SW(0) and the "turning_on" sequence in screen_controller is executed.
+Once the screen is powered, with SW(1) we enable screen_tester and send the "ENTIRE_DISPLAY_ON_COMMAND".
+When we set SW(1) to low, the command "ENTIRE_DISPLAY_OFF_COMMAND" is sent.
+When we set SW(0) to low, the "turning_off" sequence is executed by screen_controller.
+
+In the 3 LEDs of the PYNQ we can see useful information (also visible in the port mapping in "top"
+
+SW[1] - ENABLE (screen_tester)
+SW[0] - ON_OFF (screen_controller)
+
+LED[3] - Not used
+LED[2] - "READY" from screen controller
+LED[1] - "ON_OFF_STATUS" bit 1
+LED[0] - "ON_OFF_STATUS" bit 0
+
+ON_OFF_STATUS: 00 OFF
+			   01 Turning ON
+			   10 Turning OFF
+			   11 ON		
+
+
