@@ -1,8 +1,8 @@
-Version: 1.0
+Version: 1.1
 Date: April 4rd 2024
 Description:
 
-This is the first functional release of screen_controller. 
+This is the functional release of screen_controller. 
 In order to test it, aside from the testbenches, we have "screen_tester" and "top" to deploy it in the PYNQ-Z2.
 			   	   
 └── top
@@ -33,4 +33,10 @@ ON_OFF_STATUS: 00 OFF
 			   10 Turning OFF
 			   11 ON		
 
+In the Vivado project, add:
+- Design files: "src/hdl"
+- Testbench: "src/tb"
+- Constraints : "src/constraints"
 
+With the Vivado project like this, we can choose which constraints files to use as a target in order
+to generate the Bitstream without ILA (top.xdc) or with ILA (ila.xdc)
