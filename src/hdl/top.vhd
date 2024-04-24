@@ -6,8 +6,8 @@ entity top is
         CLK   : in std_logic;
         RESET : in std_logic;
 
-        SW     : in  std_logic_vector(1 downto 0);
-        LED    : out std_logic_vector(2 downto 0);
+        SW  : in  std_logic_vector(1 downto 0);
+        LED : out std_logic_vector(3 downto 0);
 
         -- PmodA
         JA_0_CS     : out std_logic;
@@ -30,8 +30,8 @@ architecture Behavioral of top is
     component screen_controller is
         Port (
             -- Basic
-            CLK   : in std_logic;
-            RESET : in std_logic;
+            CLK    : in std_logic;
+            RESETN : in std_logic;
 
             -- Control
             ON_OFF        : in  std_logic;
@@ -73,7 +73,7 @@ architecture Behavioral of top is
         Port ( 
             -- Basic
             CLK    : in std_logic;
-            RESET  : in std_logic;
+            RESETN : in std_logic;
 
             -- Enable
             ENABLE : in std_logic;
@@ -104,9 +104,9 @@ architecture Behavioral of top is
     signal vcc_enable    : std_logic;
     signal pmod_enable   : std_logic;
 
-    signal on_off_status    : std_logic_vector(1 downto 0);
-    signal start            : std_logic := '0';
-    signal ready            : std_logic;
+    signal on_off_status : std_logic_vector(1 downto 0);
+    signal start         : std_logic := '0';
+    signal ready         : std_logic;
 
     signal data             : std_logic_vector(7 downto 0) := "00000000";
     signal data_command_in  : std_logic                    := '0';
@@ -131,7 +131,7 @@ architecture Behavioral of top is
     signal expired_counter_spi_dbg   : std_logic;
     
     -- Signals (screen_tester)
-    signal enable        : std_logic := '0';
+    signal enable : std_logic := '0';
 
     -- Debug signals (screen_tester)
     signal enable_delay_dbg              : std_logic := '0';
@@ -190,8 +190,8 @@ begin
     screen_controller_inst: screen_controller
         Port Map (
             -- Basic
-            CLK   => CLK,
-            RESET => RESET,
+            CLK    => CLK,
+            RESETN => not RESET,
 
             -- Control
             ON_OFF        => on_off,
@@ -230,8 +230,8 @@ begin
     
     screen_tester_inst: screen_tester
         Port Map (
-            CLK   => CLK,
-            RESET => RESET,
+            CLK    => CLK,
+            RESETN => not RESET,
 
             -- Enable
             ENABLE => enable,
@@ -257,7 +257,7 @@ begin
 
     enable <= SW(1);
     on_off <= SW(0);
-    led    <= ready & on_off_status;
+    led    <= on_off & ready & on_off_status;
 
     JA_0_CS     <= cs;
     JA_1_MOSI   <= mosi;

@@ -1,9 +1,9 @@
-Version: 1.1
-Date: April 4rd 2024
-Description:
+Version: 1.2
+Date: April 22nd 2024
 
-This is the functional release of screen_controller. 
-In order to test it, aside from the testbenches, we have "screen_tester" and "top" to deploy it in the PYNQ-Z2.
+This is the functional vhdl release of the block "screen_controller". 
+The aim of this bitfile is to test the block "screen_controller"
+In order to test it we have "screen_tester" and "top" to deploy it in the PYNQ-Z2.
 			   	   
 └── top
     ├── screen_tester
@@ -33,10 +33,20 @@ ON_OFF_STATUS: 00 OFF
 			   10 Turning OFF
 			   11 ON		
 
-In the Vivado project, add:
-- Design files: "src/hdl"
-- Testbench: "src/tb"
-- Constraints : "src/constraints"
 
-With the Vivado project like this, we can choose which constraints files to use as a target in order
-to generate the Bitstream without ILA (top.xdc) or with ILA (ila.xdc)
+Replicate the project:
+
+- Design files: "src/hdl": top, screen_tester, screen_controller and spi_master
+- Testbench: "src/tb": top_tb, screen_tester_tb, screen_controller_tb and spi_master_tb
+- Constraints : "src/constraints": screen.xdc
+
+It is possible to add an ILA: Run Synthesis and then Open Synthesized Design > Set Up Debug.
+All the signals in top will be shown to be aadded to the debug probe, and a new .xdc file will be generated.
+
+----
+
+Version history:
+
+- 1.0 First functional bitfile
+- 1.1 Added ILA
+- 1.2 Modified "reset" to "resetn" as AXI IPs use negative reset (not ILA bitfile included)

@@ -11,8 +11,8 @@ architecture Behavioral of spi_master_tb is
     component spi_master is
         Port (
             -- Basic
-            CLK   : in std_logic;
-            RESET : in std_logic;
+            CLK    : in std_logic;
+            RESETN : in std_logic;
 
             -- Control
             START : in  std_logic;
@@ -44,8 +44,8 @@ architecture Behavioral of spi_master_tb is
     constant clk_period : time := 8 ns;
 
     -- Signals
-    signal clk, reset, start, ready, mosi, sck, cs : std_logic;
-    signal data                                    : std_logic_vector(7 downto 0);
+    signal clk, resetn, start, ready, mosi, sck, cs : std_logic;
+    signal data                                     : std_logic_vector(7 downto 0);
 
     signal done_dbg                  : std_logic;
     signal bit_counter_dbg           : std_logic_vector(2 downto 0);
@@ -65,8 +65,8 @@ begin
     UUT: spi_master
         Port Map ( 
             -- Basic
-            CLK   => clk,
-            RESET => reset,
+            CLK    => clk,
+            RESETN => resetn,
 
             -- Control
             START => start,
@@ -105,13 +105,13 @@ begin
 
     stim_proc : process
     begin
-        reset <= '1';
-        start <= '0';
-        data  <= "00000000";
+        resetn <= '0';
+        start  <= '0';
+        data   <= "00000000";
             wait for 2*clk_period;
-        reset <= '0';
-        start <= '0';
-        data  <= "10011001";
+        resetn <= '1';
+        start  <= '0';
+        data   <= "10011001";
             wait for 2*clk_period;
         start <= '1';
             wait for 3*clk_period;

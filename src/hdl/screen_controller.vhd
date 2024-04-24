@@ -6,7 +6,7 @@ entity screen_controller is
     Port (
         -- Basic
         CLK   : in std_logic;
-        RESET : in std_logic;
+        RESETN : in std_logic;
 
         -- Control
         ON_OFF        : in  std_logic;
@@ -50,8 +50,8 @@ architecture Behavioral of screen_controller is
     component spi_master is
         Port (
             -- Basic
-            CLK   : in std_logic;
-            RESET : in std_logic;
+            CLK    : in std_logic;
+            RESETN : in std_logic;
 
             -- Control
             START : in  std_logic;
@@ -185,8 +185,8 @@ begin
     spi_master_inst : spi_master
         Port Map (
             -- Basic
-            CLK   => CLK,
-            RESET => RESET,
+            CLK    => CLK,
+            RESETN => RESETN,
 
             -- Control
             START => start_signal,
@@ -215,9 +215,9 @@ begin
 
     -------------------- Processes --------------------
 
-    on_off_edge_detect_proc: process(CLK, RESET)
+    on_off_edge_detect_proc: process(CLK, RESETN)
     begin
-        if (RESET = '1') then
+        if (RESETN = '0') then
             on_off_delay        <= '0';
             on_off_rising_edge  <= '0';
             on_off_falling_edge <= '0';
@@ -240,9 +240,9 @@ begin
     end process;
 
 
-    FSM_proc : process(CLK, RESET)
+    FSM_proc : process(CLK, RESETN)
     begin
-        if (RESET = '1') then
+        if (RESETN = '0') then
             state <= s_off;
         elsif (rising_edge(CLK)) then
             case state is
@@ -271,9 +271,9 @@ begin
                         "10" when (state = s_turning_off) else
                         "11" when (state = s_on);
 
-    on_off_proc : process(CLK, RESET)
+    on_off_proc : process(CLK, RESETN)
     begin
-        if (RESET = '1') then
+        if (RESETN = '0') then
             POWER_RESET           <= '1';
             VCC_ENABLE            <= '0';
             PMOD_ENABLE           <= '0';
@@ -820,9 +820,9 @@ begin
 
     -------------------- Tiners --------------------
 
-    timer_5us_proc : process(CLK, RESET)
+    timer_5us_proc : process(CLK, RESETN)
     begin
-        if (RESET = '1') then
+        if (RESETN = '0') then
             counter_5us <= 0;
         elsif (rising_edge(CLK)) then
             if (enable_counter_5us = '1') then
@@ -837,9 +837,9 @@ begin
 
     expired_counter_5us <= '1' when (counter_5us = max_counter_5us) else '0';
 
-    timer_20ms_proc : process(CLK, RESET)
+    timer_20ms_proc : process(CLK, RESETN)
     begin
-        if (RESET = '1') then
+        if (RESETN = '0') then
             counter_20ms <= 0;
         elsif (rising_edge(CLK)) then
             if (enable_counter_20ms = '1') then
@@ -854,9 +854,9 @@ begin
 
     expired_counter_20ms <= '1' when (counter_20ms = max_counter_20ms) else '0';
 
-    timer_25ms_proc : process(CLK, RESET)
+    timer_25ms_proc : process(CLK, RESETN)
     begin
-        if (RESET = '1') then
+        if (RESETN = '0') then
             counter_25ms <= 0;
         elsif (rising_edge(CLK)) then
             if (enable_counter_25ms = '1') then
@@ -871,9 +871,9 @@ begin
 
     expired_counter_25ms <= '1' when (counter_25ms = max_counter_25ms) else '0';
 
-    timer_100ms_proc : process(CLK, RESET)
+    timer_100ms_proc : process(CLK, RESETN)
     begin
-        if (RESET = '1') then
+        if (RESETN = '0') then
             counter_100ms <= 0;
         elsif (rising_edge(CLK)) then
             if (enable_counter_100ms = '1') then
@@ -888,9 +888,9 @@ begin
 
     expired_counter_100ms <= '1' when (counter_100ms = max_counter_100ms) else '0';
 
-    timer_400ms_proc : process(CLK, RESET)
+    timer_400ms_proc : process(CLK, RESETN)
     begin
-        if (RESET = '1') then
+        if (RESETN = '0') then
             counter_400ms <= 0;
         elsif (rising_edge(CLK)) then
             if (enable_counter_400ms = '1') then
@@ -905,9 +905,9 @@ begin
 
     expired_counter_400ms <= '1' when (counter_400ms = max_counter_400ms) else '0';
 
-    timer_spi_proc : process(CLK, RESET)
+    timer_spi_proc : process(CLK, RESETN)
     begin
-        if (RESET = '1') then
+        if (RESETN = '0') then
             counter_spi <= 0;
         elsif (rising_edge(CLK)) then
             if (enable_counter_spi = '1') then

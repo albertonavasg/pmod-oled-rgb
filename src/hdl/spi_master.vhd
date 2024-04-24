@@ -5,8 +5,8 @@ use IEEE.NUMERIC_STD.ALL;
 entity spi_master is
     Port (
         -- Basic
-        CLK   : in std_logic;
-        RESET : in std_logic;
+        CLK    : in std_logic;
+        RESETN : in std_logic;
 
         -- Control
         START : in  std_logic;
@@ -63,9 +63,9 @@ architecture Behavioral of spi_master is
 
 begin
 
-    edge_detect_proc : process(CLK, RESET)
+    edge_detect_proc : process(CLK, RESETN)
     begin
-        if (RESET = '1') then
+        if (RESETN = '0') then
             start_delay           <= '0';
             start_rising_edge     <= '0';
             clk_1mhz_delay        <= '1';
@@ -96,9 +96,9 @@ begin
         end if;
     end process;
 
-    FSM_proc: process(CLK, RESET)
+    FSM_proc: process(CLK, RESETN)
     begin
-        if (RESET = '1') then
+        if (RESETN = '0') then
             state <= s_idle;
         elsif (rising_edge(CLK)) then
             case state is
@@ -124,9 +124,9 @@ begin
 
     READY <= '1' when (state = s_idle) else '0';
 
-    tx_proc : process(CLK, RESET)
+    tx_proc : process(CLK, RESETN)
     begin
-        if (RESET = '1') then
+        if (RESETN = '0') then
             bit_counter <= "000";
             shift_data  <= "00000000";
             done        <= '0';
@@ -158,9 +158,9 @@ begin
     SCK  <= clk_1mhz      when (state = s_tx or state = s_last) else '1';
 
     
-    clk_1MHz_proc: process(CLK, RESET)
+    clk_1MHz_proc: process(CLK, RESETN)
     begin
-        if (RESET = '1') then
+        if (RESETN = '0') then
             counter_1mhz <= 0;
         elsif (rising_edge(CLK)) then
                 if (enable_counter_1mhz = '1') then
@@ -177,9 +177,9 @@ begin
 
     clk_1mhz <= '0' when (counter_1mhz >= max_counter_1mhz/2) else '1'; -- clk stays ON if disabled
 
-    timer_1us_proc : process(CLK, RESET)
+    timer_1us_proc : process(CLK, RESETN)
     begin
-        if (RESET = '1') then
+        if (RESETN = '0') then
             timer_1us <= 0;
         elsif (rising_edge(CLK)) then
             if (enable_timer_1us = '1') then

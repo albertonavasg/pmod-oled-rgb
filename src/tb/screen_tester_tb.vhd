@@ -12,7 +12,7 @@ architecture Behavioral of screen_tester_tb is
         Port ( 
             -- Basic
             CLK    : in std_logic;
-            RESET  : in std_logic;
+            RESETN  : in std_logic;
 
             -- Enable
             ENABLE : in std_logic;
@@ -42,13 +42,14 @@ architecture Behavioral of screen_tester_tb is
 
 
     -- Signals
-    signal clk, reset    : std_logic := '0';
+    signal clk, resetn   : std_logic := '0';
     signal enable        : std_logic := '0';
     signal on_off_status : std_logic_vector(1 downto 0) := "00";
     signal start         : std_logic := '0';
     signal ready         : std_logic := '0';
     signal data          : std_logic_vector(7 downto 0) := "00000000";
     signal data_command  : std_logic := '0';
+    
     signal enable_delay_dbg        : std_logic := '0';
     signal enable_rising_edge_dbg  : std_logic := '0';
     signal enable_falling_edge_dbg : std_logic := '0';
@@ -63,8 +64,8 @@ begin
     
     screen_tester_inst: screen_tester
         Port Map (
-            CLK   => clk,
-            RESET => reset,
+            CLK    => clk,
+            RESETN => resetn,
 
             -- Enable
             ENABLE => enable,
@@ -102,9 +103,9 @@ begin
     begin
         on_off_status <= "11";
         ready         <= '1';
-        reset         <= '1';
+        resetn        <= '0';
             wait for 5*clk_period;
-        reset  <= '0';
+        resetn <= '1';
         enable <= '1';
             wait for 50*clk_period;
         enable <= '0';

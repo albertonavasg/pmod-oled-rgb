@@ -12,7 +12,7 @@ architecture Behavioral of screen_controller_tb is
         Port (
             -- Basic
             CLK   : in std_logic;
-            RESET : in std_logic;
+            RESETN : in std_logic;
 
             -- Control
             ON_OFF        : in  std_logic;
@@ -54,7 +54,7 @@ architecture Behavioral of screen_controller_tb is
     constant clk_period : time := 8 ns;
 
     -- Signals
-    signal clk, reset                                   : std_logic                    := '0';
+    signal clk, resetn                                  : std_logic                    := '0';
     signal on_off, power_reset, vcc_enable, pmod_enable : std_logic                    := '0';
     signal on_off_status                                : std_logic_vector(1 downto 0) := "00";
     signal start, ready                                 : std_logic                    := '0';
@@ -82,42 +82,42 @@ begin
     UUT : screen_controller
         Port Map (
             -- Basic       
-            clk   => clk,
-            reset => reset,
+            CLK   => clk,
+            RESETN => resetn,
 
             -- Control  
-            on_off        => on_off,  
-            on_off_status => on_off_status,
-            start         => start,
-            ready         => ready,
+            ON_OFF        => on_off,  
+            ON_OFF_STATUS => on_off_status,
+            START         => start,
+            READY         => ready,
 
             -- Power      
-            power_reset => power_reset,
-            vcc_enable  => vcc_enable,
-            pmod_enable => pmod_enable,
+            POWER_RESET => power_reset,
+            VCC_ENABLE  => vcc_enable,
+            PMOD_ENABLE => pmod_enable,
 
             -- Data       
-            data             => data,
-            data_command_in  => data_command_in,
-            data_command_out => data_command_out,
+            DATA             => data,
+            DATA_COMMAND_IN  => data_command_in,
+            DATA_COMMAND_OUT => data_command_out,
 
             -- SPI        
-            mosi => mosi,
-            sck  => sck,
-            cs   => cs,
+            MOSI => mosi,
+            SCK  => sck,
+            CS   => cs,
 
             -- Debug
-            seq_counter_dbg           => seq_counter_dbg,
-            start_signal_dbg          => start_signal_dbg,
-            ready_signal_dbg          => ready_signal_dbg,
-            data_signal_dbg           => data_signal_dbg,
-            data_command_internal_dbg => data_command_internal_dbg,
-            expired_counter_5us_dbg   => expired_counter_5us_dbg,
-            expired_counter_20ms_dbg  => expired_counter_20ms_dbg,
-            expired_counter_25ms_dbg  => expired_counter_25ms_dbg,
-            expired_counter_100ms_dbg => expired_counter_100ms_dbg,
-            expired_counter_400ms_dbg => expired_counter_400ms_dbg,
-            expired_counter_spi_dbg   => expired_counter_spi_dbg
+            SEQ_COUNTER_DBG           => seq_counter_dbg,
+            START_SIGNAL_DBG          => start_signal_dbg,
+            READY_SIGNAL_DBG          => ready_signal_dbg,
+            DATA_SIGNAL_DBG           => data_signal_dbg,
+            DATA_COMMAND_INTERNAL_DBG => data_command_internal_dbg,
+            EXPIRED_COUNTER_5US_DBG   => expired_counter_5us_dbg,
+            EXPIRED_COUNTER_20MS_DBG  => expired_counter_20ms_dbg,
+            EXPIRED_COUNTER_25MS_DBG  => expired_counter_25ms_dbg,
+            EXPIRED_COUNTER_100MS_DBG => expired_counter_100ms_dbg,
+            EXPIRED_COUNTER_400MS_DBG => expired_counter_400ms_dbg,
+            EXPIRED_COUNTER_SPI_DBG   => expired_counter_spi_dbg
         );
 
     -- Stimulus processes
@@ -132,13 +132,12 @@ begin
 
     stim_proc : process
     begin
-        reset  <= '1';
-        on_off <= '0';
+        resetn  <= '0';
+        on_off  <= '0';
         wait for 5*clk_period;
-        reset  <= '0';
-        on_off <= '0';
+        resetn  <= '1';
+        on_off  <= '0';
         wait for 1*clk_period;
-        reset  <= '0';
         on_off <= '1';
         wait for 100000*clk_period;
         on_off <= '0';

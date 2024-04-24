@@ -14,7 +14,7 @@ architecture Behavioral of top_tb is
         RESET : in std_logic;
 
         SW     : in  std_logic_vector(1 downto 0);
-        LED    : out std_logic_vector(2 downto 0);
+        LED    : out std_logic_vector(3 downto 0);
 
         -- PmodA
         JA_0_CS     : out std_logic;
@@ -35,7 +35,7 @@ architecture Behavioral of top_tb is
     signal clk, reset : std_logic := '0';
 
     signal sw  : std_logic_vector(1 downto 0) := "00";
-    signal led : std_logic_vector(2 downto 0) := "000";
+    signal led : std_logic_vector(3 downto 0) := "0000";
 
     signal ja_0_cs     : std_logic := '0';
     signal ja_1_mosi   : std_logic := '0';

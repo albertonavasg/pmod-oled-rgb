@@ -6,7 +6,7 @@ entity screen_tester is
     Port ( 
         -- Basic
         CLK    : in std_logic;
-        RESET  : in std_logic;
+        RESETN : in std_logic;
 
         -- Enable
         ENABLE : in std_logic;
@@ -45,9 +45,9 @@ architecture Behavioral of screen_tester is
 
 begin
 
-    enable_edge_detect_proc: process(CLK, RESET)
+    enable_edge_detect_proc: process(CLK, RESETN)
     begin
-        if (RESET = '1') then
+        if (RESETN = '0') then
             enable_delay        <= '0';
             enable_rising_edge  <= '0';
             enable_falling_edge <= '0';
@@ -69,9 +69,9 @@ begin
         end if;
     end process;
 
-    trigger_proc: process(CLK, RESET)
+    trigger_proc: process(CLK, RESETN)
     begin
-        if (RESET = '1') then
+        if (RESETN = '0') then
             send_on_flag  <= '0';
             send_off_flag <= '0';
         elsif (rising_edge(CLK)) then
@@ -88,9 +88,9 @@ begin
         end if;
     end process;
 
-    main_proc: process(CLK, RESET)
+    main_proc: process(CLK, RESETN)
     begin
-        if (RESET = '1') then
+        if (RESETN = '0') then
             DATA              <= (others => '0');
             DATA_COMMAND      <= '0';
             START             <= '0';
