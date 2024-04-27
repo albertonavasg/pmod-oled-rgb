@@ -32,7 +32,15 @@ ON_OFF_STATUS: 00 OFF
 			   01 Turning ON
 			   10 Turning OFF
 			   11 ON		
+---
 
+Use:
+
+Open Vivado Hardware manager and load the bitfile into the PYNQ-Z2.
+
+Then you will be able to use it as descibed above
+
+---
 
 Replicate the project:
 

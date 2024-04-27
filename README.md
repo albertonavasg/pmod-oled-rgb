@@ -1,3 +1,5 @@
+PENDING TO UPDATE
+
 # pmod-oled-rgb
 
 Project for Design of Embedded Systems, usable in PYNQ-Z2.
