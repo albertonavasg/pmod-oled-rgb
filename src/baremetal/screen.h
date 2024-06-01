@@ -7,6 +7,10 @@
 #include <xparameters.h>
 #include <xil_io.h>
 #include "xil_printf.h"
+#include <sleep.h>
+
+// SIZE OF THE SCREEN
+#define N_PIXELS 96*64
 
 // ON_OFF_STATUS
 #define OFF 0
@@ -18,15 +22,30 @@
 #define COMMAND 0
 #define DATA 1
 
-void write_on_off(bool value);
+// COLOR MAX
+#define R_MAX 31
+#define G_MAX 63
+#define B_MAX 31
 
-uint8_t read_on_off_status();
+void writeOnOff(bool value);
 
-bool read_ready();
+uint8_t readOnOffStatus();
 
-void send_command(uint8_t comm);
+bool readReady();
 
-void send_multi_command(uint8_t *comm, int n);
+void sendCommand(uint8_t comm);
+
+void sendMultiCommand(uint8_t *comm, int n);
+
+void sendData(uint8_t data);
+
+void sendMultiData(uint8_t *data, int n);
+
+void sendPixel(uint8_t r, uint8_t g, uint8_t b, uint8_t colorDepth);
+
+void sendMultiPixel(uint8_t *r, uint8_t *g, uint8_t *b, uint8_t colorDepth, int n);
+
+void setColorDepth(uint8_t colorDepth);
 
 #endif
 
