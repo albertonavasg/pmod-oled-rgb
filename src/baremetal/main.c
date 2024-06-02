@@ -11,41 +11,88 @@
 #include "xil_io.h"		 //For IO
 #include "screen.h"		 // For custom functions
 
+void test();
+
+screenInstance screen;
+
+uint8_t r[N_PIXELS];
+uint8_t g[N_PIXELS];
+uint8_t b[N_PIXELS];
+
 int main() {
 
-    init_platform();
-
-    writeOnOff(true);
-    sleep(2);
-
-    sendCommand(0xA5);
-    sleep(2);
-    sendCommand(0xA6);
-    sleep(2);
-    sendCommand(0xA4);
-    sleep(2);
-
-    setColorDepth(1);
-    for(int i = 0; i < N_PIXELS; i++){
-    	sendPixel(R_MAX, 0, 0, 1);
-    }
-    sleep(2);
-
-    setColorDepth(2);
-    for(int i = 0; i < N_PIXELS; i++){
-    	sendPixel(0, G_MAX, 0, 2);
-    }
-    sleep(2);
-
-    setColorDepth(3);
-    for(int i = 0; i < N_PIXELS; i++){
-    	sendPixel(0, 0, B_MAX, 3);
-    }
-    sleep(2);
-
-    writeOnOff(false);
-
-    cleanup_platform();
+	screenBegin(&screen);
+    test();
+    screenEnd(&screen);
 
     return 0;
+}
+
+void test(){
+
+	sleep(1);
+	sendCommand(0xA5);
+	sleep(1);
+	sendCommand(0xA4);
+	clearScreen(0, 0, N_COLUMNS-1, N_ROWS-1);
+	sleep(1);
+
+	setColorDepth(&screen, 1);
+	for(int i = 0; i < N_PIXELS; i++){
+		r[i] = R_MAX;
+		g[i] = 0;
+		b[i] = 0;
+	}
+	sendMultiPixel(r, g, b, screen.colorDepth, N_PIXELS);
+	sleep(1);
+
+	setColorDepth(&screen, 2);
+	for(int i = 0; i < N_PIXELS; i++){
+		r[i] = 0;
+		g[i] = G_MAX;
+		b[i] = 0;
+	}
+	sendMultiPixel(r, g, b, screen.colorDepth, N_PIXELS);
+	sleep(1);
+
+	setColorDepth(&screen, 3);
+	for(int i = 0; i < N_PIXELS; i++){
+		r[i] = 0;
+		g[i] = 0;
+		b[i] = B_MAX;
+	}
+	sendMultiPixel(r, g, b, screen.colorDepth, N_PIXELS);
+	sleep(1);
+
+	srand(0);
+	setColorDepth(&screen, 2);
+	for(int i = 0; i < N_PIXELS; i++){
+		r[i] = rand()%R_MAX;
+		g[i] = rand()%G_MAX;
+		b[i] = rand()%B_MAX;
+	}
+	sendMultiPixel(r, g, b, 2, N_PIXELS);
+	sleep(1);
+
+	setColorDepth(&screen, 2);
+	for(int i = 0; i < N_PIXELS; i++){
+		if(i%N_COLUMNS < N_COLUMNS/2){
+			r[i] = R_MAX;
+			g[i] = 0;
+			b[i] = 0;
+		}
+		else{
+			r[i] = 0;
+			g[i] = 0;
+			b[i] = B_MAX;
+		}
+	}
+	sendMultiPixel(r, g, b, screen.colorDepth, N_PIXELS);
+	sleep(1);
+
+	setupScrolling(1, 0, N_ROWS, 0, 0b00);
+	enableScrolling(true);
+	sleep(5);
+	enableScrolling(false);
+	sleep(1);
 }

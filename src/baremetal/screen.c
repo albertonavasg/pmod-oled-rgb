@@ -1,5 +1,19 @@
 #include "screen.h"
 
+void screenBegin(screenInstance *screen){
+	screen->colorDepth = 2; //Default
+
+    init_platform();
+	writeOnOff(true);
+}
+
+void screenEnd(screenInstance *screen){
+
+	clearScreen(0, 0, N_COLUMNS-1, N_ROWS-1);
+    cleanup_platform();
+	writeOnOff(false);
+}
+
 void writeOnOff(bool value){
 
     Xil_Out32(XPAR_SCREEN_0_S00_AXI_BASEADDR, value);
@@ -58,8 +72,8 @@ void sendPixel(uint8_t r, uint8_t g, uint8_t b, uint8_t colorDepth){
 
 	switch (colorDepth){
 		case 1:
-			data = ( (r>>2) << 5 | (g>>3) << 2 | (b>>3) );
-			sendData((uint8_t)(data));
+			data = (uint8_t)( (r>>2) << 5 | (g>>3) << 2 | (b>>3) );
+			sendData(data);
 			break;
 		case 2:
 			data = ( (r) << 11 | (g) << 5 | (b) );
@@ -87,7 +101,9 @@ void sendMultiPixel(uint8_t *r, uint8_t *g, uint8_t *b, uint8_t colorDepth, int 
 	}
 }
 
-void setColorDepth(uint8_t colorDepth){
+void setColorDepth(screenInstance *screen, uint8_t colorDepth){
+
+	screen->colorDepth = colorDepth;
 
 	uint8_t command[2];
 	command[0] = 0xA0;
@@ -97,4 +113,33 @@ void setColorDepth(uint8_t colorDepth){
 	//             01 colorDepth 2
 	//             10 colorDepth 3
 	sendMultiCommand(command, 2);
+}
+
+void setupScrolling(uint8_t horizontalScrollOffset, uint8_t rowStart, uint8_t rowsNumber, uint8_t verticalScrollOffset, uint8_t timeInterval){
+
+	uint8_t command[6];
+	command[0] = 0x27;
+	command[1] = horizontalScrollOffset;
+	command[2] = rowStart;
+	command[3] = rowsNumber;
+	command[4] = verticalScrollOffset;
+	command[4] = timeInterval;
+	sendMultiCommand(command, 6);
+}
+
+void enableScrolling(bool value){
+
+	uint8_t command = value ? 0x2F : 0x2E;
+	sendCommand(command);
+}
+
+void clearScreen(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2){
+
+	uint8_t command[5];
+	command[0] = 0x25;
+	command[1] = c1;
+	command[2] = r1;
+	command[3] = c2;
+	command[4] = r2;
+	sendMultiCommand(command, 5);
 }

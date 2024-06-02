@@ -4,13 +4,16 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "platform.h"
 #include <xparameters.h>
 #include <xil_io.h>
 #include "xil_printf.h"
 #include <sleep.h>
 
 // SIZE OF THE SCREEN
-#define N_PIXELS 96*64
+#define N_ROWS 64
+#define N_COLUMNS 96
+#define N_PIXELS 64*96
 
 // ON_OFF_STATUS
 #define OFF 0
@@ -26,6 +29,14 @@
 #define R_MAX 31
 #define G_MAX 63
 #define B_MAX 31
+
+typedef struct{
+	uint8_t colorDepth;
+} screenInstance;
+
+void screenBegin(screenInstance *screen);
+
+void screenEnd(screenInstance *screen);
 
 void writeOnOff(bool value);
 
@@ -45,7 +56,13 @@ void sendPixel(uint8_t r, uint8_t g, uint8_t b, uint8_t colorDepth);
 
 void sendMultiPixel(uint8_t *r, uint8_t *g, uint8_t *b, uint8_t colorDepth, int n);
 
-void setColorDepth(uint8_t colorDepth);
+void setColorDepth(screenInstance *screen, uint8_t colorDepth);
+
+void setupScrolling(uint8_t horizontalScrollOffset, uint8_t rowStart, uint8_t rowsNumber, uint8_t verticalScrollOffset, uint8_t timeInterval);
+
+void enableScrolling(bool value);
+
+void clearScreen(uint8_t r1, uint8_t c1, uint8_t r2, uint8_t c2);
 
 #endif
 
