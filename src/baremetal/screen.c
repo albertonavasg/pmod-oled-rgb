@@ -9,7 +9,7 @@ void screenBegin(screenInstance *screen){
 
 void screenEnd(screenInstance *screen){
 
-	clearScreen(0, 0, N_COLUMNS-1, N_ROWS-1);
+	clearScreen();
     cleanup_platform();
 	writeOnOff(false);
 }
@@ -67,7 +67,7 @@ void sendMultiData(uint8_t *data, int n){
 
 void sendPixel(uint8_t r, uint8_t g, uint8_t b, uint8_t colorDepth){
 
-	uint32_t data = 0x00000000;
+	uint32_t data = 0;
 	uint8_t byte[3] = {0};
 
 	switch (colorDepth){
@@ -106,40 +106,92 @@ void setColorDepth(screenInstance *screen, uint8_t colorDepth){
 	screen->colorDepth = colorDepth;
 
 	uint8_t command[2];
-	command[0] = 0xA0;
+	command[0] = CMD_REMAP;
 	command[1] = 0x32 | ((colorDepth - 1) << 6);
-	//           0b00110010
-	//             00 colorDepth 1
-	//             01 colorDepth 2
-	//             10 colorDepth 3
+	sendMultiCommand(command, 2);
+}
+
+void clearScreen(){
+
+	clearWindow(0, 0, N_COLUMNS-1, N_ROWS-1);
+}
+
+void drawLine(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, uint8_t r, uint8_t g, uint8_t b){
+
+	uint8_t command[8];
+	command[0] = CMD_DRAWLINE;
+	command[1] = c1;
+	command[2] = r1;
+	command[3] = c2;
+	command[4] = r2;
+	command[5] = r << 1;
+	command[6] = g;
+	command[7] = b << 1;
+	sendMultiCommand(command, 8);
+}
+
+void drawRectangle(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, uint8_t rLine, uint8_t gLine, uint8_t bLine, uint8_t rFill, uint8_t gFill, uint8_t bFill){
+
+	uint8_t command[11];
+	command[0] = CMD_DRAWRECTANGLE;
+	command[1] = c1;
+	command[2] = r1;
+	command[3] = c2;
+	command[4] = r2;
+	command[5] = rLine << 1;
+	command[6] = gLine;
+	command[7] = bLine << 1;
+	command[8] = rFill << 1;
+	command[9] = gFill;
+	command[10] = bFill << 1;
+	sendMultiCommand(command, 11);
+}
+
+void copyWindow(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, uint8_t c3, uint8_t r3){
+
+	uint8_t command[7];
+	command[0] = CMD_COPYWINDOW;
+	command[1] = c1;
+	command[2] = r1;
+	command[3] = c2;
+	command[4] = r2;
+	command[5] = c3;
+	command[6] = r3;
+	sendMultiCommand(command, 7);
+}
+
+void clearWindow(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2){
+
+	uint8_t command[5];
+	command[0] = CMD_CLEARWINDOW;
+	command[1] = c1;
+	command[2] = r1;
+	command[3] = c2;
+	command[4] = r2;
+	sendMultiCommand(command, 5);
+}
+
+void enableFill(bool fillRectangle, bool reverseCopy){
+	uint8_t command[2];
+	command[0] = CMD_FILLENABLEDISABLE;
+	command[1] = 0x00 | (reverseCopy << 4) | (fillRectangle);
 	sendMultiCommand(command, 2);
 }
 
 void setupScrolling(uint8_t horizontalScrollOffset, uint8_t rowStart, uint8_t rowsNumber, uint8_t verticalScrollOffset, uint8_t timeInterval){
 
 	uint8_t command[6];
-	command[0] = 0x27;
+	command[0] = CMD_SETUPSCROLLING;
 	command[1] = horizontalScrollOffset;
 	command[2] = rowStart;
 	command[3] = rowsNumber;
 	command[4] = verticalScrollOffset;
-	command[4] = timeInterval;
+	command[5] = timeInterval;
 	sendMultiCommand(command, 6);
 }
 
 void enableScrolling(bool value){
 
-	uint8_t command = value ? 0x2F : 0x2E;
+	uint8_t command = value ? CMD_ENABLESCROLLING : CMD_DISABLESCROLLING;
 	sendCommand(command);
-}
-
-void clearScreen(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2){
-
-	uint8_t command[5];
-	command[0] = 0x25;
-	command[1] = c1;
-	command[2] = r1;
-	command[3] = c2;
-	command[4] = r2;
-	sendMultiCommand(command, 5);
 }
