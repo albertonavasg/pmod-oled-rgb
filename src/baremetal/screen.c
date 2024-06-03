@@ -116,6 +116,30 @@ void clearScreen(){
 	clearWindow(0, 0, N_COLUMNS-1, N_ROWS-1);
 }
 
+void drawBitmap(screenInstance *screen, uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, uint8_t *r, uint8_t *g, uint8_t *b){
+	setRowAddress(r1, r2);
+	setColumnAddress(c1, c2);
+	sendMultiPixel(r, g, b, screen->colorDepth, (r2-r1+1)*(c2-c1+1));
+}
+
+void setColumnAddress(uint8_t cBegin, uint8_t cEnd){
+
+	uint8_t command[3];
+	command[0] = CMD_SETCOLUMNADDRESS;
+	command[1] = cBegin;
+	command[2] = cEnd;
+	sendMultiCommand(command, 3);
+}
+
+void setRowAddress(uint8_t rBegin, uint8_t rEnd){
+
+	uint8_t command[3];
+	command[0] = CMD_SETROWADDRESS;
+	command[1] = rBegin;
+	command[2] = rEnd;
+	sendMultiCommand(command, 3);
+}
+
 void drawLine(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, uint8_t r, uint8_t g, uint8_t b){
 
 	uint8_t command[8];

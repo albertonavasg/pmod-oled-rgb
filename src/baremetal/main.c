@@ -10,6 +10,7 @@
 #include "xparameters.h" //For IP Addresses
 #include "xil_io.h"		 //For IO
 #include "screen.h"		 // For custom functions
+#include "bitmap.h"
 
 void test();
 void testScreen();
@@ -18,6 +19,8 @@ void testScrolling();
 void testDrawLine();
 void testDrawRectangle();
 void testCopy();
+void testColumnRowAddress();
+void testDrawBitmap();
 
 screenInstance screen;
 
@@ -42,6 +45,8 @@ void test(){
 	testDrawLine();
 	testDrawRectangle();
 	testCopy();
+	testColumnRowAddress();
+	testDrawBitmap();
 }
 
 void testScreen(){
@@ -194,5 +199,38 @@ void testCopy(){
 	sleep(1);
 	copyWindow(5, 5, 35, 35, 50, 5);
 	sleep(1);
+	clearScreen();
+}
+
+void testColumnRowAddress(){
+
+	sleep(1);
+	setColumnAddress(20, 30);
+	setRowAddress(20, 30);
+	for(int i = 0; i < 100; i++){
+		r[i] = R_MAX;
+		g[i] = 0;
+		b[i] = 0;
+	}
+	sendMultiPixel(r, g, b, screen.colorDepth, 100);
+	sleep(1);
+
+	setColumnAddress(50, 60);
+	setRowAddress(50, 60);
+	for(int i = 0; i < 100; i++){
+		r[i] = 0;
+		g[i] = G_MAX;
+		b[i] = 0;
+	}
+	sendMultiPixel(r, g, b, screen.colorDepth, 100);
+	sleep(1);
+	clearScreen();
+}
+
+void testDrawBitmap(){
+
+	sleep(1);
+	drawBitmap(&screen, 0, 0, N_COLUMNS-1, N_ROWS-1, bitmapR, bitmapG, bitmapB);
+	sleep(5);
 	clearScreen();
 }

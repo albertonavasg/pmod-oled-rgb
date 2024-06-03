@@ -107,8 +107,13 @@ void setColorDepth(screenInstance *screen, uint8_t colorDepth);
 
 void clearScreen();
 
+void drawBitmap(screenInstance *screen, uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, uint8_t *r, uint8_t *g, uint8_t *b);
 
 // Standard
+void setColumnAddress(uint8_t cBegin, uint8_t cEnd);
+
+void setRowAddress(uint8_t rBegin, uint8_t rEnd);
+
 void drawLine(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, uint8_t r, uint8_t g, uint8_t b);
 
 void drawRectangle(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, uint8_t rLine, uint8_t gLine, uint8_t bLine, uint8_t rFill, uint8_t gFill, uint8_t bFill);
