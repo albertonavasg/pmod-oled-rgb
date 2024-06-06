@@ -30,6 +30,10 @@
 #define G_MAX 63
 #define B_MAX 31
 
+// Address increment
+#define HORIZONTAL 0
+#define VERTICAL 1
+
 // COMMANDS
 #define CMD_SETCOLUMNADDRESS           0x15
 #define CMD_SETROWADDRESS              0x75
@@ -74,6 +78,8 @@
 // Screen instance
 typedef struct{
 	uint8_t colorDepth;
+	uint8_t addressIncrement;
+	uint8_t remapColorDepthSetting;
 } screenInstance;
 
 // Color definition
@@ -111,6 +117,8 @@ void sendPixel(screenInstance screen, colorInstance color);
 void sendMultiPixel(screenInstance screen, colorInstance *color, int n);
 
 void setColorDepth(screenInstance *screen, uint8_t colorDepth);
+
+void setAddressIncrement(screenInstance *screen, uint8_t addressIncrement);
 
 void clearScreen();
 

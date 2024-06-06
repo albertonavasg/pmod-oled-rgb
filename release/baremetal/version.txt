@@ -1,4 +1,4 @@
-Version: 2.5
+Version: 2.6
 Date: June 6th 2024
 
 This is the baremetal "phase" of the design.

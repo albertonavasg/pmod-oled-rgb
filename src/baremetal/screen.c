@@ -1,7 +1,11 @@
 #include "screen.h"
 
 void screenBegin(screenInstance *screen){
-	screen->colorDepth = 2; //Default
+
+	//Default values
+	screen->colorDepth = 2;
+	screen->addressIncrement = HORIZONTAL;
+	screen->remapColorDepthSetting = 0x72;
 
     init_platform();
 	writeOnOff(true);
@@ -107,8 +111,22 @@ void setColorDepth(screenInstance *screen, uint8_t colorDepth){
 
 	uint8_t command[2];
 	command[0] = CMD_REMAP;
-	command[1] = 0x32 | ((colorDepth - 1) << 6);
+	command[1] = ( screen->remapColorDepthSetting & 0b00111111 ) | ( (colorDepth - 1) << 6 );
 	sendMultiCommand(command, 2);
+
+	screen->remapColorDepthSetting = command[1];
+}
+
+void setAddressIncrement(screenInstance *screen, uint8_t addressIncrement){
+
+	screen->addressIncrement = addressIncrement;
+
+	uint8_t command[2];
+	command[0] = CMD_REMAP;
+	command[1] = (screen->remapColorDepthSetting & 0b1111111) | addressIncrement;
+	sendMultiCommand(command, 2);
+
+	screen->addressIncrement = command[1];
 }
 
 void clearScreen(){

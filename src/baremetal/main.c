@@ -15,6 +15,7 @@
 void test();
 void testScreen();
 void testColorDepth();
+void testAddressIncrement();
 void testScrolling();
 void testDrawLine();
 void testDrawRectangle();
@@ -39,7 +40,7 @@ void test(){
 
 	testScreen();
 	testColorDepth();
-	testScrolling();
+	testAddressIncrement();
 	testDrawLine();
 	testDrawRectangle();
 	testCopy();
@@ -95,6 +96,34 @@ void testColorDepth(){
 	}
 	sendMultiPixel(screen, color, N_PIXELS);
 	sleep(1);
+
+	setColorDepth(&screen, 2);
+	clearScreen();
+}
+
+void testAddressIncrement(){
+
+	sleep(1);
+	setColorDepth(&screen, 2);
+	setAddressIncrement(&screen, HORIZONTAL);
+	for(int i = 0; i < N_PIXELS; i++){
+		color[i].r = R_MAX;
+		color[i].g = 0;
+		color[i].b = 0;
+	}
+	sendMultiPixel(screen, color, N_PIXELS);
+	sleep(1);
+
+	setAddressIncrement(&screen, VERTICAL);
+	for(int i = 0; i < N_PIXELS; i++){
+		color[i].r = 0;
+		color[i].g = 0;
+		color[i].b = B_MAX;
+	}
+	sendMultiPixel(screen, color, N_PIXELS);
+	sleep(1);
+
+	setAddressIncrement(&screen, HORIZONTAL);
 	clearScreen();
 }
 
