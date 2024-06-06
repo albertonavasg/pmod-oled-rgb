@@ -1,14 +1,14 @@
 #ifndef SCREENH
 #define SCREENH
 
-#include <stdbool.h>
-#include <stdint.h>
+#include <stdbool.h>     // For bool
+#include <stdint.h>      // For uint8_t
 
-#include "platform.h"
-#include <xparameters.h>
-#include <xil_io.h>
-#include "xil_printf.h"
-#include <sleep.h>
+#include "platform.h"    // For UART
+#include <xparameters.h> // For IP Addresses
+#include <xil_io.h>      // For IO
+#include "xil_printf.h"  // For printf and xil_print
+#include <sleep.h>       // For sleep()
 
 // SIZE OF THE SCREEN
 #define N_ROWS 64
@@ -25,7 +25,7 @@
 #define COMMAND 0
 #define DATA 1
 
-// COLOR MAX
+// COLOR MAX (565 Format RGB)
 #define R_MAX 31
 #define G_MAX 63
 #define B_MAX 31
@@ -76,6 +76,13 @@ typedef struct{
 	uint8_t colorDepth;
 } screenInstance;
 
+// Color definition
+typedef struct{
+	uint8_t r;
+	uint8_t g;
+	uint8_t b;
+} colorInstance;
+
 // Functions
 
 // Basic
@@ -99,20 +106,43 @@ void sendMultiData(uint8_t *data, int n);
 
 
 // Custom
-void sendPixel(uint8_t r, uint8_t g, uint8_t b, uint8_t colorDepth);
+void sendPixel(screenInstance screen, colorInstance color);
 
-void sendMultiPixel(uint8_t *r, uint8_t *g, uint8_t *b, uint8_t colorDepth, int n);
+void sendMultiPixel(screenInstance screen, colorInstance *color, int n);
 
 void setColorDepth(screenInstance *screen, uint8_t colorDepth);
 
 void clearScreen();
 
-void drawBitmap(screenInstance *screen, uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, uint8_t *r, uint8_t *g, uint8_t *b);
+void drawBitmap(screenInstance screen, uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, colorInstance *color);
+
+void setCursor();
 
 // Standard
 void setColumnAddress(uint8_t cBegin, uint8_t cEnd);
-
 void setRowAddress(uint8_t rBegin, uint8_t rEnd);
+
+void setContrastA();
+void setContrastB();
+void setContrastC();
+void masterCurrentControl();
+void setSecondPrechargeSpeedABC();
+void remapAndColorSetting();
+void setDisplayStartLine();
+void setDisplayOffset();
+void setDisplayMode();
+void setMultiplexRatio();
+void dimModeSetting();
+void setMasterConfiguration();
+void setDisplayOnOff();
+void powerSaveMode();
+void period12PeriodAdjustment();
+void displayClockDivider();
+void setGrayScaleTable();
+void enableLinearGrayScaleTable();
+void setPrechargeLevel();
+void setVcomh();
+void setCommandLock();
 
 void drawLine(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, uint8_t r, uint8_t g, uint8_t b);
 

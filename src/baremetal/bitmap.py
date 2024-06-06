@@ -4,8 +4,11 @@
 from PIL import Image
 import numpy as np
 
+# Set the name of the image file
+image_name = 'image1.jpg'
+
 # Load the image
-image = Image.open('CIMG1877.JPG')
+image = Image.open(image_name)
 
 # Resize the image to 96x64 pixels
 image = image.resize((96, 64), Image.Resampling.LANCZOS)
@@ -32,32 +35,27 @@ r_values_565 = np.floor((r_values / 255.0) * 31).astype(int).flatten()
 g_values_565 = np.floor((g_values / 255.0) * 63).astype(int).flatten()
 b_values_565 = np.floor((b_values / 255.0) * 31).astype(int).flatten()
 
-# Print the vectors (optional)
-# print("R values (RGB565):", r_values_565)
-# print("G values (RGB565):", g_values_565)
-# print("B values (RGB565):", b_values_565)
+# Combine the values into a single array of tuples
+rgb565_values = list(zip(r_values_565, g_values_565, b_values_565))
 
-# Function to convert a NumPy array to a C-style array string
-def array_to_c_declaration(name, array):
-    c_declaration = f"uint8_t {name}[] = {{\n"
-    values_per_line = 16  # Adjust the number of values per line for readability
+# Function to convert an array of structs to a C-style declaration
+def array_of_structs_to_c_declaration(name, array):
+    c_declaration = f'#include <stdint.h> // For uint8_t\n'
+    c_declaration += f'#include "screen.h" // For color definition\n\n'
+    c_declaration += f"colorInstance {name}[] = {{\n"
+    values_per_line = 4  # Adjust the number of structs per line for readability
     for i in range(0, len(array), values_per_line):
         line_values = array[i:i + values_per_line]
-        line_str = ", ".join(map(str, line_values))
+        line_str = ", ".join([f"{{{r}, {g}, {b}}}" for r, g, b in line_values])
         c_declaration += f"    {line_str},\n"
     c_declaration = c_declaration.rstrip(",\n") + "\n};\n"
     return c_declaration
 
-# Convert arrays to C-style declarations
-bitmap_r = array_to_c_declaration("bitmapR", r_values_565)
-bitmap_g = array_to_c_declaration("bitmapG", g_values_565)
-bitmap_b = array_to_c_declaration("bitmapB", b_values_565)
+# Convert array to C-style declaration
+c_declaration = array_of_structs_to_c_declaration("imageBitmap", rgb565_values)
 
-# Combine all declarations into one string
-c_code = "#include <stdint.h> // For uint8_t\n\n" + bitmap_r + "\n" + bitmap_g + "\n" + bitmap_b
-
-# Write the C-style declarations to a file
+# Write the C-style declaration to a file
 with open("bitmap.h", "w") as file:
-    file.write(c_code)
+    file.write(c_declaration)
 
-print("C-style declarations written to bitmap.h")
+print("\n\t" + image_name + " converted to bitmap.h")

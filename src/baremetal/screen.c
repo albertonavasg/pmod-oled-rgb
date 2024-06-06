@@ -65,28 +65,28 @@ void sendMultiData(uint8_t *data, int n){
 	}
 }
 
-void sendPixel(uint8_t r, uint8_t g, uint8_t b, uint8_t colorDepth){
+void sendPixel(screenInstance screen, colorInstance color){
 
 	uint32_t data = 0;
 	uint8_t byte[3] = {0};
 
-	switch (colorDepth){
+	switch (screen.colorDepth){
 		case 1:
-			data = (uint8_t)( (r>>2) << 5 | (g>>3) << 2 | (b>>3) );
+			data = (uint8_t)( (color.r>>2) << 5 | (color.g>>3) << 2 | (color.b>>3) );
 			sendData(data);
 			break;
 		case 2:
-			data = ( (r) << 11 | (g) << 5 | (b) );
+			data = ( (color.r) << 11 | (color.g) << 5 | (color.b) );
 			byte[0] = (uint8_t)(data >> 8);
 			byte[1] = (uint8_t)(data & 0x000000FF);
-			sendMultiData(byte, colorDepth);
+			sendMultiData(byte, screen.colorDepth);
 			break;
 		case 3:
-			data = ( (r) << 17 | (g) << 8 | (b) << 1);
+			data = ( (color.r) << 17 | (color.g) << 8 | (color.b) << 1);
 			byte[0] = (uint8_t) (data >> 16);
 			byte[1] = (uint8_t) ((data & 0x0000FF00) >> 8);
 			byte[2] = (uint8_t) (data & 0x000000FF);
-			sendMultiData(byte, colorDepth);
+			sendMultiData(byte, screen.colorDepth);
 			break;
 		default:
 			data = 0xFFFFFFFF;
@@ -94,10 +94,10 @@ void sendPixel(uint8_t r, uint8_t g, uint8_t b, uint8_t colorDepth){
 	}
 }
 
-void sendMultiPixel(uint8_t *r, uint8_t *g, uint8_t *b, uint8_t colorDepth, int n){
+void sendMultiPixel(screenInstance screen, colorInstance *color, int n){
 
 	for(int i = 0; i < n; i++){
-		sendPixel(r[i], g[i], b[i], colorDepth);
+		sendPixel(screen, color[i]);
 	}
 }
 
@@ -116,10 +116,10 @@ void clearScreen(){
 	clearWindow(0, 0, N_COLUMNS-1, N_ROWS-1);
 }
 
-void drawBitmap(screenInstance *screen, uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, uint8_t *r, uint8_t *g, uint8_t *b){
+void drawBitmap(screenInstance screen, uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, colorInstance *color){
 	setRowAddress(r1, r2);
 	setColumnAddress(c1, c2);
-	sendMultiPixel(r, g, b, screen->colorDepth, (r2-r1+1)*(c2-c1+1));
+	sendMultiPixel(screen, color, (r2-r1+1)*(c2-c1+1));
 }
 
 void setColumnAddress(uint8_t cBegin, uint8_t cEnd){

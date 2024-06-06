@@ -1,8 +1,8 @@
 #include <stdio.h>	    // For printf
 #include <stdbool.h>    // For bool
 #include <stdint.h>     // For uint8_t
-#include <sleep.h>
-#include <stdlib.h>
+#include <sleep.h>      // For sleep()
+#include <stdlib.h>     // For rand()
 
 #include "platform.h"   // For UART
 #include "xil_printf.h" // For xil_print
@@ -24,9 +24,7 @@ void testDrawBitmap();
 
 screenInstance screen;
 
-uint8_t r[N_PIXELS];
-uint8_t g[N_PIXELS];
-uint8_t b[N_PIXELS];
+colorInstance color[N_PIXELS];
 
 int main() {
 
@@ -63,39 +61,39 @@ void testColorDepth(){
 	sleep(1);
 	setColorDepth(&screen, 1);
 	for(int i = 0; i < N_PIXELS; i++){
-		r[i] = R_MAX;
-		g[i] = 0;
-		b[i] = 0;
+		color[i].r = R_MAX;
+		color[i].g = 0;
+		color[i].b = 0;
 	}
-	sendMultiPixel(r, g, b, screen.colorDepth, N_PIXELS);
+	sendMultiPixel(screen, color, N_PIXELS);
 	sleep(1);
 
 	setColorDepth(&screen, 2);
 	for(int i = 0; i < N_PIXELS; i++){
-		r[i] = 0;
-		g[i] = G_MAX;
-		b[i] = 0;
+		color[i].r = 0;
+		color[i].g = G_MAX;
+		color[i].b = 0;
 	}
-	sendMultiPixel(r, g, b, screen.colorDepth, N_PIXELS);
+	sendMultiPixel(screen, color, N_PIXELS);
 	sleep(1);
 
 	setColorDepth(&screen, 3);
 	for(int i = 0; i < N_PIXELS; i++){
-		r[i] = 0;
-		g[i] = 0;
-		b[i] = B_MAX;
+		color[i].r = 0;
+		color[i].g = 0;
+		color[i].b = B_MAX;
 	}
-	sendMultiPixel(r, g, b, screen.colorDepth, N_PIXELS);
+	sendMultiPixel(screen, color, N_PIXELS);
 	sleep(1);
 
 	srand(0);
 	setColorDepth(&screen, 2);
 	for(int i = 0; i < N_PIXELS; i++){
-		r[i] = rand()%R_MAX;
-		g[i] = rand()%G_MAX;
-		b[i] = rand()%B_MAX;
+		color[i].r = rand()%R_MAX;
+		color[i].g = rand()%G_MAX;
+		color[i].b = rand()%B_MAX;
 	}
-	sendMultiPixel(r, g, b, 2, N_PIXELS);
+	sendMultiPixel(screen, color, N_PIXELS);
 	sleep(1);
 	clearScreen();
 }
@@ -106,17 +104,17 @@ void testScrolling(){
 	setColorDepth(&screen, 2);
 	for(int i = 0; i < N_PIXELS; i++){
 		if( (i%N_COLUMNS < N_COLUMNS/2 && i < N_PIXELS/2) || (i%N_COLUMNS > N_COLUMNS/2 && i > N_PIXELS/2) ){
-			r[i] = R_MAX;
-			g[i] = 0;
-			b[i] = 0;
+			color[i].r = R_MAX;
+			color[i].g = 0;
+			color[i].b = 0;
 		}
 		else{
-			r[i] = 0;
-			g[i] = 0;
-			b[i] = B_MAX;
+			color[i].r = 0;
+			color[i].g = 0;
+			color[i].b = B_MAX;
 		}
 	}
-	sendMultiPixel(r, g, b, screen.colorDepth, N_PIXELS);
+	sendMultiPixel(screen, color, N_PIXELS);
 	sleep(1);
 
 	setupScrolling(1, 0, N_ROWS, 0, 0b00);;
@@ -124,7 +122,7 @@ void testScrolling(){
 	sleep(2);
 	enableScrolling(false);
 	sleep(1);
-	setupScrolling(0, 0, 64, 1, 0b00);
+	setupScrolling(0, 0, 0, 1, 0b00);
 	enableScrolling(true);
 	sleep(2);
 	enableScrolling(false);
@@ -143,7 +141,7 @@ void testDrawLine(){
 	sleep(1);
 	drawLine(2, 10, 2, 50, R_MAX, G_MAX, 0);
 	sleep(1);
-	drawLine(40, 10, 40, 50, 0, G_MAX, B_MAX);
+	drawLine(45, 10, 45, 50, 0, G_MAX, B_MAX);
 	sleep(1);
 	drawLine(90, 10, 90, 50, R_MAX, 0, B_MAX);
 	sleep(1);
@@ -208,21 +206,21 @@ void testColumnRowAddress(){
 	setColumnAddress(20, 30);
 	setRowAddress(20, 30);
 	for(int i = 0; i < 100; i++){
-		r[i] = R_MAX;
-		g[i] = 0;
-		b[i] = 0;
+		color[i].r = R_MAX;
+		color[i].g = 0;
+		color[i].b = 0;
 	}
-	sendMultiPixel(r, g, b, screen.colorDepth, 100);
+	sendMultiPixel(screen, color, 100);
 	sleep(1);
 
 	setColumnAddress(50, 60);
 	setRowAddress(50, 60);
 	for(int i = 0; i < 100; i++){
-		r[i] = 0;
-		g[i] = G_MAX;
-		b[i] = 0;
+		color[i].r = 0;
+		color[i].g = G_MAX;
+		color[i].b = 0;
 	}
-	sendMultiPixel(r, g, b, screen.colorDepth, 100);
+	sendMultiPixel(screen, color, 100);
 	sleep(1);
 	clearScreen();
 }
@@ -230,7 +228,14 @@ void testColumnRowAddress(){
 void testDrawBitmap(){
 
 	sleep(1);
-	drawBitmap(&screen, 0, 0, N_COLUMNS-1, N_ROWS-1, bitmapR, bitmapG, bitmapB);
+	setColorDepth(&screen, 1);
+	drawBitmap(screen, 0, 0, N_COLUMNS-1, N_ROWS-1, imageBitmap);
+	sleep(5);
+	setColorDepth(&screen, 2);
+	drawBitmap(screen, 0, 0, N_COLUMNS-1, N_ROWS-1, imageBitmap);
+	sleep(5);
+	setColorDepth(&screen, 3);
+	drawBitmap(screen, 0, 0, N_COLUMNS-1, N_ROWS-1, imageBitmap);
 	sleep(5);
 	clearScreen();
 }
