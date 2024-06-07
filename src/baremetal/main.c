@@ -3,6 +3,7 @@
 #include <stdint.h>     // For uint8_t
 #include <sleep.h>      // For sleep()
 #include <stdlib.h>     // For rand()
+#include <string.h>		// For strlen()
 
 #include "platform.h"   // For UART
 #include "xil_printf.h" // For xil_print
@@ -22,6 +23,9 @@ void testDrawRectangle();
 void testCopy();
 void testColumnRowAddress();
 void testDrawBitmap();
+void testCursor();
+void testDrawSymbol();
+void testDrawString();
 
 screenInstance screen;
 
@@ -41,11 +45,15 @@ void test(){
 	testScreen();
 	testColorDepth();
 	testAddressIncrement();
+	testScrolling();
 	testDrawLine();
 	testDrawRectangle();
 	testCopy();
 	testColumnRowAddress();
 	testDrawBitmap();
+	testCursor();
+	testDrawSymbol();
+	testDrawString();
 }
 
 void testScreen(){
@@ -66,7 +74,7 @@ void testColorDepth(){
 		color[i].g = 0;
 		color[i].b = 0;
 	}
-	sendMultiPixel(screen, color, N_PIXELS);
+	sendMultiPixel(&screen, color, N_PIXELS);
 	sleep(1);
 
 	setColorDepth(&screen, 2);
@@ -75,7 +83,7 @@ void testColorDepth(){
 		color[i].g = G_MAX;
 		color[i].b = 0;
 	}
-	sendMultiPixel(screen, color, N_PIXELS);
+	sendMultiPixel(&screen, color, N_PIXELS);
 	sleep(1);
 
 	setColorDepth(&screen, 3);
@@ -84,7 +92,7 @@ void testColorDepth(){
 		color[i].g = 0;
 		color[i].b = B_MAX;
 	}
-	sendMultiPixel(screen, color, N_PIXELS);
+	sendMultiPixel(&screen, color, N_PIXELS);
 	sleep(1);
 
 	srand(0);
@@ -94,10 +102,10 @@ void testColorDepth(){
 		color[i].g = rand()%G_MAX;
 		color[i].b = rand()%B_MAX;
 	}
-	sendMultiPixel(screen, color, N_PIXELS);
+	sendMultiPixel(&screen, color, N_PIXELS);
 	sleep(1);
 
-	setColorDepth(&screen, 2);
+	setDefaultSettings(&screen);
 	clearScreen();
 }
 
@@ -111,7 +119,7 @@ void testAddressIncrement(){
 		color[i].g = 0;
 		color[i].b = 0;
 	}
-	sendMultiPixel(screen, color, N_PIXELS);
+	sendMultiPixel(&screen, color, N_PIXELS);
 	sleep(1);
 
 	setAddressIncrement(&screen, VERTICAL);
@@ -120,10 +128,10 @@ void testAddressIncrement(){
 		color[i].g = 0;
 		color[i].b = B_MAX;
 	}
-	sendMultiPixel(screen, color, N_PIXELS);
+	sendMultiPixel(&screen, color, N_PIXELS);
 	sleep(1);
 
-	setAddressIncrement(&screen, HORIZONTAL);
+	setDefaultSettings(&screen);
 	clearScreen();
 }
 
@@ -143,7 +151,7 @@ void testScrolling(){
 			color[i].b = B_MAX;
 		}
 	}
-	sendMultiPixel(screen, color, N_PIXELS);
+	sendMultiPixel(&screen, color, N_PIXELS);
 	sleep(1);
 
 	setupScrolling(1, 0, N_ROWS, 0, 0b00);;
@@ -156,6 +164,8 @@ void testScrolling(){
 	sleep(2);
 	enableScrolling(false);
 	sleep(1);
+
+	setDefaultSettings(&screen);
 	clearScreen();
 }
 
@@ -163,17 +173,19 @@ void testDrawLine(){
 
 	sleep(1);
 	drawLine(2, 10, 90, 10, R_MAX, 0, 0);
-	sleep(1);
+	usleep(500*1000);
 	drawLine(2, 30, 90, 30, 0, G_MAX, 0);
-	sleep(1);
+	usleep(500*1000);
 	drawLine(2, 50, 90, 50, 0, 0, B_MAX);
-	sleep(1);
+	usleep(500*1000);
 	drawLine(2, 10, 2, 50, R_MAX, G_MAX, 0);
-	sleep(1);
+	usleep(500*1000);
 	drawLine(45, 10, 45, 50, 0, G_MAX, B_MAX);
-	sleep(1);
+	usleep(500*1000);
 	drawLine(90, 10, 90, 50, R_MAX, 0, B_MAX);
 	sleep(1);
+
+	setDefaultSettings(&screen);
 	clearScreen();
 }
 
@@ -181,9 +193,9 @@ void testDrawRectangle(){
 
 	sleep(1);
 	drawRectangle(2, 10, 90, 20, R_MAX, 0, 0, 0, 0, 0);
-	sleep(1);
+	usleep(500*1000);
 	drawRectangle(2, 30, 90, 40, 0, G_MAX, 0, 0, 0, 0);
-	sleep(1);
+	usleep(500*1000);
 	drawRectangle(2, 50, 90, 60, 0, 0, B_MAX, 0, 0, 0);
 	sleep(1);
 
@@ -191,7 +203,7 @@ void testDrawRectangle(){
 	sleep(1);
 
 	drawRectangle(30, 10, 40, 60, 0, G_MAX, B_MAX, 0, 0, 0);
-	sleep(1);
+	usleep(500*1000);
 	drawRectangle(10, 25, 80, 45, R_MAX, G_MAX, 0, 0, 0, 0);
 	sleep(1);
 
@@ -200,12 +212,14 @@ void testDrawRectangle(){
 
 	enableFill(true, false);
 	drawRectangle(2, 2, 22, 60, R_MAX, 0, 0, 0, B_MAX, 0);
-	sleep(1);
+	usleep(500*1000);
 	drawRectangle(32, 2, 52, 60, 0, G_MAX, 0, 0, 0, B_MAX);
-	sleep(1);
+	usleep(500*1000);
 	drawRectangle(62, 2, 82, 60, 0, 0, B_MAX, R_MAX, 0, 0);
 	sleep(1);
 	enableFill(false, false);
+
+	setDefaultSettings(&screen);
 	clearScreen();
 }
 
@@ -213,7 +227,7 @@ void testCopy(){
 
 	sleep(1);
 	drawRectangle(2, 10, 90, 20, R_MAX, 0, 0, R_MAX, 0, 0);
-	sleep(1);
+	usleep(500*1000);
 	copyWindow(2, 10, 90, 20, 2, 30);
 	sleep(1);
 
@@ -221,36 +235,40 @@ void testCopy(){
 	sleep(1);
 
 	drawRectangle(5, 5, 25, 25, 0, G_MAX, 0, 0, 0, 0);
-	sleep(1);
+	usleep(500*1000);
 	copyWindow(5, 5, 25, 25, 15, 15);
-	sleep(1);
+	usleep(500*1000);
 	copyWindow(5, 5, 35, 35, 50, 5);
 	sleep(1);
+
+	setDefaultSettings(&screen);
 	clearScreen();
 }
 
 void testColumnRowAddress(){
 
 	sleep(1);
-	setColumnAddress(20, 30);
-	setRowAddress(20, 30);
+	setColumnAddress(20, 29);
+	setRowAddress(20, 29);
 	for(int i = 0; i < 100; i++){
 		color[i].r = R_MAX;
 		color[i].g = 0;
 		color[i].b = 0;
 	}
-	sendMultiPixel(screen, color, 100);
-	sleep(1);
+	sendMultiPixel(&screen, color, 100);
+	usleep(500*1000);;
 
-	setColumnAddress(50, 60);
-	setRowAddress(50, 60);
+	setColumnAddress(50, 59);
+	setRowAddress(50, 59);
 	for(int i = 0; i < 100; i++){
 		color[i].r = 0;
 		color[i].g = G_MAX;
 		color[i].b = 0;
 	}
-	sendMultiPixel(screen, color, 100);
+	sendMultiPixel(&screen, color, 100);
 	sleep(1);
+
+	setDefaultSettings(&screen);
 	clearScreen();
 }
 
@@ -258,13 +276,68 @@ void testDrawBitmap(){
 
 	sleep(1);
 	setColorDepth(&screen, 1);
-	drawBitmap(screen, 0, 0, N_COLUMNS-1, N_ROWS-1, imageBitmap);
-	sleep(5);
+	drawBitmap(&screen, 0, 0, N_COLUMNS-1, N_ROWS-1, imageBitmap);
+	sleep(2);
 	setColorDepth(&screen, 2);
-	drawBitmap(screen, 0, 0, N_COLUMNS-1, N_ROWS-1, imageBitmap);
-	sleep(5);
+	drawBitmap(&screen, 0, 0, N_COLUMNS-1, N_ROWS-1, imageBitmap);
+	sleep(2);
 	setColorDepth(&screen, 3);
-	drawBitmap(screen, 0, 0, N_COLUMNS-1, N_ROWS-1, imageBitmap);
-	sleep(5);
+	drawBitmap(&screen, 0, 0, N_COLUMNS-1, N_ROWS-1, imageBitmap);
+	sleep(2);
+	setColorDepth(&screen, 2);
+
+	setDefaultSettings(&screen);
+	clearScreen();
+}
+
+void testCursor(){
+
+	sleep(1);
+	setCursor(&screen, 0, 0);
+	for(int i = 0; i < (MAX_CURSOR_X+1)*(MAX_CURSOR_Y+1); i++){
+		for(int j = 0; j < 64; j++){
+				color[j].r = R_MAX * (i%2 == 0);
+				color[j].g = G_MAX * (i%4 == 0);
+				color[j].b = B_MAX;
+		}
+		drawBitmap(&screen, 8*screen.cursorX, 8*screen.cursorY, 8*screen.cursorX + 7, 8*screen.cursorY + 7, color);
+		usleep(50*1000);
+		incrementCursor(&screen);
+	}
+	sleep(1);
+
+	setDefaultSettings(&screen);
+	clearScreen();
+}
+
+void testDrawSymbol(){
+
+	sleep(1);
+	colorInstance fontColor = {R_MAX, G_MAX, B_MAX};
+	setAddressIncrement(&screen, VERTICAL);
+	setCursor(&screen, 2, 2);
+	drawSymbol(&screen, 'A', fontColor);
+	sleep(2);
+	clearScreen();
+
+	setDefaultSettings(&screen);
+	setCursor(&screen, 0, 0);
+}
+
+void testDrawString(){
+
+	sleep(1);
+	colorInstance fontColor1 = {R_MAX, 0, B_MAX};
+	colorInstance fontColor2 = {0, G_MAX, B_MAX};
+	setAddressIncrement(&screen, VERTICAL);
+	setCursor(&screen, 0, 0);
+	char symbol1[] = "Alberto";
+	char symbol2[] = "Angel";
+	drawString(&screen, symbol1, fontColor1);
+	setCursor(&screen, 0, 1);
+	drawString(&screen, symbol2, fontColor2);
+	sleep(2);
+
+	setDefaultSettings(&screen);
 	clearScreen();
 }

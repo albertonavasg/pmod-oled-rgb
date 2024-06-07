@@ -40,7 +40,8 @@ rgb565_values = list(zip(r_values_565, g_values_565, b_values_565))
 
 # Function to convert an array of structs to a C-style declaration
 def array_of_structs_to_c_declaration(name, array):
-    c_declaration = f'#include <stdint.h> // For uint8_t\n'
+    c_declaration = f'#ifndef BITMAP_H\n#define BITMAP_H\n\n'
+    c_declaration += f'#include <stdint.h> // For uint8_t\n'
     c_declaration += f'#include "screen.h" // For color definition\n\n'
     c_declaration += f"colorInstance {name}[] = {{\n"
     values_per_line = 4  # Adjust the number of structs per line for readability
@@ -49,6 +50,7 @@ def array_of_structs_to_c_declaration(name, array):
         line_str = ", ".join([f"{{{r}, {g}, {b}}}" for r, g, b in line_values])
         c_declaration += f"    {line_str},\n"
     c_declaration = c_declaration.rstrip(",\n") + "\n};\n"
+    c_declaration += f'\n#endif'
     return c_declaration
 
 # Convert array to C-style declaration

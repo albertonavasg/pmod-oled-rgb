@@ -1,11 +1,9 @@
 #include "screen.h"
+#include "font.h"
 
 void screenBegin(screenInstance *screen){
 
-	//Default values
-	screen->colorDepth = 2;
-	screen->addressIncrement = HORIZONTAL;
-	screen->remapColorDepthSetting = 0x72;
+	setDefaultSettings(screen);
 
     init_platform();
 	writeOnOff(true);
@@ -69,12 +67,12 @@ void sendMultiData(uint8_t *data, int n){
 	}
 }
 
-void sendPixel(screenInstance screen, colorInstance color){
+void sendPixel(screenInstance *screen, colorInstance color){
 
 	uint32_t data = 0;
 	uint8_t byte[3] = {0};
 
-	switch (screen.colorDepth){
+	switch (screen->colorDepth){
 		case 1:
 			data = (uint8_t)( (color.r>>2) << 5 | (color.g>>3) << 2 | (color.b>>3) );
 			sendData(data);
@@ -83,14 +81,14 @@ void sendPixel(screenInstance screen, colorInstance color){
 			data = ( (color.r) << 11 | (color.g) << 5 | (color.b) );
 			byte[0] = (uint8_t)(data >> 8);
 			byte[1] = (uint8_t)(data & 0x000000FF);
-			sendMultiData(byte, screen.colorDepth);
+			sendMultiData(byte, screen->colorDepth);
 			break;
 		case 3:
 			data = ( (color.r) << 17 | (color.g) << 8 | (color.b) << 1);
 			byte[0] = (uint8_t) (data >> 16);
 			byte[1] = (uint8_t) ((data & 0x0000FF00) >> 8);
 			byte[2] = (uint8_t) (data & 0x000000FF);
-			sendMultiData(byte, screen.colorDepth);
+			sendMultiData(byte, screen->colorDepth);
 			break;
 		default:
 			data = 0xFFFFFFFF;
@@ -98,7 +96,7 @@ void sendPixel(screenInstance screen, colorInstance color){
 	}
 }
 
-void sendMultiPixel(screenInstance screen, colorInstance *color, int n){
+void sendMultiPixel(screenInstance *screen, colorInstance *color, int n){
 
 	for(int i = 0; i < n; i++){
 		sendPixel(screen, color[i]);
@@ -134,10 +132,73 @@ void clearScreen(){
 	clearWindow(0, 0, N_COLUMNS-1, N_ROWS-1);
 }
 
-void drawBitmap(screenInstance screen, uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, colorInstance *color){
+void drawBitmap(screenInstance *screen, uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, colorInstance *color){
 	setRowAddress(r1, r2);
 	setColumnAddress(c1, c2);
 	sendMultiPixel(screen, color, (r2-r1+1)*(c2-c1+1));
+}
+
+void drawSymbol(screenInstance *screen, uint8_t symbol, colorInstance color){
+
+	colorInstance *symbolBitmap = getSymbolBitmap(symbol, color, userFont);
+	drawBitmap(screen, screen->cursorX*8, screen->cursorY*8, screen->cursorX*8 + 7, screen->cursorY*8 + 7, symbolBitmap);
+}
+
+void drawString(screenInstance *screen, char *symbol, colorInstance color){
+
+	for(int i = 0; i < strlen(symbol); i++){
+		drawSymbol(screen, symbol[i], color);
+		incrementCursor(screen);
+	}
+}
+
+void setCursor(screenInstance *screen, uint8_t x, uint8_t y){
+
+	if(x < 0){
+		screen->cursorX = 0;
+	}
+	else if(x > MAX_CURSOR_X){
+		screen->cursorX = MAX_CURSOR_X;
+	}
+	else{
+		screen->cursorX = x;
+	}
+
+	if(y < 0){
+		screen->cursorY = 0;
+	}
+	else if(y > MAX_CURSOR_Y){
+		screen->cursorY = MAX_CURSOR_Y;
+	}
+	else{
+		screen->cursorY = y;
+	}
+
+}
+
+void incrementCursor(screenInstance *screen){
+
+	if(screen->cursorX < MAX_CURSOR_X){
+		screen->cursorX++;
+	}
+	else if (screen->cursorY < MAX_CURSOR_Y){
+		screen->cursorX = 0;
+		screen->cursorY++;
+	}
+	else{
+		screen->cursorX = 0;
+		screen->cursorY = 0;
+	}
+}
+
+void setDefaultSettings(screenInstance *screen){
+
+	screen->colorDepth = 2;
+	screen->addressIncrement = HORIZONTAL;
+	screen->remapColorDepthSetting = 0x72;
+
+	screen->cursorX = 0;
+	screen->cursorY = 0;
 }
 
 void setColumnAddress(uint8_t cBegin, uint8_t cEnd){
@@ -147,6 +208,24 @@ void setColumnAddress(uint8_t cBegin, uint8_t cEnd){
 	command[1] = cBegin;
 	command[2] = cEnd;
 	sendMultiCommand(command, 3);
+}
+
+colorInstance* getSymbolBitmap(uint8_t symbol, colorInstance color, uint8_t *font){
+
+	colorInstance *symbolBitmap = {0};
+	for(int i = 0; i < 8; i++){
+		for(int j = 0; j < 8; j++){
+			if( (font[8*symbol + i] >> j) & 1 ){
+				symbolBitmap[8*i + j] = color;
+			}
+			else{
+				symbolBitmap[8*i + j].r = 0;
+				symbolBitmap[8*i + j].g = 0;
+				symbolBitmap[8*i + j].b = 0;
+			}
+		}
+	}
+	return symbolBitmap;
 }
 
 void setRowAddress(uint8_t rBegin, uint8_t rEnd){

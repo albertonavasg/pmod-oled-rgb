@@ -1,3 +1,6 @@
+#ifndef BITMAP_H
+#define BITMAP_H
+
 #include <stdint.h> // For uint8_t
 #include "screen.h" // For color definition
 
@@ -1539,3 +1542,5 @@ colorInstance imageBitmap[] = {
     {17, 32, 14}, {14, 27, 13}, {15, 30, 14}, {16, 30, 13},
     {14, 25, 11}, {11, 21, 10}, {11, 22, 10}, {13, 24, 12}
 };
+
+#endif

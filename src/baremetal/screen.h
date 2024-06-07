@@ -3,6 +3,7 @@
 
 #include <stdbool.h>     // For bool
 #include <stdint.h>      // For uint8_t
+#include "string.h"		 // For strlen()
 
 #include "platform.h"    // For UART
 #include <xparameters.h> // For IP Addresses
@@ -33,6 +34,10 @@
 // Address increment
 #define HORIZONTAL 0
 #define VERTICAL 1
+
+// CURSOR MAX
+#define MAX_CURSOR_X 11
+#define MAX_CURSOR_Y 7
 
 // COMMANDS
 #define CMD_SETCOLUMNADDRESS           0x15
@@ -80,6 +85,8 @@ typedef struct{
 	uint8_t colorDepth;
 	uint8_t addressIncrement;
 	uint8_t remapColorDepthSetting;
+	uint8_t cursorX;
+	uint8_t cursorY;
 } screenInstance;
 
 // Color definition
@@ -112,9 +119,9 @@ void sendMultiData(uint8_t *data, int n);
 
 
 // Custom
-void sendPixel(screenInstance screen, colorInstance color);
+void sendPixel(screenInstance *screen, colorInstance color);
 
-void sendMultiPixel(screenInstance screen, colorInstance *color, int n);
+void sendMultiPixel(screenInstance *screen, colorInstance *color, int n);
 
 void setColorDepth(screenInstance *screen, uint8_t colorDepth);
 
@@ -122,9 +129,19 @@ void setAddressIncrement(screenInstance *screen, uint8_t addressIncrement);
 
 void clearScreen();
 
-void drawBitmap(screenInstance screen, uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, colorInstance *color);
+void drawBitmap(screenInstance *screen, uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, colorInstance *color);
 
-void setCursor();
+void drawSymbol(screenInstance *screen, uint8_t symbol, colorInstance color);
+
+void drawString(screenInstance *screen, char *symbol, colorInstance color);
+
+void setCursor(screenInstance *screen, uint8_t x, uint8_t y);
+
+void incrementCursor(screenInstance *screen);
+
+void setDefaultSettings(screenInstance *screen);
+
+colorInstance* getSymbolBitmap(uint8_t symbol, colorInstance color, uint8_t *font);
 
 // Standard
 void setColumnAddress(uint8_t cBegin, uint8_t cEnd);
