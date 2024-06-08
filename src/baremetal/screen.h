@@ -6,7 +6,7 @@
 #include "string.h"		 // For strlen()
 
 #include "platform.h"    // For UART
-#include <xparameters.h> // For IP Addresses
+#include <xparameters.h> // For Screen Controller Memory Addresses
 #include <xil_io.h>      // For IO
 #include "xil_printf.h"  // For printf and xil_print
 #include <sleep.h>       // For sleep()
@@ -36,8 +36,8 @@
 #define VERTICAL 1
 
 // CURSOR MAX
-#define MAX_CURSOR_X 11
-#define MAX_CURSOR_Y 7
+#define MAX_CURSOR_X 12 // N_COLUMNS/8
+#define MAX_CURSOR_Y 8  // N_ROWS/8
 
 // COMMANDS
 #define CMD_SETCOLUMNADDRESS           0x15
@@ -49,7 +49,7 @@
 #define CMD_SETPRECHARGESPEEDA         0x8A
 #define CMD_SETPRECHARGESPEEDB         0x8B
 #define CMD_SETPRECHARGESPEEDC         0x8C
-#define CMD_REMAP                      0xA0
+#define CMD_REMAPCOLORDEPTH            0xA0
 #define CMD_SETDISPLAYSTARTLINE        0xA1
 #define CMD_SETDISPLAYOFFSET           0xA2
 #define CMD_NORMALDISPLAY              0xA4
@@ -58,7 +58,7 @@
 #define CMD_INVERSEDISPLAY             0xA7
 #define CMD_SETMULTIPLEXRATIO          0xA8
 #define CMD_DIMMODESETTING             0xAB
-#define CMD_SETMASTERCONFIGURE         0xAD
+#define CMD_SETMASTERCONFIGURATION     0xAD
 #define CMD_DIMMODEDISPLAYON           0xAC
 #define CMD_DISPLAYOFF                 0xAE
 #define CMD_DISPLAYON                  0xAF
@@ -98,7 +98,7 @@ typedef struct{
 
 // Functions
 
-// Basic
+// Basic (to send commands and data to the screen)
 void screenBegin(screenInstance *screen);
 
 void screenEnd(screenInstance *screen);
@@ -118,14 +118,10 @@ void sendData(uint8_t data);
 void sendMultiData(uint8_t *data, int n);
 
 
-// Custom
+// Custom (to have high level utilities)
 void sendPixel(screenInstance *screen, colorInstance color);
 
 void sendMultiPixel(screenInstance *screen, colorInstance *color, int n);
-
-void setColorDepth(screenInstance *screen, uint8_t colorDepth);
-
-void setAddressIncrement(screenInstance *screen, uint8_t addressIncrement);
 
 void clearScreen();
 
@@ -141,9 +137,13 @@ void incrementCursor(screenInstance *screen);
 
 void setDefaultSettings(screenInstance *screen);
 
+void setColorDepth(screenInstance *screen, uint8_t colorDepth);
+
+void setAddressIncrement(screenInstance *screen, uint8_t addressIncrement);
+
 colorInstance* getSymbolBitmap(uint8_t symbol, colorInstance color, uint8_t *font);
 
-// Standard
+// Standard (Settings from the datasheet)
 void setColumnAddress(uint8_t cBegin, uint8_t cEnd);
 void setRowAddress(uint8_t rBegin, uint8_t rEnd);
 
@@ -152,7 +152,7 @@ void setContrastB();
 void setContrastC();
 void masterCurrentControl();
 void setSecondPrechargeSpeedABC();
-void remapAndColorSetting();
+void setRemapAndColorSetting(uint8_t value);
 void setDisplayStartLine();
 void setDisplayOffset();
 void setDisplayMode();
@@ -169,9 +169,9 @@ void setPrechargeLevel();
 void setVcomh();
 void setCommandLock();
 
-void drawLine(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, uint8_t r, uint8_t g, uint8_t b);
+void drawLine(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, colorInstance color);
 
-void drawRectangle(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, uint8_t rLine, uint8_t gLine, uint8_t bLine, uint8_t rFill, uint8_t gFill, uint8_t bFill);
+void drawRectangle(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, colorInstance colorLine, colorInstance colorFill);
 
 void copyWindow(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, uint8_t c3, uint8_t r3);
 

@@ -1,17 +1,17 @@
-#include <stdio.h>	    // For printf
-#include <stdbool.h>    // For bool
-#include <stdint.h>     // For uint8_t
-#include <sleep.h>      // For sleep()
-#include <stdlib.h>     // For rand()
-#include <string.h>		// For strlen()
+#include <stdio.h>	     // For printf
+#include <stdbool.h>     // For bool
+#include <stdint.h>      // For uint8_t
+#include <sleep.h>       // For sleep()
+#include <stdlib.h>      // For rand()
+#include <string.h>		 // For strlen()
 
-#include "platform.h"   // For UART
-#include "xil_printf.h" // For xil_print
+#include "platform.h"    // For UART
+#include "xil_printf.h"  // For xil_print
 
-#include "xparameters.h" //For IP Addresses
-#include "xil_io.h"		 //For IO
+#include "xparameters.h" // For Screen Controller Memory Addresses
+#include "xil_io.h"		 // For IO
 #include "screen.h"		 // For custom functions
-#include "bitmap.h"
+#include "bitmap.h"      // For image saved as bitmap
 
 void test();
 void testScreen();
@@ -154,12 +154,12 @@ void testScrolling(){
 	sendMultiPixel(&screen, color, N_PIXELS);
 	sleep(1);
 
-	setupScrolling(1, 0, N_ROWS, 0, 0b00);;
+	setupScrolling(1, 0, N_ROWS, 0, 0b00); // Horizontal
 	enableScrolling(true);
 	sleep(2);
 	enableScrolling(false);
 	sleep(1);
-	setupScrolling(0, 0, 0, 1, 0b00);
+	setupScrolling(0, 0, 0, 1, 0b00); // Vertical
 	enableScrolling(true);
 	sleep(2);
 	enableScrolling(false);
@@ -172,17 +172,18 @@ void testScrolling(){
 void testDrawLine(){
 
 	sleep(1);
-	drawLine(2, 10, 90, 10, R_MAX, 0, 0);
+	colorInstance lineColor[6] = {{R_MAX, 0, 0}, {0, G_MAX, 0}, {0, 0, B_MAX}, {R_MAX, G_MAX, 0}, {0, G_MAX, B_MAX}, {R_MAX, 0, B_MAX}};
+	drawLine(2, 10, 90, 10, lineColor[0]);
 	usleep(500*1000);
-	drawLine(2, 30, 90, 30, 0, G_MAX, 0);
+	drawLine(2, 30, 90, 30, lineColor[1]);
 	usleep(500*1000);
-	drawLine(2, 50, 90, 50, 0, 0, B_MAX);
+	drawLine(2, 50, 90, 50, lineColor[2]);
 	usleep(500*1000);
-	drawLine(2, 10, 2, 50, R_MAX, G_MAX, 0);
+	drawLine(2, 10, 2, 50, lineColor[3]);
 	usleep(500*1000);
-	drawLine(45, 10, 45, 50, 0, G_MAX, B_MAX);
+	drawLine(45, 10, 45, 50, lineColor[4]);
 	usleep(500*1000);
-	drawLine(90, 10, 90, 50, R_MAX, 0, B_MAX);
+	drawLine(90, 10, 90, 50, lineColor[5]);
 	sleep(1);
 
 	setDefaultSettings(&screen);
@@ -192,32 +193,37 @@ void testDrawLine(){
 void testDrawRectangle(){
 
 	sleep(1);
-	drawRectangle(2, 10, 90, 20, R_MAX, 0, 0, 0, 0, 0);
+	colorInstance lineColor[6] = {{R_MAX, 0, 0}, {0, G_MAX, 0}, {0, 0, B_MAX}, {R_MAX, G_MAX, 0}, {0, G_MAX, B_MAX}, {R_MAX, 0, B_MAX}};
+	colorInstance fillColor[3] = {{0, G_MAX, 0}, {0, 0, B_MAX}, {R_MAX, 0, 0}};
+
+	enableFill(false, false);
+	drawRectangle(2, 10, 90, 20, lineColor[0], fillColor[0]);
 	usleep(500*1000);
-	drawRectangle(2, 30, 90, 40, 0, G_MAX, 0, 0, 0, 0);
+	drawRectangle(2, 30, 90, 40, lineColor[1], fillColor[0]);
 	usleep(500*1000);
-	drawRectangle(2, 50, 90, 60, 0, 0, B_MAX, 0, 0, 0);
+	drawRectangle(2, 50, 90, 60, lineColor[2], fillColor[0]);
 	sleep(1);
 
 	clearScreen();
 	sleep(1);
 
-	drawRectangle(30, 10, 40, 60, 0, G_MAX, B_MAX, 0, 0, 0);
+	drawRectangle(30, 10, 40, 60, lineColor[3], fillColor[0]);
 	usleep(500*1000);
-	drawRectangle(10, 25, 80, 45, R_MAX, G_MAX, 0, 0, 0, 0);
+	drawRectangle(10, 25, 80, 45, lineColor[4], fillColor[0]);
+	usleep(500*1000);
+	drawRectangle(50, 10, 90, 60, lineColor[5], fillColor[0]);
 	sleep(1);
 
 	clearScreen();
 	sleep(1);
 
 	enableFill(true, false);
-	drawRectangle(2, 2, 22, 60, R_MAX, 0, 0, 0, B_MAX, 0);
+	drawRectangle(2, 2, 22, 60, lineColor[0], fillColor[0]);
 	usleep(500*1000);
-	drawRectangle(32, 2, 52, 60, 0, G_MAX, 0, 0, 0, B_MAX);
+	drawRectangle(32, 2, 52, 60, lineColor[1], fillColor[1]);
 	usleep(500*1000);
-	drawRectangle(62, 2, 82, 60, 0, 0, B_MAX, R_MAX, 0, 0);
+	drawRectangle(62, 2, 82, 60, lineColor[2], fillColor[2]);
 	sleep(1);
-	enableFill(false, false);
 
 	setDefaultSettings(&screen);
 	clearScreen();
@@ -226,7 +232,10 @@ void testDrawRectangle(){
 void testCopy(){
 
 	sleep(1);
-	drawRectangle(2, 10, 90, 20, R_MAX, 0, 0, R_MAX, 0, 0);
+	colorInstance lineColor[6] = {{R_MAX, 0, 0}, {0, G_MAX, 0}, {0, 0, B_MAX}, {R_MAX, G_MAX, 0}, {0, G_MAX, B_MAX}, {R_MAX, 0, B_MAX}};
+	colorInstance fillColor[3] = {{0, G_MAX, 0}, {0, 0, B_MAX}, {R_MAX, 0, 0}};
+
+	drawRectangle(2, 10, 90, 20, lineColor[0], fillColor[0]);
 	usleep(500*1000);
 	copyWindow(2, 10, 90, 20, 2, 30);
 	sleep(1);
@@ -234,7 +243,7 @@ void testCopy(){
 	clearScreen();
 	sleep(1);
 
-	drawRectangle(5, 5, 25, 25, 0, G_MAX, 0, 0, 0, 0);
+	drawRectangle(5, 5, 25, 25,lineColor[1], fillColor[1]);
 	usleep(500*1000);
 	copyWindow(5, 5, 25, 25, 15, 15);
 	usleep(500*1000);
@@ -256,7 +265,7 @@ void testColumnRowAddress(){
 		color[i].b = 0;
 	}
 	sendMultiPixel(&screen, color, 100);
-	usleep(500*1000);;
+	usleep(500*1000);
 
 	setColumnAddress(50, 59);
 	setRowAddress(50, 59);
@@ -293,15 +302,15 @@ void testDrawBitmap(){
 void testCursor(){
 
 	sleep(1);
-	setCursor(&screen, 0, 0);
-	for(int i = 0; i < (MAX_CURSOR_X+1)*(MAX_CURSOR_Y+1); i++){
+	setCursor(&screen, 5, 5);
+	for(int i = 0; i < MAX_CURSOR_X*MAX_CURSOR_Y; i++){
 		for(int j = 0; j < 64; j++){
 				color[j].r = R_MAX * (i%2 == 0);
-				color[j].g = G_MAX * (i%4 == 0);
+				color[j].g = G_MAX * (i%3 == 0);
 				color[j].b = B_MAX;
 		}
 		drawBitmap(&screen, 8*screen.cursorX, 8*screen.cursorY, 8*screen.cursorX + 7, 8*screen.cursorY + 7, color);
-		usleep(50*1000);
+		usleep(10*1000);
 		incrementCursor(&screen);
 	}
 	sleep(1);
@@ -315,9 +324,19 @@ void testDrawSymbol(){
 	sleep(1);
 	colorInstance fontColor = {R_MAX, G_MAX, B_MAX};
 	setAddressIncrement(&screen, VERTICAL);
-	setCursor(&screen, 2, 2);
-	drawSymbol(&screen, 'A', fontColor);
-	sleep(2);
+	setCursor(&screen, 0, 0);
+	for(int i = 0; i < 127; i++){
+		drawSymbol(&screen, i, fontColor);
+		incrementCursor(&screen);
+		usleep(10*1000);
+		if((screen.cursorX == 0) && (screen.cursorY == 0)){
+			sleep(5);
+			clearScreen();
+			usleep(10*10000);
+		}
+	}
+
+	sleep(5);
 	clearScreen();
 
 	setDefaultSettings(&screen);
@@ -327,16 +346,35 @@ void testDrawSymbol(){
 void testDrawString(){
 
 	sleep(1);
-	colorInstance fontColor1 = {R_MAX, 0, B_MAX};
-	colorInstance fontColor2 = {0, G_MAX, B_MAX};
-	setAddressIncrement(&screen, VERTICAL);
-	setCursor(&screen, 0, 0);
-	char symbol1[] = "Alberto";
+	colorInstance fontColor[6] = {{R_MAX, 0, 0}, {0, G_MAX, 0}, {0, 0, B_MAX}, {R_MAX, G_MAX, 0}, {0, G_MAX, B_MAX}, {R_MAX, 0, B_MAX}};
+	char symbol0[] = "Alberto";
+	char symbol1[] = "Navas";
 	char symbol2[] = "Angel";
-	drawString(&screen, symbol1, fontColor1);
-	setCursor(&screen, 0, 1);
-	drawString(&screen, symbol2, fontColor2);
-	sleep(2);
+	char symbol3[] = "Jarillo";
+	char symbol4[] = "Design";
+	char symbol5[] = "of";
+	char symbol6[] = "Embedded";
+	char symbol7[] = "Systems";
+
+	setAddressIncrement(&screen, VERTICAL);
+
+	setCursor(&screen, 0, 0);
+	drawString(&screen, symbol0, fontColor[0]);
+	setCursor(&screen, 1, 1);
+	drawString(&screen, symbol1, fontColor[1]);
+	setCursor(&screen, 2, 2);
+	drawString(&screen, symbol2, fontColor[2]);
+	setCursor(&screen, 3, 3);
+	drawString(&screen, symbol3, fontColor[3]);
+	setCursor(&screen, 0, 4);
+	drawString(&screen, symbol4, fontColor[4]);
+	setCursor(&screen, 1, 5);
+	drawString(&screen, symbol5, fontColor[5]);
+	setCursor(&screen, 2, 6);
+	drawString(&screen, symbol6, fontColor[6]);
+	setCursor(&screen, 3, 7);
+	drawString(&screen, symbol7, fontColor[7]);
+	sleep(5);
 
 	setDefaultSettings(&screen);
 	clearScreen();

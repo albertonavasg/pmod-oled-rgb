@@ -2,7 +2,7 @@
 #define BITMAP_H
 
 #include <stdint.h> // For uint8_t
-#include "screen.h" // For color definition
+#include "screen.h" // For colorInstance definition
 
 colorInstance imageBitmap[] = {
     {17, 35, 17}, {18, 36, 17}, {18, 37, 18}, {18, 37, 18},

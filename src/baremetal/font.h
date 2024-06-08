@@ -1,6 +1,14 @@
 #ifndef FONTH
 #define FONTH
 
+// This font is the ASCII char table, from 0 to 127
+// Every character is stored as an 8x8 bitmap of 0 or 1
+// Every row has 8 bytes, and each one defines a column of the character
+// Being the least significant bit the upper one
+
+// First 32 elements are empty, can be modified to custom symbols
+// In ASCII table they hace utility, not so much here
+
 uint8_t userFont[] = {
 	0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, // 0x00 000
 	0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, // 0x01 001

@@ -42,7 +42,7 @@ rgb565_values = list(zip(r_values_565, g_values_565, b_values_565))
 def array_of_structs_to_c_declaration(name, array):
     c_declaration = f'#ifndef BITMAP_H\n#define BITMAP_H\n\n'
     c_declaration += f'#include <stdint.h> // For uint8_t\n'
-    c_declaration += f'#include "screen.h" // For color definition\n\n'
+    c_declaration += f'#include "screen.h" // For colorInstance definition\n\n'
     c_declaration += f"colorInstance {name}[] = {{\n"
     values_per_line = 4  # Adjust the number of structs per line for readability
     for i in range(0, len(array), values_per_line):

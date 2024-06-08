@@ -1,6 +1,7 @@
 #include "screen.h"
 #include "font.h"
 
+// BASIC ---------------------------------------------------------
 void screenBegin(screenInstance *screen){
 
 	setDefaultSettings(screen);
@@ -67,6 +68,7 @@ void sendMultiData(uint8_t *data, int n){
 	}
 }
 
+// CUSTOM ---------------------------------------------------------
 void sendPixel(screenInstance *screen, colorInstance color){
 
 	uint32_t data = 0;
@@ -103,30 +105,6 @@ void sendMultiPixel(screenInstance *screen, colorInstance *color, int n){
 	}
 }
 
-void setColorDepth(screenInstance *screen, uint8_t colorDepth){
-
-	screen->colorDepth = colorDepth;
-
-	uint8_t command[2];
-	command[0] = CMD_REMAP;
-	command[1] = ( screen->remapColorDepthSetting & 0b00111111 ) | ( (colorDepth - 1) << 6 );
-	sendMultiCommand(command, 2);
-
-	screen->remapColorDepthSetting = command[1];
-}
-
-void setAddressIncrement(screenInstance *screen, uint8_t addressIncrement){
-
-	screen->addressIncrement = addressIncrement;
-
-	uint8_t command[2];
-	command[0] = CMD_REMAP;
-	command[1] = (screen->remapColorDepthSetting & 0b1111111) | addressIncrement;
-	sendMultiCommand(command, 2);
-
-	screen->addressIncrement = command[1];
-}
-
 void clearScreen(){
 
 	clearWindow(0, 0, N_COLUMNS-1, N_ROWS-1);
@@ -157,8 +135,8 @@ void setCursor(screenInstance *screen, uint8_t x, uint8_t y){
 	if(x < 0){
 		screen->cursorX = 0;
 	}
-	else if(x > MAX_CURSOR_X){
-		screen->cursorX = MAX_CURSOR_X;
+	else if(x > MAX_CURSOR_X - 1){
+		screen->cursorX = MAX_CURSOR_X - 1;
 	}
 	else{
 		screen->cursorX = x;
@@ -167,8 +145,8 @@ void setCursor(screenInstance *screen, uint8_t x, uint8_t y){
 	if(y < 0){
 		screen->cursorY = 0;
 	}
-	else if(y > MAX_CURSOR_Y){
-		screen->cursorY = MAX_CURSOR_Y;
+	else if(y > MAX_CURSOR_Y - 1){
+		screen->cursorY = MAX_CURSOR_Y - 1;
 	}
 	else{
 		screen->cursorY = y;
@@ -178,10 +156,10 @@ void setCursor(screenInstance *screen, uint8_t x, uint8_t y){
 
 void incrementCursor(screenInstance *screen){
 
-	if(screen->cursorX < MAX_CURSOR_X){
+	if(screen->cursorX < MAX_CURSOR_X - 1){
 		screen->cursorX++;
 	}
-	else if (screen->cursorY < MAX_CURSOR_Y){
+	else if (screen->cursorY < MAX_CURSOR_Y - 1){
 		screen->cursorX = 0;
 		screen->cursorY++;
 	}
@@ -196,18 +174,29 @@ void setDefaultSettings(screenInstance *screen){
 	screen->colorDepth = 2;
 	screen->addressIncrement = HORIZONTAL;
 	screen->remapColorDepthSetting = 0x72;
+	setRemapAndColorSetting(screen->remapColorDepthSetting);
 
-	screen->cursorX = 0;
-	screen->cursorY = 0;
+	setColumnAddress(0, N_COLUMNS-1);
+	setRowAddress(0, N_ROWS-1);
+
+	setCursor(screen, 0, 0);
+
+	enableFill(false, false);
+	enableScrolling(false);
 }
 
-void setColumnAddress(uint8_t cBegin, uint8_t cEnd){
+void setColorDepth(screenInstance *screen, uint8_t colorDepth){
 
-	uint8_t command[3];
-	command[0] = CMD_SETCOLUMNADDRESS;
-	command[1] = cBegin;
-	command[2] = cEnd;
-	sendMultiCommand(command, 3);
+	screen->colorDepth = colorDepth;
+	screen->remapColorDepthSetting =  (screen->remapColorDepthSetting & 0b00111111) | ((colorDepth - 1) << 6);
+	setRemapAndColorSetting(screen->remapColorDepthSetting);
+}
+
+void setAddressIncrement(screenInstance *screen, uint8_t addressIncrement){
+
+	screen->addressIncrement = addressIncrement;
+	screen->remapColorDepthSetting = (screen->remapColorDepthSetting & 0b1111111) | addressIncrement;
+	setRemapAndColorSetting(screen->remapColorDepthSetting);
 }
 
 colorInstance* getSymbolBitmap(uint8_t symbol, colorInstance color, uint8_t *font){
@@ -228,6 +217,16 @@ colorInstance* getSymbolBitmap(uint8_t symbol, colorInstance color, uint8_t *fon
 	return symbolBitmap;
 }
 
+// STANDARD ---------------------------------------------------------
+void setColumnAddress(uint8_t cBegin, uint8_t cEnd){
+
+	uint8_t command[3];
+	command[0] = CMD_SETCOLUMNADDRESS;
+	command[1] = cBegin;
+	command[2] = cEnd;
+	sendMultiCommand(command, 3);
+}
+
 void setRowAddress(uint8_t rBegin, uint8_t rEnd){
 
 	uint8_t command[3];
@@ -237,7 +236,14 @@ void setRowAddress(uint8_t rBegin, uint8_t rEnd){
 	sendMultiCommand(command, 3);
 }
 
-void drawLine(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, uint8_t r, uint8_t g, uint8_t b){
+void setRemapAndColorSetting(uint8_t value){
+	uint8_t command[2];
+	command[0] = CMD_REMAPCOLORDEPTH;
+	command[1] = value;
+	sendMultiCommand(command, 2);
+}
+
+void drawLine(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, colorInstance color){
 
 	uint8_t command[8];
 	command[0] = CMD_DRAWLINE;
@@ -245,13 +251,13 @@ void drawLine(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, uint8_t r, uint8_t
 	command[2] = r1;
 	command[3] = c2;
 	command[4] = r2;
-	command[5] = r << 1;
-	command[6] = g;
-	command[7] = b << 1;
+	command[5] = color.r << 1;
+	command[6] = color.g;
+	command[7] = color.b << 1;
 	sendMultiCommand(command, 8);
 }
 
-void drawRectangle(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, uint8_t rLine, uint8_t gLine, uint8_t bLine, uint8_t rFill, uint8_t gFill, uint8_t bFill){
+void drawRectangle(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, colorInstance colorLine, colorInstance colorFill){
 
 	uint8_t command[11];
 	command[0] = CMD_DRAWRECTANGLE;
@@ -259,12 +265,12 @@ void drawRectangle(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, uint8_t rLine
 	command[2] = r1;
 	command[3] = c2;
 	command[4] = r2;
-	command[5] = rLine << 1;
-	command[6] = gLine;
-	command[7] = bLine << 1;
-	command[8] = rFill << 1;
-	command[9] = gFill;
-	command[10] = bFill << 1;
+	command[5] = colorLine.r << 1;
+	command[6] = colorLine.g;
+	command[7] = colorLine.b << 1;
+	command[8] = colorFill.r << 1;
+	command[9] = colorFill.g;
+	command[10] = colorFill.b << 1;
 	sendMultiCommand(command, 11);
 }
 
