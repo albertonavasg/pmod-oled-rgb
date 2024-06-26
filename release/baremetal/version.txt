@@ -70,10 +70,4 @@ Replicate the project:
 	Create a hardware platform(based on "screen.xsa" available in "/release/baremetal/")
 	Create an empty C application
 	Include all the files available in "/src/baremetal" into the "/src" folder of the application
-	Run in Debug mode and step over every instrucion, as there are no delays included
-
----
-
-Version history
-
-2.0 Hardware platform and first draft of C program to use the screen
+	Run it or run it in debug mode if you want to step over every instruction
