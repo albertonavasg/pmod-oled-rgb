@@ -85,6 +85,8 @@
 
 // Screen instance
 typedef struct{
+	int fileDescriptor;
+	uint32_t *Address;
 	uint8_t colorDepth;
 	uint8_t addressIncrement;
 	uint8_t remapColorDepthSetting;
@@ -99,9 +101,6 @@ typedef struct{
 	uint8_t b;
 } colorInstance;
 
-int fd;
-uint32_t *screenAddress;
-
 // Functions
 
 // BASIC (to send commands and data to the screen) -------------------------------------
@@ -109,27 +108,26 @@ void screenBegin(screenInstance *screen);
 
 void screenEnd(screenInstance *screen);
 
-void writeOnOff(bool value);
+void writeOnOff(screenInstance *screen, bool value);
 
-uint8_t readOnOffStatus();
+uint8_t readOnOffStatus(screenInstance *screen);
 
-bool readReady();
+bool readReady(screenInstance *screen);
 
-void sendCommand(uint8_t comm);
+void sendCommand(screenInstance *screen, uint8_t comm);
 
-void sendMultiCommand(uint8_t *comm, int n);
+void sendMultiCommand(screenInstance *screen, uint8_t *comm, int n);
 
-void sendData(uint8_t data);
+void sendData(screenInstance *screen, uint8_t data);
 
-void sendMultiData(uint8_t *data, int n);
-
+void sendMultiData(screenInstance *screen, uint8_t *data, int n);
 
 // CUSTOM (to have high level utilities) ------------------------------------------------
 void sendPixel(screenInstance *screen, colorInstance color);
 
 void sendMultiPixel(screenInstance *screen, colorInstance *color, int n);
 
-void clearScreen();
+void clearScreen(screenInstance *screen);
 
 void drawBitmap(screenInstance *screen, uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, colorInstance *color);
 
@@ -155,8 +153,8 @@ void importFont(char *fontPath, uint8_t *font);
 void getSymbolBitmap(uint8_t symbol, colorInstance color, uint8_t *font, colorInstance *symbolBitmap);
 
 // STANDARD (Settings from the datasheet) --------------------------------------------------------
-void setColumnAddress(uint8_t cBegin, uint8_t cEnd);
-void setRowAddress(uint8_t rBegin, uint8_t rEnd);
+void setColumnAddress(screenInstance *screen, uint8_t cBegin, uint8_t cEnd);
+void setRowAddress(screenInstance *screen, uint8_t rBegin, uint8_t rEnd);
 
 void setContrastA();
 void setContrastB();
@@ -164,7 +162,7 @@ void setContrastC();
 void masterCurrentControl();
 void setSecondPrechargeSpeedABC();
 
-void setRemapAndColorSetting(uint8_t value);
+void setRemapAndColorSetting(screenInstance *screen, uint8_t value);
 
 void setDisplayStartLine();
 void setDisplayOffset();
@@ -182,19 +180,19 @@ void setPrechargeLevel();
 void setVcomh();
 void setCommandLock();
 
-void drawLine(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, colorInstance color);
+void drawLine(screenInstance *screen, uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, colorInstance color);
 
-void drawRectangle(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, colorInstance colorLine, colorInstance colorFill);
+void drawRectangle(screenInstance *screen, uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, colorInstance colorLine, colorInstance colorFill);
 
-void copyWindow(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, uint8_t c3, uint8_t r3);
+void copyWindow(screenInstance *screen, uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, uint8_t c3, uint8_t r3);
 
-void clearWindow(uint8_t r1, uint8_t c1, uint8_t r2, uint8_t c2);
+void clearWindow(screenInstance *screen, uint8_t r1, uint8_t c1, uint8_t r2, uint8_t c2);
 
-void enableFill(bool fillRectangle, bool reverseCopy);
+void enableFill(screenInstance *screen, bool fillRectangle, bool reverseCopy);
 
-void setupScrolling(uint8_t horizontalScrollOffset, uint8_t rowStart, uint8_t rowsNumber, uint8_t verticalScrollOffset, uint8_t timeInterval);
+void setupScrolling(screenInstance *screen, uint8_t horizontalScrollOffset, uint8_t rowStart, uint8_t rowsNumber, uint8_t verticalScrollOffset, uint8_t timeInterval);
 
-void enableScrolling(bool value);
+void enableScrolling(screenInstance *screen, bool value);
 
 
 #endif

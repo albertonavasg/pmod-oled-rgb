@@ -4,77 +4,77 @@
 void screenBegin(screenInstance *screen){
 	
 	// Open file descriptor
-	fd = open("/dev/uio0",O_RDWR);
+	screen->fileDescriptor = open("/dev/uio0",O_RDWR);
 
 	// Map physical memory into virtual memory (UIO -> offset = 0)
-	screenAddress = mmap(NULL, 0x10000, PROT_READ|PROT_WRITE, MAP_SHARED, fd,0);
+	screen->Address = mmap(NULL, 0x10000, PROT_READ|PROT_WRITE, MAP_SHARED, screen->fileDescriptor,0);
 	
 	setDefaultSettings(screen);
 
-	writeOnOff(true);
+	writeOnOff(screen, true);
 }
 
 void screenEnd(screenInstance *screen){
 
-	clearScreen();
+	clearScreen(screen);
 	
-	writeOnOff(false);
+	writeOnOff(screen, false);
 	
 	// Unmap memory
-	munmap(screenAddress, 0x10000);
+	munmap(screen->Address, 0x10000);
 	
 	// Close file descriptor
-	close(fd);
+	close(screen->fileDescriptor);
 }
 
-void writeOnOff(bool value){
+void writeOnOff(screenInstance *screen, bool value){
 
-    screenAddress[0] = value;
+    screen->Address[0] = value;
 }
 
-uint8_t readOnOffStatus() {
+uint8_t readOnOffStatus(screenInstance *screen) {
 
-	return ( screenAddress[1] >> 1 );
+	return ( screen->Address[1] >> 1 );
 }
 
-bool readReady(){
+bool readReady(screenInstance *screen){
 
-	return (screenAddress[1] & 0b00000001);
+	return (screen->Address[1] & 0b00000001);
 }
 
-void sendCommand(uint8_t comm){
+void sendCommand(screenInstance *screen, uint8_t comm){
 
 	// Data
-	screenAddress[2] = comm;
+	screen->Address[2] = comm;
 	// DataCommand
-	screenAddress[3] = COMMAND;
+	screen->Address[3] = COMMAND;
 	// Start
-	screenAddress[0] = 0b11;
+	screen->Address[0] = 0b11;
 	usleep(20);
 }
 
-void sendMultiCommand(uint8_t *comm, int n){
+void sendMultiCommand(screenInstance *screen, uint8_t *comm, int n){
 
 	for(int i = 0; i < n; i++){
-		sendCommand(comm[i]);
+		sendCommand(screen, comm[i]);
 	}
 }
 
-void sendData(uint8_t data){
+void sendData(screenInstance *screen, uint8_t data){
 
 	// Data
-	screenAddress[2] = data;
+	screen->Address[2] = data;
 	// DataCommand
-	screenAddress[3] = DATA;
+	screen->Address[3] = DATA;
 	// Start
-	screenAddress[0] = 0b11;
+	screen->Address[0] = 0b11;
 	usleep(20);
 }
 
-void sendMultiData(uint8_t *data, int n){
+void sendMultiData(screenInstance *screen, uint8_t *data, int n){
 
 	for(int i = 0; i < n; i++){
-		sendData(data[i]);
+		sendData(screen, data[i]);
 	}
 }
 
@@ -86,21 +86,21 @@ void sendPixel(screenInstance *screen, colorInstance color){
 
 	switch (screen->colorDepth){
 		case 1:
-			data = (uint8_t)( (color.r>>2) << 5 | (color.g>>3) << 2 | (color.b>>3) );
-			sendData(data);
+			byte[0] = (uint8_t)( (color.r>>2) << 5 | (color.g>>3) << 2 | (color.b>>3) );
+			sendData(screen, byte[0]);
 			break;
 		case 2:
 			data = ( (color.r) << 11 | (color.g) << 5 | (color.b) );
 			byte[0] = (uint8_t)(data >> 8);
 			byte[1] = (uint8_t)(data & 0x000000FF);
-			sendMultiData(byte, screen->colorDepth);
+			sendMultiData(screen, byte, screen->colorDepth);
 			break;
 		case 3:
 			data = ( (color.r) << 17 | (color.g) << 8 | (color.b) << 1);
 			byte[0] = (uint8_t) (data >> 16);
 			byte[1] = (uint8_t) ((data & 0x0000FF00) >> 8);
 			byte[2] = (uint8_t) (data & 0x000000FF);
-			sendMultiData(byte, screen->colorDepth);
+			sendMultiData(screen, byte, screen->colorDepth);
 			break;
 		default:
 			data = 0xFFFFFFFF;
@@ -115,14 +115,14 @@ void sendMultiPixel(screenInstance *screen, colorInstance *color, int n){
 	}
 }
 
-void clearScreen(){
+void clearScreen(screenInstance *screen){
 
-	clearWindow(0, 0, N_COLUMNS-1, N_ROWS-1);
+	clearWindow(screen, 0, 0, N_COLUMNS-1, N_ROWS-1);
 }
 
 void drawBitmap(screenInstance *screen, uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, colorInstance *color){
-	setRowAddress(r1, r2);
-	setColumnAddress(c1, c2);
+	setRowAddress(screen, r1, r2);
+	setColumnAddress(screen, c1, c2);
 	sendMultiPixel(screen, color, (r2-r1+1)*(c2-c1+1));
 }
 
@@ -185,29 +185,29 @@ void setDefaultSettings(screenInstance *screen){
 	screen->colorDepth = 2;
 	screen->addressIncrement = HORIZONTAL;
 	screen->remapColorDepthSetting = 0x72;
-	setRemapAndColorSetting(screen->remapColorDepthSetting);
+	setRemapAndColorSetting(screen, screen->remapColorDepthSetting);
 
-	setColumnAddress(0, N_COLUMNS-1);
-	setRowAddress(0, N_ROWS-1);
+	setColumnAddress(screen, 0, N_COLUMNS-1);
+	setRowAddress(screen, 0, N_ROWS-1);
 
 	setCursor(screen, 0, 0);
 
-	enableFill(false, false);
-	enableScrolling(false);
+	enableFill(screen, false, false);
+	enableScrolling(screen, false);
 }
 
 void setColorDepth(screenInstance *screen, uint8_t colorDepth){
 
 	screen->colorDepth = colorDepth;
 	screen->remapColorDepthSetting =  (screen->remapColorDepthSetting & 0b00111111) | ((colorDepth - 1) << 6);
-	setRemapAndColorSetting(screen->remapColorDepthSetting);
+	setRemapAndColorSetting(screen, screen->remapColorDepthSetting);
 }
 
 void setAddressIncrement(screenInstance *screen, uint8_t addressIncrement){
 
 	screen->addressIncrement = addressIncrement;
 	screen->remapColorDepthSetting = (screen->remapColorDepthSetting & 0b1111111) | addressIncrement;
-	setRemapAndColorSetting(screen->remapColorDepthSetting);
+	setRemapAndColorSetting(screen, screen->remapColorDepthSetting);
 }
 
 // HELPERS ---------------------------------------------------------
@@ -303,32 +303,32 @@ void getSymbolBitmap(uint8_t symbol, colorInstance color, uint8_t *font, colorIn
 }
 
 // STANDARD ---------------------------------------------------------
-void setColumnAddress(uint8_t cBegin, uint8_t cEnd){
+void setColumnAddress(screenInstance *screen, uint8_t cBegin, uint8_t cEnd){
 
 	uint8_t command[3];
 	command[0] = CMD_SETCOLUMNADDRESS;
 	command[1] = cBegin;
 	command[2] = cEnd;
-	sendMultiCommand(command, 3);
+	sendMultiCommand(screen,  command, 3);
 }
 
-void setRowAddress(uint8_t rBegin, uint8_t rEnd){
+void setRowAddress(screenInstance *screen, uint8_t rBegin, uint8_t rEnd){
 
 	uint8_t command[3];
 	command[0] = CMD_SETROWADDRESS;
 	command[1] = rBegin;
 	command[2] = rEnd;
-	sendMultiCommand(command, 3);
+	sendMultiCommand(screen, command, 3);
 }
 
-void setRemapAndColorSetting(uint8_t value){
+void setRemapAndColorSetting(screenInstance *screen, uint8_t value){
 	uint8_t command[2];
 	command[0] = CMD_REMAPCOLORDEPTH;
 	command[1] = value;
-	sendMultiCommand(command, 2);
+	sendMultiCommand(screen, command, 2);
 }
 
-void drawLine(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, colorInstance color){
+void drawLine(screenInstance *screen, uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, colorInstance color){
 
 	uint8_t command[8];
 	command[0] = CMD_DRAWLINE;
@@ -339,10 +339,10 @@ void drawLine(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, colorInstance colo
 	command[5] = color.r << 1;
 	command[6] = color.g;
 	command[7] = color.b << 1;
-	sendMultiCommand(command, 8);
+	sendMultiCommand(screen, command, 8);
 }
 
-void drawRectangle(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, colorInstance colorLine, colorInstance colorFill){
+void drawRectangle(screenInstance *screen, uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, colorInstance colorLine, colorInstance colorFill){
 
 	uint8_t command[11];
 	command[0] = CMD_DRAWRECTANGLE;
@@ -356,10 +356,10 @@ void drawRectangle(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, colorInstance
 	command[8] = colorFill.r << 1;
 	command[9] = colorFill.g;
 	command[10] = colorFill.b << 1;
-	sendMultiCommand(command, 11);
+	sendMultiCommand(screen, command, 11);
 }
 
-void copyWindow(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, uint8_t c3, uint8_t r3){
+void copyWindow(screenInstance *screen, uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, uint8_t c3, uint8_t r3){
 
 	uint8_t command[7];
 	command[0] = CMD_COPYWINDOW;
@@ -369,10 +369,10 @@ void copyWindow(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, uint8_t c3, uint
 	command[4] = r2;
 	command[5] = c3;
 	command[6] = r3;
-	sendMultiCommand(command, 7);
+	sendMultiCommand(screen, command, 7);
 }
 
-void clearWindow(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2){
+void clearWindow(screenInstance *screen, uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2){
 
 	uint8_t command[5];
 	command[0] = CMD_CLEARWINDOW;
@@ -380,17 +380,17 @@ void clearWindow(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2){
 	command[2] = r1;
 	command[3] = c2;
 	command[4] = r2;
-	sendMultiCommand(command, 5);
+	sendMultiCommand(screen, command, 5);
 }
 
-void enableFill(bool fillRectangle, bool reverseCopy){
+void enableFill(screenInstance *screen, bool fillRectangle, bool reverseCopy){
 	uint8_t command[2];
 	command[0] = CMD_FILLENABLEDISABLE;
 	command[1] = 0x00 | (reverseCopy << 4) | (fillRectangle);
-	sendMultiCommand(command, 2);
+	sendMultiCommand(screen, command, 2);
 }
 
-void setupScrolling(uint8_t horizontalScrollOffset, uint8_t rowStart, uint8_t rowsNumber, uint8_t verticalScrollOffset, uint8_t timeInterval){
+void setupScrolling(screenInstance *screen, uint8_t horizontalScrollOffset, uint8_t rowStart, uint8_t rowsNumber, uint8_t verticalScrollOffset, uint8_t timeInterval){
 
 	uint8_t command[6];
 	command[0] = CMD_SETUPSCROLLING;
@@ -399,11 +399,11 @@ void setupScrolling(uint8_t horizontalScrollOffset, uint8_t rowStart, uint8_t ro
 	command[3] = rowsNumber;
 	command[4] = verticalScrollOffset;
 	command[5] = timeInterval;
-	sendMultiCommand(command, 6);
+	sendMultiCommand(screen, command, 6);
 }
 
-void enableScrolling(bool value){
+void enableScrolling(screenInstance *screen, bool value){
 
 	uint8_t command = value ? CMD_ENABLESCROLLING : CMD_DISABLESCROLLING;
-	sendCommand(command);
+	sendCommand(screen, command);
 }
