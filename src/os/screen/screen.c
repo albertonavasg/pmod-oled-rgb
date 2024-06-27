@@ -126,19 +126,20 @@ void drawBitmap(screenInstance *screen, uint8_t c1, uint8_t r1, uint8_t c2, uint
 	sendMultiPixel(screen, color, (r2-r1+1)*(c2-c1+1));
 }
 
-// void drawSymbol(screenInstance *screen, uint8_t symbol, colorInstance color){
+void drawSymbol(screenInstance *screen, uint8_t symbol, colorInstance color, uint8_t *font){
 	
-// 	colorInstance *symbolBitmap = getSymbolBitmap(symbol, color, userFont);
-// 	drawBitmap(screen, screen->cursorX*8, screen->cursorY*8, screen->cursorX*8 + 7, screen->cursorY*8 + 7, symbolBitmap);
-// }
+	colorInstance symbolBitmap[8*8];
+	getSymbolBitmap(symbol, color, font, symbolBitmap);
+	drawBitmap(screen, screen->cursorX*8, screen->cursorY*8, screen->cursorX*8 + 7, screen->cursorY*8 + 7, symbolBitmap);
+}
 
-// void drawString(screenInstance *screen, char *symbol, colorInstance color){
+void drawString(screenInstance *screen, char *symbol, colorInstance color, uint8_t *font){
 
-// 	for(int i = 0; i < strlen(symbol); i++){
-// 		drawSymbol(screen, symbol[i], color);
-// 		incrementCursor(screen);
-// 	}
-// }
+	for(int i = 0; i < strlen(symbol); i++){
+		drawSymbol(screen, symbol[i], color, font);
+		incrementCursor(screen);
+	}
+}
 
 void setCursor(screenInstance *screen, uint8_t x, uint8_t y){
 
@@ -209,24 +210,97 @@ void setAddressIncrement(screenInstance *screen, uint8_t addressIncrement){
 	setRemapAndColorSetting(screen->remapColorDepthSetting);
 }
 
-// colorInstance* getSymbolBitmap(uint8_t symbol, colorInstance color, uint8_t *font){
+// HELPERS ---------------------------------------------------------
+void getImageBitmap(char *imagePath, colorInstance *imageBitmap){
 	
-// 	colorInstance *symbolBitmap = {0};
-// 	for(int i = 0; i < 8; i++){
-// 		for(int j = 0; j < 8; j++){
-// 			printf("\nSymbol: %d", userFont[8*symbol + i]);
-// 			if( (userFont[8*symbol + i] >> j) & 1 ){	
-// 				symbolBitmap[8*i + j] = color;
-// 			}
-// 			else{
-// 				symbolBitmap[8*i + j].r = 0;
-// 				symbolBitmap[8*i + j].g = 0;
-// 				symbolBitmap[8*i + j].b = 0;
-// 			}
-// 		}
-// 	}
-// 	return symbolBitmap;
-// }
+	int r, g, b = 0;
+	FILE *imageFile;
+	char line[256];
+	char imageName[256];
+
+	imageFile = fopen(imagePath, "r");
+
+	if(imageFile == NULL){
+		printf("\nError opening : %s", imagePath);
+		fclose(imageFile);
+	}
+	else{
+		// First line is the name of the image
+		if (fgets(line,sizeof(line), imageFile) != NULL){
+			strcpy(imageName, line);
+		}
+		else{
+			printf("\nError reading : %s", imagePath);
+		}
+		// Second line is "R G B" (useless header, ignored)
+		if (fgets(line, sizeof(line), imageFile) == NULL) {
+        	printf("Not enough lines in file: %s\n", imageName);
+        	fclose(imageFile);
+		}
+		// Remaining lines are RGB values of the pixels
+		int i = 0;
+		while (fgets(line, sizeof(line), imageFile) != NULL) {
+			sscanf(line, "%d %d %d", &r, &g, &b);
+			imageBitmap[i].r = r;
+			imageBitmap[i].g = g;
+			imageBitmap[i].b = b;
+			i++;
+		}
+		fclose(imageFile);
+	}
+}
+
+void importFont(char *fontPath, uint8_t *font){
+	uint32_t readSymbol[8] = {0};
+	uint8_t symbol[8] = {0};
+	FILE *fontFile;
+	char line[256];
+	char fontName[256];
+
+	fontFile = fopen(fontPath, "r");
+
+	if(fontFile == NULL){
+		printf("\nError opening : %s", fontPath);
+		fclose(fontFile);
+	}
+	else{
+		// First line is the name of the font
+		if (fgets(line,sizeof(line), fontFile) != NULL){
+			strcpy(fontName, line);
+		}
+		else{
+			printf("\nError reading : %s", fontPath);
+		}
+		//Remaining lines are the 8 byte values of the characters
+		for (int i = 0; i < 128; i++){
+			fgets(line,sizeof(line), fontFile);
+			sscanf(line, "0x%x 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x", &readSymbol[0], &readSymbol[1], &readSymbol[2], &readSymbol[3], &readSymbol[4], &readSymbol[5], &readSymbol[6], &readSymbol[7]);
+			for (int j = 0; j < 8; j++){
+				symbol[j] = (uint8_t) readSymbol[j];
+			}
+			for (int j = 0; j < 8; j++){
+				font[8*i + j] = symbol[j];
+			}
+		}
+		fclose(fontFile);
+	}
+}
+
+void getSymbolBitmap(uint8_t symbol, colorInstance color, uint8_t *font, colorInstance *symbolBitmap){
+
+	for(int i = 0; i < 8; i++){
+		for(int j = 0; j < 8; j++){
+			if( (font[8*symbol + i] >> j) & 1 ){	
+				symbolBitmap[8*i + j] = color;
+			}
+			else{
+				symbolBitmap[8*i + j].r = 0;
+				symbolBitmap[8*i + j].g = 0;
+				symbolBitmap[8*i + j].b = 0;
+			}
+		}
+	}
+}
 
 // STANDARD ---------------------------------------------------------
 void setColumnAddress(uint8_t cBegin, uint8_t cEnd){

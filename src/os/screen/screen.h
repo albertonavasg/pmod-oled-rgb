@@ -1,10 +1,12 @@
 #ifndef SCREENH
 #define SCREENH
 
-#include <stdbool.h> // For bool
-#include <stdint.h>  // For uint8_t
-#include <string.h>  // For strlen()
-#include <stdio.h>   // For printf()
+#include <stdio.h>    // For printf()
+#include <stdbool.h>  // For bool
+#include <stdint.h>   // For uint8_t
+#include <stdlib.h>   // For rand()
+#include <string.h>   // For strlen()
+#include <inttypes.h> // For PRIu8
 
 #include <unistd.h>
 #include <sys/types.h>
@@ -102,7 +104,7 @@ uint32_t *screenAddress;
 
 // Functions
 
-// Basic (to send commands and data to the screen)
+// BASIC (to send commands and data to the screen) -------------------------------------
 void screenBegin(screenInstance *screen);
 
 void screenEnd(screenInstance *screen);
@@ -122,7 +124,7 @@ void sendData(uint8_t data);
 void sendMultiData(uint8_t *data, int n);
 
 
-// Custom (to have high level utilities)
+// CUSTOM (to have high level utilities) ------------------------------------------------
 void sendPixel(screenInstance *screen, colorInstance color);
 
 void sendMultiPixel(screenInstance *screen, colorInstance *color, int n);
@@ -131,9 +133,9 @@ void clearScreen();
 
 void drawBitmap(screenInstance *screen, uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, colorInstance *color);
 
-void drawSymbol(screenInstance *screen, uint8_t symbol, colorInstance color);
+void drawSymbol(screenInstance *screen, uint8_t symbol, colorInstance color, uint8_t *font);
 
-void drawString(screenInstance *screen, char *symbol, colorInstance color);
+void drawString(screenInstance *screen, char *symbol, colorInstance color, uint8_t *font);
 
 void setCursor(screenInstance *screen, uint8_t x, uint8_t y);
 
@@ -145,9 +147,14 @@ void setColorDepth(screenInstance *screen, uint8_t colorDepth);
 
 void setAddressIncrement(screenInstance *screen, uint8_t addressIncrement);
 
-colorInstance* getSymbolBitmap(uint8_t symbol, colorInstance color, uint8_t *font);
+// HELPERS (to import images and fonts, and get their bitmaps) ------------------------------------------------------------
+void getImageBitmap(char *imagePath, colorInstance *imageBitmap);
 
-// Standard (Settings from the datasheet)
+void importFont(char *fontPath, uint8_t *font);
+
+void getSymbolBitmap(uint8_t symbol, colorInstance color, uint8_t *font, colorInstance *symbolBitmap);
+
+// STANDARD (Settings from the datasheet) --------------------------------------------------------
 void setColumnAddress(uint8_t cBegin, uint8_t cEnd);
 void setRowAddress(uint8_t rBegin, uint8_t rEnd);
 
@@ -156,7 +163,9 @@ void setContrastB();
 void setContrastC();
 void masterCurrentControl();
 void setSecondPrechargeSpeedABC();
+
 void setRemapAndColorSetting(uint8_t value);
+
 void setDisplayStartLine();
 void setDisplayOffset();
 void setDisplayMode();

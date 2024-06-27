@@ -1,10 +1,11 @@
-#include <stdio.h>	     // For printf
-#include <stdbool.h>     // For bool
-#include <stdint.h>      // For uint8_t
-#include <stdlib.h>      // For rand()
-#include <string.h>		 // For strlen()
+#include <stdio.h>	  // For printf
+#include <stdbool.h>  // For bool
+#include <stdint.h>   // For uint8_t
+#include <stdlib.h>   // For rand()
+#include <string.h>	  // For strlen()
+#include <inttypes.h> // For PRIu8
 
-#include "screen.h"		 // For custom functions
+#include "screen.h"	  // For custom functions
 
 #include <unistd.h>
 #include <sys/types.h>
@@ -34,6 +35,8 @@ screenInstance screen;
 
 colorInstance color[N_PIXELS];
 
+uint8_t font[128*8];
+
 int main() {
 
 	screenBegin(&screen);
@@ -53,10 +56,10 @@ void test(){
 	testDrawRectangle();
 	testCopy();
 	testColumnRowAddress();
-	// testDrawBitmap();
-	// testCursor();
-	// testDrawSymbol();
-	// testDrawString();
+	testDrawBitmap();
+	testCursor();
+	testDrawSymbol();
+	testDrawString();
 }
 
 void testScreen(){
@@ -286,101 +289,102 @@ void testColumnRowAddress(){
 	clearScreen();
 }
 
-// void testDrawBitmap(){
+void testDrawBitmap(){
 
-// 	sleep(1);
-// 	setColorDepth(&screen, 1);
-// 	drawBitmap(&screen, 0, 0, N_COLUMNS-1, N_ROWS-1, imageBitmap);
-// 	sleep(2);
-// 	setColorDepth(&screen, 2);
-// 	drawBitmap(&screen, 0, 0, N_COLUMNS-1, N_ROWS-1, imageBitmap);
-// 	sleep(2);
-// 	setColorDepth(&screen, 3);
-// 	drawBitmap(&screen, 0, 0, N_COLUMNS-1, N_ROWS-1, imageBitmap);
-// 	sleep(2);
-// 	setColorDepth(&screen, 2);
+	sleep(1);
+	getImageBitmap("../images/image1.txt", color);
+	setColorDepth(&screen, 1);
+	drawBitmap(&screen, 0, 0, N_COLUMNS-1, N_ROWS-1, color);
+	sleep(2);
+	setColorDepth(&screen, 2);
+	drawBitmap(&screen, 0, 0, N_COLUMNS-1, N_ROWS-1, color);
+	sleep(2);
+	setColorDepth(&screen, 3);
+	drawBitmap(&screen, 0, 0, N_COLUMNS-1, N_ROWS-1, color);
+	sleep(2);
+	setColorDepth(&screen, 2);
 
-// 	setDefaultSettings(&screen);
-// 	clearScreen();
-// }
+	setDefaultSettings(&screen);
+	clearScreen();
+}
 
-// void testCursor(){
+void testCursor(){
 
-// 	sleep(1);
-// 	setCursor(&screen, 5, 5);
-// 	for(int i = 0; i < MAX_CURSOR_X*MAX_CURSOR_Y; i++){
-// 		for(int j = 0; j < 64; j++){
-// 				color[j].r = R_MAX * (i%2 == 0);
-// 				color[j].g = G_MAX * (i%3 == 0);
-// 				color[j].b = B_MAX;
-// 		}
-// 		drawBitmap(&screen, 8*screen.cursorX, 8*screen.cursorY, 8*screen.cursorX + 7, 8*screen.cursorY + 7, color);
-// 		usleep(10*1000);
-// 		incrementCursor(&screen);
-// 	}
-// 	sleep(1);
+	sleep(1);
+	setCursor(&screen, 5, 5);
+	for(int i = 0; i < MAX_CURSOR_X*MAX_CURSOR_Y; i++){
+		for(int j = 0; j < 64; j++){
+				color[j].r = R_MAX * (i%2 == 0);
+				color[j].g = G_MAX * (i%3 == 0);
+				color[j].b = B_MAX;
+		}
+		drawBitmap(&screen, 8*screen.cursorX, 8*screen.cursorY, 8*screen.cursorX + 7, 8*screen.cursorY + 7, color);
+		usleep(10*1000);
+		incrementCursor(&screen);
+	}
+	sleep(1);
 
-// 	setDefaultSettings(&screen);
-// 	clearScreen();
-// }
+	setDefaultSettings(&screen);
+	clearScreen();
+}
 
-// void testDrawSymbol(){
+void testDrawSymbol(){
 
-// 	sleep(1);
-// 	colorInstance fontColor = {R_MAX, G_MAX, B_MAX};
-// 	setAddressIncrement(&screen, VERTICAL);
-// 	setCursor(&screen, 0, 0);
-// 	for(int i = 0; i < 127; i++){
-// 		drawSymbol(&screen, i, fontColor);
-// 		incrementCursor(&screen);
-// 		usleep(10*1000);
-// 		if((screen.cursorX == 0) && (screen.cursorY == 0)){
-// 			sleep(5);
-// 			clearScreen();
-// 			usleep(10*10000);
-// 		}
-// 	}
+	sleep(1);
+	importFont("../fonts/font1.txt", font);
+	colorInstance fontColor = {R_MAX, G_MAX, B_MAX};
+	setAddressIncrement(&screen, VERTICAL);
+	setCursor(&screen, 0, 0);
+	for(int i = 0; i < 128; i++){
+		drawSymbol(&screen, i, fontColor, font);
+		incrementCursor(&screen);
+		usleep(10*1000);
+		if((screen.cursorX == 0) && (screen.cursorY == 0)){
+			sleep(5);
+			clearScreen();
+			usleep(10*10000);
+		}
+	}
 
-// 	sleep(5);
-// 	clearScreen();
+	sleep(5);
+	clearScreen();
 
-// 	setDefaultSettings(&screen);
-// 	setCursor(&screen, 0, 0);
-// }
+	setDefaultSettings(&screen);
+}
 
-// void testDrawString(){
+void testDrawString(){
 
-// 	sleep(1);
-// 	colorInstance fontColor[6] = {{R_MAX, 0, 0}, {0, G_MAX, 0}, {0, 0, B_MAX}, {R_MAX, G_MAX, 0}, {0, G_MAX, B_MAX}, {R_MAX, 0, B_MAX}};
-// 	char symbol0[] = "Alberto";
-// 	char symbol1[] = "Navas";
-// 	char symbol2[] = "Angel";
-// 	char symbol3[] = "Jarillo";
-// 	char symbol4[] = "Design";
-// 	char symbol5[] = "of";
-// 	char symbol6[] = "Embedded";
-// 	char symbol7[] = "Systems";
+	sleep(1);
+	colorInstance fontColor[6] = {{R_MAX, 0, 0}, {0, G_MAX, 0}, {0, 0, B_MAX}, {R_MAX, G_MAX, 0}, {0, G_MAX, B_MAX}, {R_MAX, 0, B_MAX}};
+	char symbol0[] = "Alberto";
+	char symbol1[] = "Navas";
+	char symbol2[] = "Angel";
+	char symbol3[] = "Jarillo";
+	char symbol4[] = "Design";
+	char symbol5[] = "of";
+	char symbol6[] = "Embedded";
+	char symbol7[] = "Systems";
 
-// 	setAddressIncrement(&screen, VERTICAL);
+	setAddressIncrement(&screen, VERTICAL);
 
-// 	setCursor(&screen, 0, 0);
-// 	drawString(&screen, symbol0, fontColor[0]);
-// 	setCursor(&screen, 1, 1);
-// 	drawString(&screen, symbol1, fontColor[1]);
-// 	setCursor(&screen, 2, 2);
-// 	drawString(&screen, symbol2, fontColor[2]);
-// 	setCursor(&screen, 3, 3);
-// 	drawString(&screen, symbol3, fontColor[3]);
-// 	setCursor(&screen, 0, 4);
-// 	drawString(&screen, symbol4, fontColor[4]);
-// 	setCursor(&screen, 1, 5);
-// 	drawString(&screen, symbol5, fontColor[5]);
-// 	setCursor(&screen, 2, 6);
-// 	drawString(&screen, symbol6, fontColor[6]);
-// 	setCursor(&screen, 3, 7);
-// 	drawString(&screen, symbol7, fontColor[7]);
-// 	sleep(5);
+	setCursor(&screen, 0, 0);
+	drawString(&screen, symbol0, fontColor[0], font);
+	setCursor(&screen, 1, 1);
+	drawString(&screen, symbol1, fontColor[1], font);
+	setCursor(&screen, 2, 2);
+	drawString(&screen, symbol2, fontColor[2], font);
+	setCursor(&screen, 3, 3);
+	drawString(&screen, symbol3, fontColor[3], font);
+	setCursor(&screen, 0, 4);
+	drawString(&screen, symbol4, fontColor[4], font);
+	setCursor(&screen, 1, 5);
+	drawString(&screen, symbol5, fontColor[5], font);
+	setCursor(&screen, 2, 6);
+	drawString(&screen, symbol6, fontColor[6], font);
+	setCursor(&screen, 3, 7);
+	drawString(&screen, symbol7, fontColor[7], font);
+	sleep(5);
 
-// 	setDefaultSettings(&screen);
-// 	clearScreen();
-// }
+	setDefaultSettings(&screen);
+	clearScreen();
+}

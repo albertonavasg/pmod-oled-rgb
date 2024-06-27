@@ -1,5 +1,5 @@
-Version 3.1
-Date June 26th 2024
+Version 3.2
+Date June 27th 2024
 
 This is the final stage of the design, the Operating system.
 
