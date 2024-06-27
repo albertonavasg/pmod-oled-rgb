@@ -26,7 +26,7 @@ int main() {
 	// Map physical memory into virtual memory (UIO -> offset = 0)
 	screen = mmap(NULL, 0x10000, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
 
-	printf("Pointer Physical Address: %x \n", screen);
+	printf("Pointer Physical Address: %u \n", (unsigned int)screen);
 
 	sleep(1);
 	printf("Turn ON the screen\n");
