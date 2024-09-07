@@ -21,8 +21,8 @@ The aim of this project is to design a VHDL block in the PL, package it in an IP
 
 This driver can be controlled in from a baremetal application or from an Operating System.
 
-Here is a little demo video of it working, executing some demo functions, such as the standard provided by the screen  
-(drawing a full screen of pixels, drawing lines, squares, copy-pasting sections of the screnn) and some custom-built  
+Here is a little demo video of it working, executing some demo functions, such as the standard provided by the screen
+(drawing a full screen of pixels, drawing lines, squares, copy-pasting sections of the screnn) and some custom-built
 (showing an image, drawing characters and strings).
 
 [PMOD OLED RGB Demo][youtube-demo]
@@ -31,9 +31,9 @@ Here is a little demo video of it working, executing some demo functions, such a
 
 ## 2. Develop Process
 
-1. VHDL block: spi_master block, embedded in screen_controller block
-2. Baremetal: package the screen_controller VHDL block in an AXI4-lite IP and controll from a C program in the PS
-3. OS: create an embedded linux and adapt the C program to run in it
+1. **VHDL** : `spi_master` block, embedded in `screen_controller` block
+2. **Baremetal** : package the screen_controller VHDL block in an AXI4-lite IP and controll from a C program in the PS
+3. **OS** : create an embedded linux and adapt the C program to run in it
 
 ***
 
@@ -51,9 +51,9 @@ In each of them, there are the neccesary files and a file called `version.txt` i
 
 My plans for the future involve:
 
-- Refactor the VHDL code of the SPI master for a more "professional" style and a configurable module
-- Extend the C functionalities of the driver
-- Use Petalinux for the Operating System, simplifying the current deployment process of the OS and general replication of the project, specially the OS version, whichc is the most interesting one.
+- Refactor the VHDL code of the SPI master for a more "professional" style and a configurable module.
+- Extend the C functionalities of the driver.
+- Use Petalinux for the Operating System, simplifying the current deployment process of the OS and general replication of the project, specially the OS version, which is the most interesting one.
 - Add a second screen to have a richer system and some variety of functionalities.
 
 ## 5. Folder Structure
