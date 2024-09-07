@@ -16,7 +16,15 @@ Project for Design of Embedded Systems, usable in PYNQ-Z2 (and also in PYNQ-Z1)
 
 ## 1. Project Overview
 
-The aim of this project is to design an IP, package it, build a hardware platform and control the driver (in the PL) from the PS.
+The aim of this project is to design a VHDL block in the PL, package it in an IP, build a hardware platform and control the driver (in the PL) from the PS.
+
+This driver can be controlled in from a baremetal application or from an Operating System.
+
+Here is a little demo video of it working, executing some demo functions, such as the standard provided by the screen  
+(drawing a full screen of pixels, drawing lines, squares, copy-pasting sections of the screnn) and some custom-built  
+(showing an image, drawing characters and strings).
+
+<iframe width="560" height="315" src="https://youtu.be/TNlVlC1Tnaw" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 
 ***
