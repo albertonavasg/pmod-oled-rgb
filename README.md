@@ -24,8 +24,16 @@ Here is a little demo video of it working, executing some demo functions, such a
 (drawing a full screen of pixels, drawing lines, squares, copy-pasting sections of the screnn) and some custom-built  
 (showing an image, drawing characters and strings).
 
-<iframe width="560" height="315" src="https://youtu.be/TNlVlC1Tnaw" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<div align="center">
+    <video src="media/PMOD OLEDrgb Demo.mp4" width="80%" height="auto"> 
+</div>
 
+<div align="center">
+    <video width="80%" controls>
+      <source src="media/PMOD OLEDrgb Demo.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+</div>
 
 ***
 
