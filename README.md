@@ -1,7 +1,7 @@
 # pmod-oled-rgb
 
 Project for Design of Embedded Systems, a subject from my Master's Degree in Industrial Electronics.  
-It is usable in `PYNQ-Z2` (and also in `PYNQ-Z1` takiig care of physical pinouts).  
+It is usable in `PYNQ-Z2` (and also in `PYNQ-Z1` taking care of physical pinouts).  
 
 ***
 
@@ -19,7 +19,7 @@ It is usable in `PYNQ-Z2` (and also in `PYNQ-Z1` takiig care of physical pinouts
 
 The aim of this project is to design a VHDL block in the PL, package it in an IP, build a hardware platform and control the driver (in the PL) from the PS.
 
-This driver can be controlled in from a baremetal application or from an Operating System.
+This driver can be controlled from a baremetal application or from an application running in an Operating System.
 
 Here is a little demo video of it working, executing some demo functions, such as the standard provided by the screen
 (drawing a full screen of pixels, drawing lines, squares, copy-pasting sections of the screnn) and some custom-built
@@ -31,9 +31,9 @@ Here is a little demo video of it working, executing some demo functions, such a
 
 ## 2. Develop Process
 
-1. **VHDL** : `spi_master` block, embedded in `screen_controller` block
-2. **Baremetal** : package the screen_controller VHDL block in an AXI4-lite IP and controll from a C program in the PS
-3. **OS** : create an embedded linux and adapt the C program to run in it
+1. **VHDL** : `spi_master` block, embedded in `screen_controller` block.
+2. **Baremetal** : package the screen_controller VHDL block in an AXI4-lite IP and control it from a C program in the PS.
+3. **OS** : create an embedded linux and adapt the C program to run in it.
 
 ***
 
@@ -45,7 +45,7 @@ In the directory `release` we can find three subdirectories:
 - `baremetal`
 - `os`
 
-In each of them, there are the neccesary files and a file called `version.txt` indicating the version and some instructions tor replicate the project.
+In each of them, there are the neccesary files and a file called `version.txt` indicating the version and some instructions to replicate the project in that phase.
 
 ## 4. Future Plans
 
@@ -62,7 +62,7 @@ My plans for the future involve:
 
 - PYNQ-Z2: board files (.xdc and .tcl)
 
-- release: bitfiles ready to deploy in the PYNQ-Z2 board
+- release: different folders with the binary files to replicate the project
 
 - src: source code such as VHDL, IP library, C...
 
