@@ -1,7 +1,0 @@
--- Product page
-
-https://digilent.com/reference/pmod/pmodoledrgb/start
-
--- Reference Manual
-
-https://digilent.com/reference/pmod/pmodoledrgb/reference-manual

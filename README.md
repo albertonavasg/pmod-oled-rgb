@@ -3,10 +3,6 @@
 Project for Design of Embedded Systems, a subject from my Master's Degree in Industrial Electronics.  
 It is usable in `PYNQ-Z2` (and also in `PYNQ-Z1` taking care of physical pinouts).  
 
-<div align="center">
-<img src="Images/Pmod-oled-rgb demo.png" title="NDT-Web" width="100%" height="auto"> 
-</div>
-
 ***
 
 ## Contents
