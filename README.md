@@ -29,7 +29,9 @@ Here is a little demo video of it working, executing some demo functions, such a
 
 [PMOD OLED RGB Demo][youtube-demo]
 
-This was the first version of the project.
+This was the first version of the project.  
+
+To see the code, go to the folder `old_version`  
 
 Currently I am working on the second version, with some enhacements: add support for a second screen, build the embedded operating system with petalinux, show the FPGA IP address on one of the screens, etc.
 

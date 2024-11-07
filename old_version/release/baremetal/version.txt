@@ -1,0 +1,73 @@
+Version: 2.8
+Date: June 8th 2024
+
+This is the baremetal "phase" of the design.
+
+The "screen_controller" vhdl block has been packaged in an
+AXI4Lite IP and included in a block design with the ZYNQ Processing System.
+
+This way, the bits that control the behaviour of "screen_controller" can be accesed
+from the PS of the ZYNQ-7000 SoC, from a C program running in those cores.
+
+Register 0: BIT 1 - START
+		    BIT 0 - ON_OFF
+
+Register 1: BIT 2 - ON_OFF_STATUS(1)
+		    BIT 1 - ON_OFF_STATUS(0)
+		    BIT 0 - READY
+
+Register 2: BIT 7 - DATA(7)
+		    BIT 6 - DATA(6)
+		    BIT 5 - DATA(5)
+		    BIT 4 - DATA(4)
+		    BIT 3 - DATA(3)
+		    BIT 2 - DATA(2)
+		    BIT 1 - DATA(1)
+		    BIT 0 - DATA(0)
+
+Register 3: BIT 0 - DATA_COMMAND
+
+In order to use the Screen, the first thing is turning it on.
+Set the ON_OFF bit to 1.
+
+In the LEDs of the PYNQ, it is shown:
+
+LED 3: ON_OFF
+LED 2: READY
+LED 1: ON_OFF_STATUS(1)
+LED 0: ON_OFFS_TATUS(0)
+
+Once the Screen is ON, you need to write the 8 bit DATA in the register 2,
+write the DATA_COMMAND bit in register 3
+and  set the START bit to 1 so the SPI transaction starts.
+
+The IP will only detect the rising edge in START if
+ON_OFF_STATUS is "11" (ON) and READY is '1'.
+
+
+---
+
+Use:
+
+Follow the instructions below in the "To use the hardware platform" section.
+
+---
+
+Replicate the project:
+
+- To generate the Hardware platform, create a project with a block design
+	Add the consraints file "axi_screen.xdc" available in "/src/constraints/""
+	Add the zynq processing system and apply the configuration "PYNQ-Z2v1.0.tcl" available in "/PYNQ_Z2" folder
+	Add the Screen ip, available in "/src/ip_repo"
+	Run Block Automation and Connection Automation
+	Make the outputs of the screen IP external
+	Name them the same as in the "axi_screen.xdc"
+	Generate Bitstream and Export Hardware (file with .xsa extension)
+
+- To use the hardware platform
+	Open Vitis
+	Select a workspace folder
+	Create a hardware platform(based on "screen.xsa" available in "/release/baremetal/")
+	Create an empty C application
+	Include all the files available in "/src/baremetal" into the "/src" folder of the application
+	Run it or run it in debug mode if you want to step over every instruction
