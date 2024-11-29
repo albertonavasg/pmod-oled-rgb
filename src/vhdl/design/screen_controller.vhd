@@ -126,6 +126,7 @@ architecture Behavioral of screen_controller is
 
     -- Timer
     constant TIMER_250MS      : integer := 31250000 - 1; -- 125MHz clock // 31,250,000 counts -> 250ms
+    constant TIMER_400MS      : integer := 50000000 - 1; -- 125MHZ clock // 50,000,000 counts -> 400ms
     signal   max_timer_value  : integer := 0;
     signal   timer_value      : integer := 0;
     signal   timer_enable     : std_logic := '0';
@@ -214,8 +215,69 @@ begin
     end process;
 
     on_off_proc: process(CLK, RESETN)
+        variable seq_counter : integer := 0;
     begin
+        if (RESETN = '0') then
+            spi_data_internal    <= (others => '0');
+            spi_dc_internal      <= '0';
+            spi_trigger_internal <= '0';
 
+            POWER_RESET <= '1';
+            VCC_ENABLE  <= '0';
+            PMOD_ENABLE <= '0';
+
+            seq_counter := 0;
+            transition_completed_flag <= '0';
+
+        elsif (rising_edge(CLK)) then
+            case state is 
+                when s_off =>
+                    spi_data_internal    <= (others => '0');
+                    spi_dc_internal      <= '0';
+                    spi_trigger_internal <= '0';
+        
+                    POWER_RESET <= '1';
+                    VCC_ENABLE  <= '0';
+                    PMOD_ENABLE <= '0';
+        
+                    seq_counter := 0;
+                    transition_completed_flag <= '0';
+
+                when s_turning_on =>
+
+                when s_on =>
+                    spi_data_internal    <= (others => '0');
+                    spi_dc_internal      <= '0';
+                    spi_trigger_internal <= '0';
+        
+                    POWER_RESET <= '1';
+                    VCC_ENABLE  <= '1';
+                    PMOD_ENABLE <= '1';
+        
+                    seq_counter := 0;
+                    transition_completed_flag <= '0';
+
+                when s_turning_off =>
+
+                    if (seq_counter = 0) then
+                        spi_data_internal    <= DISPLAY_OFF_COMMAND;
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter := seq_counter + 1;
+                    elsif (seq_counter = 1 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 2 and spi_done = '1') then
+                        configure_timer(timer_enable, '1', max_timer_value, TIMER_400MS, timer_auto_reset, '0');
+                        VCC_ENABLE  <= '0';
+                        seq_counter := seq_counter + 1;
+                    elsif (seq_counter = 3 and timer_expired = '1') then
+                        configure_timer(timer_enable, '0', max_timer_value, 0, timer_auto_reset, '0');
+                        transition_completed_flag <= '1';
+                        seq_counter               := seq_counter + 1;
+                    end if;
+            end case;
+        end if;
     end process;
 
     ON_OFF_STATUS <= "00" when (state = s_off) else
