@@ -79,7 +79,7 @@ architecture Behavioral of spi_master_tb is
 begin
 
     -- Port Map
-    CUT: spi_master
+    spi_master_inst: spi_master
     Generic Map (
         N              => N,             -- 1 Byte serial word length
         CPOL           => CPOL,          -- Clock idles at high
@@ -106,42 +106,41 @@ begin
         done_o     => done_o
     );
 
-        -- Stimulus processes
-        clk_process: process
-        begin
-            sclk_i <= '0';
-            pclk_i <= '0';
-            wait for CLK_PERIOD / 2;
-            sclk_i <= '1';
-            pclk_i <= '1';
-            wait for CLK_PERIOD / 2;
-        end process;
+    clk_process: process
+    begin
+        sclk_i <= '0';
+        pclk_i <= '0';
+        wait for CLK_PERIOD / 2;
+        sclk_i <= '1';
+        pclk_i <= '1';
+        wait for CLK_PERIOD / 2;
+    end process;
 
-        stimulus_process: process
-        begin
-            wait for 5*CLK_PERIOD;
-                rst_i  <= '1';
-            wait for 5*CLK_PERIOD;
-                rst_i <= '0';
-            wait for 5*CLK_PERIOD;
-                wren_i <= '1';
-                di_i   <= "01010101";
-            wait for 1*CLK_PERIOD;
-                wren_i <= '0';
-            wait until di_req_o = '1'; -- wait until new data is requested
-            wait for 1*CLK_PERIOD;
-                wren_i <= '1';
-                di_i   <= "11001100";
-            wait for 1*CLK_PERIOD;
-                wren_i <= '0';
-            wait for 400*CLK_PERIOD;
-                wren_i <= '1';
-                di_i   <= "00110100";
-            wait for 1*CLK_PERIOD;
-                wren_i <= '0';
-            wait until done_o = '1'; -- wait until this transaction is finished
-                di_i <= "00000000";
-            wait;
-        end process;
+    stimulus_process: process
+    begin
+        wait for 5*CLK_PERIOD;
+            rst_i  <= '1';
+        wait for 5*CLK_PERIOD;
+            rst_i <= '0';
+        wait for 5*CLK_PERIOD;
+            wren_i <= '1';
+            di_i   <= "01010101";
+        wait for 1*CLK_PERIOD;
+            wren_i <= '0';
+        wait until di_req_o = '1'; -- wait until new data is requested
+        wait for 1*CLK_PERIOD;
+            wren_i <= '1';
+            di_i   <= "11001100";
+        wait for 1*CLK_PERIOD;
+            wren_i <= '0';
+        wait for 400*CLK_PERIOD;
+            wren_i <= '1';
+            di_i   <= "00110100";
+        wait for 1*CLK_PERIOD;
+            wren_i <= '0';
+        wait until done_o = '1'; -- wait until this transaction is finished
+            di_i <= "00000000";
+        wait;
+    end process;
 
 end Behavioral;
