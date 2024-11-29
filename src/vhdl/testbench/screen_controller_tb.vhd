@@ -102,16 +102,13 @@ begin
 
     stim_proc : process
     begin
-        resetn  <= '0';
-        on_off  <= '0';
         wait for 5*clk_period;
-        resetn  <= '1';
-        on_off  <= '0';
+            resetn  <= '1';
         wait for 1*clk_period;
-        on_off <= '1';
-        wait for 100000*clk_period;
-        on_off <= '0';
-        wait for 100000*clk_period;
+            on_off <= '1';
+        wait for 20000*clk_period;
+            on_off <= '0';
+        wait;
     end process;
 
 end Behavioral;

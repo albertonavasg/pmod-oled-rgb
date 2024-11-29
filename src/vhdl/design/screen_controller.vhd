@@ -125,8 +125,12 @@ architecture Behavioral of screen_controller is
     signal on_off_d : std_logic := '0';
 
     -- Timer
-    constant TIMER_250MS      : integer := 31250000 - 1; -- 125MHz clock // 31,250,000 counts -> 250ms
-    constant TIMER_400MS      : integer := 50000000 - 1; -- 125MHZ clock // 50,000,000 counts -> 400ms
+    constant TIMER_5US        : integer := 625 - 1;      -- 125MHz clock // 625 counts        -> 5us
+    constant TIMER_20MS       : integer := 2500000 - 1;  -- 125MHz clock // 2,500,000 counts  -> 20ms  20 for simulation
+    constant TIMER_25MS       : integer := 3125000 - 1;  -- 125MHz clock // 3,125,000 counts  -> 25ms  25 for simulation
+    constant TIMER_100MS      : integer := 1250000 - 1;  -- 125MHz clock // 1,250,000 counts  -> 100ms 30 for simulation
+    constant TIMER_250MS      : integer := 31250000 - 1; -- 125MHz clock // 31,250,000 counts -> 250ms 40 for simulation
+    constant TIMER_400MS      : integer := 50000000 - 1; -- 125MHZ clock // 50,000,000 counts -> 400ms 50 for simulation
     signal   max_timer_value  : integer := 0;
     signal   timer_value      : integer := 0;
     signal   timer_enable     : std_logic := '0';
@@ -244,7 +248,401 @@ begin
                     transition_completed_flag <= '0';
 
                 when s_turning_on =>
-
+                    if (seq_counter = 0) then
+                        configure_timer(timer_enable, '1', max_timer_value, TIMER_20MS, timer_auto_reset, '0');
+                        PMOD_ENABLE <= '1';
+                        seq_counter := seq_counter + 1;
+                    elsif (seq_counter = 1 and timer_expired = '1') then
+                        configure_timer(timer_enable, '0', max_timer_value, 0, timer_auto_reset, '0');
+                        seq_counter := seq_counter + 1;
+                    elsif (seq_counter = 2) then
+                        configure_timer(timer_enable, '1', max_timer_value, TIMER_5US, timer_auto_reset, '0');
+                        POWER_RESET <= '0';
+                        seq_counter := seq_counter + 1;
+                    elsif (seq_counter = 3 and timer_expired = '1') then
+                        configure_timer(timer_enable, '0', max_timer_value, 0, timer_auto_reset, '0');
+                        seq_counter := seq_counter + 1;
+                    elsif (seq_counter = 4) then
+                        configure_timer(timer_enable, '1', max_timer_value, TIMER_5US, timer_auto_reset, '0');
+                        POWER_RESET <= '1';
+                        seq_counter := seq_counter + 1;
+                    elsif (seq_counter = 5 and timer_expired = '1') then
+                        configure_timer(timer_enable, '0', max_timer_value, 0, timer_auto_reset, '0');
+                        spi_data_internal    <= UNLOCK_COMMAND;
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 6 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 7 and spi_data_request = '1') then
+                        spi_data_internal    <= UNLOCK_DATA;
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 8 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 9 and spi_data_request = '1') then
+                        spi_data_internal    <= DISPLAY_OFF_COMMAND;
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 10 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 11 and spi_data_request = '1') then
+                        spi_data_internal    <= REMAP_COMMAND;
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 12 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 12 and spi_data_request = '1') then
+                        spi_data_internal    <= x"72";
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 13 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 14 and spi_data_request = '1') then
+                        spi_data_internal    <= DISPLAY_START_LINE_COMMAND;
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 15 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 16 and spi_data_request = '1') then
+                        spi_data_internal    <= x"00";
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 17 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 18 and spi_data_request = '1') then
+                        spi_data_internal    <= DISPLAY_OFFSET_COMMAND;
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 19 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 20 and spi_data_request = '1') then
+                        spi_data_internal    <= x"00";
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 21 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 22 and spi_data_request = '1') then
+                        spi_data_internal    <= NORMAL_DISPLAY_COMMAND;
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 23 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 24 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 25 and spi_data_request = '1') then
+                        spi_data_internal    <= MUX_RATIO_COMMAND;
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 26 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 27 and spi_data_request = '1') then
+                        spi_data_internal    <= x"3F";
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 28 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 29 and spi_data_request = '1') then
+                        spi_data_internal    <= MASTER_CONFIG_COMMAND;
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 30 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 31 and spi_data_request = '1') then
+                        spi_data_internal    <= EXT_VCC_SUPPLY_DATA;
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 32 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 33 and spi_data_request = '1') then
+                        spi_data_internal    <= POWER_SAVE_MODE_COMMAND;
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 34 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 35 and spi_data_request = '1') then
+                        spi_data_internal    <= DISABLE_POWER_SAVE_MODE_DATA;
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 36 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 37 and spi_data_request = '1') then
+                        spi_data_internal    <= PHASE_LENGTH_COMMAND;
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 38 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 39 and spi_data_request = '1') then
+                        spi_data_internal    <= x"31";
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 40 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 41 and spi_data_request = '1') then
+                        spi_data_internal    <= DISP_CLK_DIV_OSC_FREQ_COMMAND;
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 42 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 43 and spi_data_request = '1') then
+                        spi_data_internal    <= x"F0";
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 44 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 45 and spi_data_request = '1') then
+                        spi_data_internal    <= SECOND_PRECHARGE_A_COMMAND;
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 46 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 47 and spi_data_request = '1') then
+                        spi_data_internal    <= x"64";
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 46 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 47 and spi_data_request = '1') then
+                        spi_data_internal    <= SECOND_PRECHARGE_B_COMMAND;
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 48 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 49 and spi_data_request = '1') then
+                        spi_data_internal    <= x"78";
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 50 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 51 and spi_data_request = '1') then
+                        spi_data_internal    <= SECOND_PRECHARGE_C_COMMAND;
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 52 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 53 and spi_data_request = '1') then
+                        spi_data_internal    <= x"64";
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 54 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 55 and spi_data_request = '1') then
+                        spi_data_internal    <= PRECHARGE_COMMAND;
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 56 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 57 and spi_data_request = '1') then
+                        spi_data_internal    <= x"3A";
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 58 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 59 and spi_data_request = '1') then
+                        spi_data_internal    <= VCOMH_COMMAND;
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 60 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 61 and spi_data_request = '1') then
+                        spi_data_internal    <= x"3E";
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 62 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 63 and spi_data_request = '1') then
+                        spi_data_internal    <= MASTER_CURRENT_COMMAND;
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 64 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 65 and spi_data_request = '1') then
+                        spi_data_internal    <= x"06";
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 66 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 67 and spi_data_request = '1') then
+                        spi_data_internal    <= CONTRAST_A_COMMAND;
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 68 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 69 and spi_data_request = '1') then
+                        spi_data_internal    <= x"91";
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 70 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 71 and spi_data_request = '1') then
+                        spi_data_internal    <= CONTRAST_B_COMMAND;
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 72 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 73 and spi_data_request = '1') then
+                        spi_data_internal    <= x"50";
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 74 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 75 and spi_data_request = '1') then
+                        spi_data_internal    <= CONTRAST_C_COMMAND;
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 76 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 77 and spi_data_request = '1') then
+                        spi_data_internal    <= x"7D";
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 78 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 79 and spi_data_request = '1') then
+                        spi_data_internal    <= DISABLE_SCROLL_COMMAND;
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 80 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 81 and spi_data_request = '1') then
+                        spi_data_internal    <= CLEAR_WINDOW_COMMAND;
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 82 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 83 and spi_data_request = '1') then
+                        spi_data_internal    <= MIN_COLUMN;
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 84 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 85 and spi_data_request = '1') then
+                        spi_data_internal    <= MIN_ROW;
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 86 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 87 and spi_data_request = '1') then
+                        spi_data_internal    <= MAX_COLUMN;
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 88 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 89 and spi_data_request = '1') then
+                        spi_data_internal    <= MAX_ROW;
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 90 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 91 and spi_done = '1') then
+                        configure_timer(timer_enable, '1', max_timer_value, TIMER_25MS, timer_auto_reset, '0');
+                        VCC_ENABLE  <= '1';
+                        seq_counter := seq_counter + 1;
+                    elsif (seq_counter = 92 and timer_expired = '1') then
+                        configure_timer(timer_enable, '0', max_timer_value, 0, timer_auto_reset, '0');
+                        spi_data_internal    <= DISPLAY_ON_COMMAND;
+                        spi_dc_internal      <= COMMAND_TYPE;
+                        spi_trigger_internal <= '1';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 93 and spi_write_ack = '1') then
+                        spi_trigger_internal <= '0';
+                        seq_counter          := seq_counter + 1;
+                    elsif (seq_counter = 94 and spi_done = '1') then
+                        configure_timer(timer_enable, '1', max_timer_value, TIMER_100MS, timer_auto_reset, '0');
+                        seq_counter := seq_counter + 1;
+                    elsif (seq_counter = 95 and timer_expired = '1') then
+                        configure_timer(timer_enable, '0', max_timer_value, 0, timer_auto_reset, '0');
+                        transition_completed_flag <= '1';
+                        seq_counter               := seq_counter + 1;
+                    end if;
                 when s_on =>
                     spi_data_internal    <= (others => '0');
                     spi_dc_internal      <= '0';
@@ -258,14 +656,13 @@ begin
                     transition_completed_flag <= '0';
 
                 when s_turning_off =>
-
                     if (seq_counter = 0) then
                         spi_data_internal    <= DISPLAY_OFF_COMMAND;
                         spi_dc_internal      <= COMMAND_TYPE;
                         spi_trigger_internal <= '1';
                         seq_counter := seq_counter + 1;
                     elsif (seq_counter = 1 and spi_write_ack = '1') then
-                        spi_trigger_internal <= '1';
+                        spi_trigger_internal <= '0';
                         seq_counter          := seq_counter + 1;
                     elsif (seq_counter = 2 and spi_done = '1') then
                         configure_timer(timer_enable, '1', max_timer_value, TIMER_400MS, timer_auto_reset, '0');
