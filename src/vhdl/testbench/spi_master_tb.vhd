@@ -7,7 +7,7 @@ entity spi_master_tb is
         CPOL           : std_logic := '1'; -- Clock idles at high
         CPHA           : std_logic := '1'; -- Data sampled on (second) rising edge and shifted on (first) falling edge
         PREFETCH       : positive  := 2;   -- prefetch lookahead cycles
-        SPI_2X_CLK_DIV : positive  := 25   -- 125MHz sclk_i => 2.5MHz SCK
+        SPI_2X_CLK_DIV : positive  := 10   -- 125MHz clk input // 20 clock divider => 6.25MHz SCK
     );  
     -- Port ( );
 end spi_master_tb;
@@ -16,7 +16,7 @@ architecture Behavioral of spi_master_tb is
 
     -- Component Under Test
     component spi_master is
-        Generic (   
+        Generic (
             N              : positive  := 32;  -- 32bit serial word length is default
             CPOL           : std_logic := '0'; -- SPI mode selection (mode 0 default)
             CPHA           : std_logic := '0'; -- CPOL = clock polarity, CPHA = clock phase.
@@ -84,8 +84,8 @@ begin
         N              => N,             -- 1 Byte serial word length
         CPOL           => CPOL,          -- Clock idles at high
         CPHA           => CPHA,          -- Data sampled on (second) rising edge and shifted on (first) falling edge
-        PREFETCH       => PREFETCH,      -- Prefetch lookahead cycles
-        SPI_2X_CLK_DIV => SPI_2X_CLK_DIV -- 125MHz sclk_i => 5MHz SCK
+        PREFETCH       => PREFETCH,      -- prefetch lookahead cycles
+        SPI_2X_CLK_DIV => SPI_2X_CLK_DIV -- 125MHz clk input // 20 clock divider => 6.25MHz SCK
     )
     Port Map (
         sclk_i => sclk_i,
@@ -134,7 +134,7 @@ begin
                 di_i   <= "11001100";
             wait for 1*CLK_PERIOD;
                 wren_i <= '0';
-            wait for 750*CLK_PERIOD;
+            wait for 400*CLK_PERIOD;
                 wren_i <= '1';
                 di_i   <= "00110100";
             wait for 1*CLK_PERIOD;
