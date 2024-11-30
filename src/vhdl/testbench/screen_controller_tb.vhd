@@ -13,19 +13,22 @@ architecture Behavioral of screen_controller_tb is
             -- Sync
             CLK    : in std_logic;
             RESETN : in std_logic;
-    
+
             -- Control
             ON_OFF        : in  std_logic;
             SPI_TRIGGER   : in  std_logic;
-    
+
             -- Status
             ON_OFF_STATUS : out std_logic_vector(1 downto 0);
             SPI_READY     : out std_logic;
-    
+
+            -- SPI data request
+            SPI_DATA_REQUEST : out std_logic;
+
             -- Data input
             BYTE      : in  std_logic_vector(7 downto 0);
             DC_SELECT : in  std_logic;
-    
+
             -- Pmod physical pins
             MOSI         : out std_logic;
             SCK          : out std_logic;
@@ -49,6 +52,8 @@ architecture Behavioral of screen_controller_tb is
 
     signal on_off_status : std_logic_vector(1 downto 0) := (others => '0');
     signal spi_ready     : std_logic := '0';
+
+    signal spi_data_request : std_logic := '0';
 
     signal byte          : std_logic_vector(7 downto 0) := (others => '0');
     signal dc_select     : std_logic := '0';
@@ -77,7 +82,10 @@ begin
             -- Status
             ON_OFF_STATUS => on_off_status,
             SPI_READY     => spi_ready,
-    
+            
+            -- SPI data request
+            SPI_DATA_REQUEST => open,
+            
             -- Data input
             BYTE      => byte,
             DC_SELECT => dc_select,

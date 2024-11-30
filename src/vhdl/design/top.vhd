@@ -30,7 +30,10 @@ architecture Behavioral of top is
             -- Status
             ON_OFF_STATUS : out std_logic_vector(1 downto 0);
             SPI_READY     : out std_logic;
-    
+            
+            -- SPI data request
+            SPI_DATA_REQUEST : out std_logic;
+            
             -- Data input
             BYTE      : in  std_logic_vector(7 downto 0);
             DC_SELECT : in  std_logic;
@@ -105,7 +108,10 @@ begin
             -- Status
             ON_OFF_STATUS => on_off_status,
             SPI_READY     => spi_ready,
-    
+            
+            -- SPI data request
+            SPI_DATA_REQUEST => open,
+
             -- Data input
             BYTE      => byte,
             DC_SELECT => dc_select,
