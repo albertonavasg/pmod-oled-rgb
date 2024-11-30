@@ -36,15 +36,7 @@ architecture Behavioral of screen_tester is
     
 begin
 
-    edge_detect_proc: process(CLK, RESETN)
-    begin
-        if (RESETN = '0') then
-            enable_d <= '0';
-        elsif (rising_edge(CLK)) then
-            enable_d <= ENABLE;
-        end if;
-    end process;
-
+    -- Process to trigger SPI based on ENABLE rising/falling edges
     trigger_proc: process(CLK, RESETN)
     begin
         if (RESETN = '0') then
@@ -64,7 +56,8 @@ begin
         end if;
     end process;
 
-    main_proc: process(CLK, RESETN)
+    -- Process to send SPI commands when triggered
+    spi_proc: process(CLK, RESETN)
         variable seq_counter : integer := 0;
     begin
         if (RESETN = '0') then
@@ -99,6 +92,16 @@ begin
                 seq_counter       := 0;
                 command_sent_flag <= '0';
             end if;
+        end if;
+    end process;
+
+    -- Process to delay signals and detect rising and falling edges
+    delay_signal_proc: process(CLK, RESETN)
+    begin
+        if (RESETN = '0') then
+            enable_d <= '0';
+        elsif (rising_edge(CLK)) then
+            enable_d <= ENABLE;
         end if;
     end process;
 
