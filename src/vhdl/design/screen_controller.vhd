@@ -36,6 +36,7 @@ end screen_controller;
 
 architecture Behavioral of screen_controller is
 
+    -- Components
     component spi_master is
         Generic (   
             N              : positive  := 32;  -- 32bit serial word length is default
@@ -64,7 +65,7 @@ architecture Behavioral of screen_controller is
         );                      
     end component;
 
-    -- Commands
+    -- SPI Commands
     constant UNLOCK_COMMAND                : std_logic_vector(7 downto 0) := x"FD";
     constant UNLOCK_DATA                   : std_logic_vector(7 downto 0) := x"12";
     constant DISPLAY_OFF_COMMAND           : std_logic_vector(7 downto 0) := x"AE";
@@ -101,15 +102,15 @@ architecture Behavioral of screen_controller is
     constant MAX_ROW                       : std_logic_vector(7 downto 0) := x"3F";
     constant DRAW_LINE_COMMAND             : std_logic_vector(7 downto 0) := x"21";
 
-    -- Data/Command
+    -- SPI Data/Command
     constant DATA_TYPE    : std_logic := '1';
     constant COMMAND_TYPE : std_logic := '0';
 
-    -- FSM
-    type state_t is (s_off, s_turning_on, s_on, s_turning_off);
-    signal state : state_t := s_off;
+    -- General State Machine
+    type gsm_state is (gsm_off, gsm_turning_on, gsm_on, gsm_turning_off);
+    signal state : gsm_state := gsm_off;
     
-    -- SPI ignals
+    -- SPI signals
     signal spi_data_req  : std_logic := '0';
     signal spi_data      : std_logic_vector(7 downto 0) := (others => '0');
     signal spi_write_en  : std_logic := '0';
@@ -129,11 +130,11 @@ architecture Behavioral of screen_controller is
 
     -- Timer
     constant TIMER_5US        : integer := 625 - 1;      -- 125MHz clock // 625 counts        -> 5us
-    constant TIMER_20MS       : integer := 2500000 - 1;  -- 125MHz clock // 2,500,000 counts  -> 20ms  20 for simulation
-    constant TIMER_25MS       : integer := 3125000 - 1;  -- 125MHz clock // 3,125,000 counts  -> 25ms  25 for simulation
-    constant TIMER_100MS      : integer := 1250000 - 1;  -- 125MHz clock // 1,250,000 counts  -> 100ms 30 for simulation
-    constant TIMER_250MS      : integer := 31250000 - 1; -- 125MHz clock // 31,250,000 counts -> 250ms 40 for simulation
-    constant TIMER_400MS      : integer := 50000000 - 1; -- 125MHZ clock // 50,000,000 counts -> 400ms 50 for simulation
+    constant TIMER_20MS       : integer := 2500000 - 1;  -- 125MHz clock // 2,500,000 counts  -> 20ms  2000 for simulation
+    constant TIMER_25MS       : integer := 3125000 - 1;  -- 125MHz clock // 3,125,000 counts  -> 25ms  2500 for simulation
+    constant TIMER_100MS      : integer := 1250000 - 1;  -- 125MHz clock // 1,250,000 counts  -> 100ms 3000 for simulation
+    constant TIMER_250MS      : integer := 31250000 - 1; -- 125MHz clock // 31,250,000 counts -> 250ms 4000 for simulation
+    constant TIMER_400MS      : integer := 50000000 - 1; -- 125MHZ clock // 50,000,000 counts -> 400ms 5000 for simulation
     signal   max_timer_value  : integer := 0;
     signal   timer_value      : integer := 0;
     signal   timer_enable     : std_logic := '0';
@@ -141,13 +142,14 @@ architecture Behavioral of screen_controller is
     signal   timer_auto_reset : std_logic := '0';
 
     -- Procedure to start/stop the timer, configure the max_timer_value and configure the timer_auto_reset
-    procedure configure_timer(signal   timer_enable       : out std_logic;
-                              constant timer_enable_v     : in  std_logic;
-                              signal   max_timer_value    : out integer;
-                              constant max_timer_value_v  : in  integer;
-                              signal   timer_auto_reset   : out std_logic;
-                              constant timer_auto_reset_v : in  std_logic
-                              ) is
+    procedure configure_timer (
+        signal   timer_enable       : out std_logic;
+        constant timer_enable_v     : in  std_logic;
+        signal   max_timer_value    : out integer;
+        constant max_timer_value_v  : in  integer;
+        signal   timer_auto_reset   : out std_logic;
+        constant timer_auto_reset_v : in  std_logic
+    ) is
     begin
         timer_enable     <= timer_enable_v;
         max_timer_value  <= max_timer_value_v;
@@ -156,56 +158,28 @@ architecture Behavioral of screen_controller is
 
 begin
 
-    -- Port Map
-        spi_master_inst: spi_master
-        Generic Map (
-            N              => 8,   -- 1 Byte serial word length
-            CPOL           => '1', -- Clock idles at high
-            CPHA           => '1', -- Data sampled on (second) rising edge and shifted on (first) falling edge
-            PREFETCH       => 2,   -- prefetch lookahead cycles
-            SPI_2X_CLK_DIV => 10   -- 125MHz clk input // 20 clock divider => 6.25MHz SCK
-        )
-        Port Map (
-            sclk_i => CLK,
-            pclk_i => CLK,
-            rst_i  => NOT RESETN,
-            ---- serial interface ----
-            spi_ssel_o => CS,
-            spi_sck_o  => SCK,
-            spi_mosi_o => MOSI,
-            spi_miso_i => '0', -- Unused
-            ---- parallel interface ----
-            di_req_o   => spi_data_req,
-            di_i       => spi_data,
-            wren_i     => spi_write_en,
-            wr_ack_o   => spi_write_ack,
-            do_valid_o => open,
-            do_o       => open,
-            done_o     => spi_done
-        );
-
     -- General State Machine
     GSM_proc : process(CLK, RESETN)
     begin
         if (RESETN = '0') then
-            state <= s_off;
+            state <= gsm_off;
         elsif (rising_edge(CLK)) then
             case state is
-                when s_off =>
+                when gsm_off =>
                     if (ON_OFF = '1' and on_off_d = '0') then
-                        state <= s_turning_on;
+                        state <= gsm_turning_on;
                     end if;
-                when s_turning_on =>
+                when gsm_turning_on =>
                     if (transition_completed_flag = '1' and ON_OFF = '1') then
-                        state <= s_on;
+                        state <= gsm_on;
                     end if;
-                when s_on =>
+                when gsm_on =>
                     if (ON_OFF = '0' and on_off_d = '1') then
-                        state <= s_turning_off;
+                        state <= gsm_turning_off;
                     end if;
-                when s_turning_off =>
+                when gsm_turning_off =>
                     if (transition_completed_flag = '1' and ON_OFF = '0') then
-                        state <= s_off;
+                        state <= gsm_off;
                     end if;
             end case;
         end if;
@@ -228,7 +202,7 @@ begin
 
         elsif (rising_edge(CLK)) then
             case state is 
-                when s_off =>
+                when gsm_off =>
                     spi_data_internal    <= (others => '0');
                     spi_dc_internal      <= '0';
                     spi_trigger_internal <= '0';
@@ -240,7 +214,7 @@ begin
                     seq_counter := 0;
                     transition_completed_flag <= '0';
 
-                when s_turning_on =>
+                when gsm_turning_on =>
                     if (seq_counter = 0) then
                         configure_timer(timer_enable, '1', max_timer_value, TIMER_20MS, timer_auto_reset, '0');
                         PMOD_ENABLE <= '1';
@@ -636,7 +610,7 @@ begin
                         transition_completed_flag <= '1';
                         seq_counter               := seq_counter + 1;
                     end if;
-                when s_on =>
+                when gsm_on =>
                     spi_data_internal    <= (others => '0');
                     spi_dc_internal      <= '0';
                     spi_trigger_internal <= '0';
@@ -648,7 +622,7 @@ begin
                     seq_counter := 0;
                     transition_completed_flag <= '0';
 
-                when s_turning_off =>
+                when gsm_turning_off =>
                     if (seq_counter = 0) then
                         spi_data_internal    <= DISPLAY_OFF_COMMAND;
                         spi_dc_internal      <= COMMAND_TYPE;
@@ -670,17 +644,17 @@ begin
         end if;
     end process;
 
-    ON_OFF_STATUS <= "00" when (state = s_off) else
-                     "01" when (state = s_turning_on) else
-                     "10" when (state = s_turning_off) else
-                     "11" when (state = s_on);
+    ON_OFF_STATUS <= "00" when (state = gsm_off) else
+                     "01" when (state = gsm_turning_on) else
+                     "10" when (state = gsm_turning_off) else
+                     "11" when (state = gsm_on);
 
-    SPI_READY        <= spi_done     when (state = s_on) else '0'; 
-    SPI_DATA_REQUEST <= spi_data_req when (state = s_on) else '0';
+    SPI_READY        <= spi_done     when (state = gsm_on) else '0'; 
+    SPI_DATA_REQUEST <= spi_data_req when (state = gsm_on) else '0';
 
-    spi_data     <= BYTE        when (state = s_on) else spi_data_internal;
-    DATA_COMMAND <= DC_SELECT   when (state = s_on) else spi_dc_internal;
-    spi_write_en <= SPI_TRIGGER when (state = s_on) else spi_trigger_internal;
+    spi_data     <= BYTE        when (state = gsm_on) else spi_data_internal;
+    DATA_COMMAND <= DC_SELECT   when (state = gsm_on) else spi_dc_internal;
+    spi_write_en <= SPI_TRIGGER when (state = gsm_on) else spi_trigger_internal;
 
     -- Process to delay signals and detect rising and falling edges
     delay_signal_proc: process(CLK, RESETN)
@@ -715,5 +689,33 @@ begin
             end if;
         end if;
     end process;
+
+    -- Port Map
+        spi_master_inst: spi_master
+        Generic Map (
+            N              => 8,   -- 1 Byte serial word length
+            CPOL           => '1', -- Clock idles at high
+            CPHA           => '1', -- Data sampled on (second) rising edge and shifted on (first) falling edge
+            PREFETCH       => 2,   -- prefetch lookahead cycles
+            SPI_2X_CLK_DIV => 10   -- 125MHz clk input // 20 clock divider => 6.25MHz SCK
+        )
+        Port Map (
+            sclk_i => CLK,
+            pclk_i => CLK,
+            rst_i  => NOT RESETN,
+            ---- serial interface ----
+            spi_ssel_o => CS,
+            spi_sck_o  => SCK,
+            spi_mosi_o => MOSI,
+            spi_miso_i => '0', -- Unused
+            ---- parallel interface ----
+            di_req_o   => spi_data_req,
+            di_i       => spi_data,
+            wren_i     => spi_write_en,
+            wr_ack_o   => spi_write_ack,
+            do_valid_o => open,
+            do_o       => open,
+            done_o     => spi_done
+        );
 
 end Behavioral;
