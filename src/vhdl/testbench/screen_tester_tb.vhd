@@ -22,7 +22,7 @@ architecture Behavioral of screen_tester_tb is
 
             -- Status
             ON_OFF_STATUS : in  std_logic_vector(1 downto 0);
-            READY         : in  std_logic;
+            SPI_READY     : in  std_logic;
 
             -- Data
             BYTE      : out std_logic_vector(7 downto 0);
@@ -42,7 +42,7 @@ architecture Behavioral of screen_tester_tb is
     signal spi_trigger   : std_logic := '0';
 
     signal on_off_status : std_logic_vector(1 downto 0) := "00";
-    signal ready         : std_logic := '0';
+    signal spi_ready     : std_logic := '0';
 
     signal byte          : std_logic_vector(7 downto 0) := "00000000";
     signal dc_select     : std_logic := '0';
@@ -63,7 +63,7 @@ begin
 
             -- Status
             ON_OFF_STATUS => on_off_status,
-            READY         => ready,
+            SPI_READY     => spi_ready,
 
             -- Data
             BYTE      => byte,
@@ -84,7 +84,7 @@ begin
             resetn <= '1';
         wait for 5*clk_period;
             on_off_status <= "11";
-            ready         <= '1';
+            spi_ready     <= '1';
         wait for 5*clk_period;
             enable <= '1';
         wait for 50*clk_period;

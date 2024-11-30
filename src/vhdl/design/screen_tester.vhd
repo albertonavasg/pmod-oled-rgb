@@ -16,7 +16,7 @@ entity screen_tester is
 
         -- Status
         ON_OFF_STATUS : in  std_logic_vector(1 downto 0);
-        READY         : in  std_logic;
+        SPI_READY     : in  std_logic;
 
         -- Data
         BYTE      : out std_logic_vector(7 downto 0);
@@ -51,10 +51,10 @@ begin
             send_on_flag  <= '0';
             send_off_flag <= '0';
         elsif (rising_edge(CLK)) then
-            if (ENABLE = '1' and enable_d = '0' and ON_OFF_STATUS = "11" and READY = '1') then
+            if (ENABLE = '1' and enable_d = '0' and ON_OFF_STATUS = "11" and SPI_READY = '1') then
                 send_on_flag <= '1';
             end if;
-            if (ENABLE = '0' and enable_d = '1' and ON_OFF_STATUS = "11" and READY = '1') then
+            if (ENABLE = '0' and enable_d = '1' and ON_OFF_STATUS = "11" and SPI_READY = '1') then
                 send_off_flag <= '1';
             end if;
             if (command_sent_flag = '1') then
