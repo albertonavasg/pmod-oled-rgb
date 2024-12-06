@@ -104,8 +104,8 @@ architecture Behavioral of screen_controller is
     constant DRAW_LINE_COMMAND             : std_logic_vector(7 downto 0) := x"21";
 
     -- SPI Data/Command
-    constant DATA_TYPE    : std_logic := '1'; -- Unused in turning on and off sequence
     constant COMMAND_TYPE : std_logic := '0';
+    constant DATA_TYPE    : std_logic := '1'; -- Unused in turning on and off sequence
 
     -- Type definitions
     constant SPI_SEQUENCE_MAX_SIZE : integer := 100;
@@ -163,7 +163,7 @@ architecture Behavioral of screen_controller is
 
     -- Internal signals used during power on and power off transitions
     signal spi_data_internal    : std_logic_vector(7 downto 0) := (others => '0');
-    signal spi_dc_internal      : std_logic := '0';
+    signal spi_dc_internal      : std_logic := COMMAND_TYPE;
     signal spi_trigger_internal : std_logic := '0';
 
     -- SPI flags
@@ -369,7 +369,7 @@ begin
                         transition_completed_flag <= '1';
                         seq_counter               := seq_counter + 1;
                     end if;
-                    
+
             end case;
         end if;
     end process;
@@ -382,10 +382,11 @@ begin
             spi_done_flag        <= '0';
             spi_data_internal    <= (others => '0');
             spi_trigger_internal <= '0';
-            write_byte_index := 0;
-            spi_state        <= spi_idle;
+            write_byte_index     := 0;
+            spi_state            <= spi_idle;
         elsif (rising_edge(CLK)) then
             case spi_state is
+
                 when spi_idle =>         
                     spi_done_flag        <= '0';
                     spi_data_internal    <= (others => '0');
@@ -397,6 +398,7 @@ begin
                         write_byte_index     := write_byte_index + 1;
                         spi_state            <= spi_write;
                     end if;
+
                 when spi_write =>
                     if (write_byte_index < spi_data_array_len) then
                         -- Turn off write_en when write_ack is received
@@ -418,6 +420,7 @@ begin
                             spi_state <= spi_finish;
                         end if;
                     end if;
+
                 when spi_finish =>
                     spi_done_flag <= '1';
                     spi_state     <= spi_idle;
@@ -445,17 +448,17 @@ begin
     delay_signal_proc: process(CLK, RESETN)
     begin
         if (RESETN = '0') then
-            on_off_d          <= '0';
-            spi_data_req_d    <= '0';
-            spi_write_ack_d   <= '0';
-            spi_start_flag_d  <= '0';
-            spi_done_flag_d   <= '0';
+            on_off_d         <= '0';
+            spi_data_req_d   <= '0';
+            spi_write_ack_d  <= '0';
+            spi_start_flag_d <= '0';
+            spi_done_flag_d  <= '0';
         elsif (rising_edge(CLK)) then
-            on_off_d          <= ON_OFF;
-            spi_data_req_d    <= spi_data_req;
-            spi_write_ack_d   <= spi_write_ack;
-            spi_start_flag_d  <= spi_start_flag;
-            spi_done_flag_d   <= spi_done_flag;
+            on_off_d         <= ON_OFF;
+            spi_data_req_d   <= spi_data_req;
+            spi_write_ack_d  <= spi_write_ack;
+            spi_start_flag_d <= spi_start_flag;
+            spi_done_flag_d  <= spi_done_flag;
         end if;
     end process;
 
