@@ -108,7 +108,8 @@ architecture Behavioral of screen_controller is
     constant COMMAND_TYPE : std_logic := '0';
 
     -- Type definitions
-    type spi_array is array(natural range <>) of std_logic_vector(7 downto 0);
+    constant SPI_SEQUENCE_MAX_SIZE : integer := 100;
+    type spi_sequence is array(0 to SPI_SEQUENCE_MAX_SIZE - 1) of std_logic_vector(7 downto 0);
 
     -- General State Machine
     type gsm_states is (gsm_off, gsm_turning_on, gsm_on, gsm_turning_off);
@@ -125,11 +126,11 @@ architecture Behavioral of screen_controller is
     signal spi_write_ack : std_logic := '0';
     signal spi_done      : std_logic := '0';
 
-    signal spi_data_array : spi_array(0 to 100) := (others => (others => '0'));
+    signal spi_data_array : spi_sequence := (others => (others => '0'));
     signal spi_data_array_len : integer := 0;
 
     -- SPI command sequences
-    constant ON_SEQUENCE_1 : spi_array(0 to 100) := (UNLOCK_COMMAND, UNLOCK_DATA,
+    constant ON_SEQUENCE_1 : spi_sequence := (UNLOCK_COMMAND, UNLOCK_DATA,
                                                     DISPLAY_OFF_COMMAND,
                                                     REMAP_COMMAND, x"72",
                                                     DISPLAY_START_LINE_COMMAND, x"00",
@@ -154,10 +155,10 @@ architecture Behavioral of screen_controller is
                                                     others => EMPTY_COMMAND);
     constant ON_SEQUENCE_1_LEN : integer := 44;
 
-    constant on_sequence_2 : spi_array(0 to 100) := (DISPLAY_ON_COMMAND, others => EMPTY_COMMAND);
+    constant on_sequence_2 : spi_sequence := (DISPLAY_ON_COMMAND, others => EMPTY_COMMAND);
     constant ON_SEQUENCE_2_LEN : integer := 1;
 
-    constant off_sequence : spi_array(0 to 100) := (DISPLAY_OFF_COMMAND, others => EMPTY_COMMAND);
+    constant off_sequence : spi_sequence := (DISPLAY_OFF_COMMAND, others => EMPTY_COMMAND);
     constant OFF_SEQUENCE_LEN : integer := 1;
 
     -- Internal signals used during power on and power off transitions
@@ -178,7 +179,6 @@ architecture Behavioral of screen_controller is
     signal spi_write_ack_d  : std_logic := '0';
     signal spi_start_flag_d : std_logic := '0';
     signal spi_done_flag_d  : std_logic := '0';
-
 
     -- Timer
     constant TIMER_5US        : integer := 625 - 1;      -- 125MHz clock // 625 counts        -> 5us
@@ -252,8 +252,11 @@ begin
             transition_completed_flag <= '0';
 
         elsif (rising_edge(CLK)) then
+
             case gsm_state is 
+
                 when gsm_off =>
+
                     spi_data_array <= (others => (others => '0'));
                     spi_start_flag <= '0';
         
@@ -265,59 +268,75 @@ begin
                     transition_completed_flag <= '0';
 
                 when gsm_turning_on =>
+
                     if (seq_counter = 0) then
                         configure_timer(timer_enable, '1', max_timer_value, TIMER_20MS, timer_auto_reset, '0');
                         PMOD_ENABLE <= '1';
                         seq_counter := seq_counter + 1;
+
                     elsif (seq_counter = 1 and timer_expired = '1') then
                         configure_timer(timer_enable, '0', max_timer_value, 0, timer_auto_reset, '0');
                         seq_counter := seq_counter + 1;
+
                     elsif (seq_counter = 2) then
                         configure_timer(timer_enable, '1', max_timer_value, TIMER_5US, timer_auto_reset, '0');
                         POWER_RESET <= '0';
                         seq_counter := seq_counter + 1;
+                    
                     elsif (seq_counter = 3 and timer_expired = '1') then
                         configure_timer(timer_enable, '0', max_timer_value, 0, timer_auto_reset, '0');
                         seq_counter := seq_counter + 1;
+                    
                     elsif (seq_counter = 4) then
                         configure_timer(timer_enable, '1', max_timer_value, TIMER_5US, timer_auto_reset, '0');
                         POWER_RESET <= '1';
                         seq_counter := seq_counter + 1;
+                    
                     elsif (seq_counter = 5 and timer_expired = '1') then
                         configure_timer(timer_enable, '0', max_timer_value, 0, timer_auto_reset, '0');
                         seq_counter := seq_counter + 1;
+                    
                     elsif (seq_counter = 6) then
                         spi_data_array     <= ON_SEQUENCE_1;
                         spi_data_array_len <= ON_SEQUENCE_1_LEN;
                         spi_start_flag     <= '1';
                         seq_counter := seq_counter + 1;
+                    
                     elsif (seq_counter = 7) then
                         spi_start_flag <= '0';
                         seq_counter    := seq_counter + 1;
+                    
                     elsif (seq_counter = 8 and spi_done_flag = '1' and spi_done_flag_d = '0') then
                         configure_timer(timer_enable, '1', max_timer_value, TIMER_25MS, timer_auto_reset, '0');
                         VCC_ENABLE  <= '1';
                         seq_counter := seq_counter + 1;
+                    
                     elsif (seq_counter = 9 and timer_expired = '1') then
                         configure_timer(timer_enable, '0', max_timer_value, 0, timer_auto_reset, '0');
                         seq_counter := seq_counter + 1;
+                    
                     elsif (seq_counter = 10) then
                         spi_data_array     <= ON_SEQUENCE_2;
                         spi_data_array_len <= ON_SEQUENCE_2_LEN;
                         spi_start_flag     <= '1';
-                        seq_counter := seq_counter + 1;
+                        seq_counter        := seq_counter + 1;
+                    
                     elsif (seq_counter = 11) then
                         spi_start_flag <= '0';
                         seq_counter := seq_counter + 1;
+                    
                     elsif (seq_counter = 12 and spi_done_flag = '1' and spi_done_flag_d = '0') then
                         configure_timer(timer_enable, '1', max_timer_value, TIMER_100MS, timer_auto_reset, '0');
                         seq_counter := seq_counter + 1;
+                    
                     elsif (seq_counter = 13 and timer_expired = '1') then
                         configure_timer(timer_enable, '0', max_timer_value, 0, timer_auto_reset, '0');
                         transition_completed_flag <= '1';
                         seq_counter               := seq_counter + 1;
                     end if;
+                
                 when gsm_on =>
+
                     spi_data_array <= (others => (others => '0'));
                     spi_start_flag <= '0';
         
@@ -329,23 +348,28 @@ begin
                     transition_completed_flag <= '0';
 
                 when gsm_turning_off =>
+
                     if (seq_counter = 0) then
                         spi_data_array     <= OFF_SEQUENCE;
                         spi_data_array_len <= OFF_SEQUENCE_LEN;
                         spi_start_flag     <= '1';
                         seq_counter        := seq_counter + 1;
+                    
                     elsif (seq_counter = 1) then
                         spi_start_flag <= '0';
                         seq_counter    := seq_counter + 1;
+                    
                     elsif (seq_counter = 2 and spi_done_flag = '1' and spi_done_flag_d = '0') then
                         configure_timer(timer_enable, '1', max_timer_value, TIMER_400MS, timer_auto_reset, '0');
                         VCC_ENABLE  <= '0';
                         seq_counter := seq_counter + 1;
+                    
                     elsif (seq_counter = 3 and timer_expired = '1') then
                         configure_timer(timer_enable, '0', max_timer_value, 0, timer_auto_reset, '0');
                         transition_completed_flag <= '1';
                         seq_counter               := seq_counter + 1;
                     end if;
+                    
             end case;
         end if;
     end process;
