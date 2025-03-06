@@ -1,3 +1,5 @@
-# Ignore Vivado projects but not the generation scripts
-vivado_projects/screen/*
-vivado_projects/axi_screen/*
+# Ignore everything inside the vivado_projects folder except for the generation scripts
+vivado_projects/*
+!vivado_projects/screen.tcl
+!vivado_projects/build_screen.bat
+!vivado_projects/build_screen.sh
