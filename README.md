@@ -83,7 +83,7 @@ entity spi_master is
         wr_ack_o   : out std_logic;                                          -- write acknowledge
         do_valid_o : out std_logic;                                          -- do_o data valid signal, valid during one spi_clk rising edge.
         do_o       : out std_logic_vector (N-1 downto 0);                    -- parallel output (clocked on rising spi_clk after last bit)
-        done_o     : out std_logic											 -- handshake added to break continuous tx/rx 
+        done_o     : out std_logic                                           -- handshake added to break continuous tx/rx
         --- debug ports: can be removed or left unconnected for the application circuit ---
         -- sck_ena_o     : out std_logic;                     -- debug: internal sck enable signal
         -- sck_ena_ce_o  : out std_logic;                     -- debug: internal sck clock enable signal
