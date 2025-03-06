@@ -24,8 +24,8 @@ architecture Behavioral of top is
             RESETN : in std_logic;
     
             -- Control
-            ON_OFF        : in  std_logic;
-            SPI_TRIGGER   : in  std_logic;
+            ON_OFF      : in  std_logic;
+            SPI_TRIGGER : in  std_logic;
     
             -- Status
             ON_OFF_STATUS : out std_logic_vector(1 downto 0);

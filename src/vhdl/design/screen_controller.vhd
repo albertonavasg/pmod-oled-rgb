@@ -9,8 +9,8 @@ entity screen_controller is
         RESETN : in std_logic;
 
         -- Control
-        ON_OFF        : in  std_logic;
-        SPI_TRIGGER   : in  std_logic;
+        ON_OFF      : in  std_logic;
+        SPI_TRIGGER : in  std_logic;
 
         -- Status
         ON_OFF_STATUS : out std_logic_vector(1 downto 0);
@@ -131,28 +131,28 @@ architecture Behavioral of screen_controller is
 
     -- SPI command sequences
     constant ON_SEQUENCE_1 : spi_sequence := (UNLOCK_COMMAND, UNLOCK_DATA,
-                                                    DISPLAY_OFF_COMMAND,
-                                                    REMAP_COMMAND, x"72",
-                                                    DISPLAY_START_LINE_COMMAND, x"00",
-                                                    DISPLAY_OFFSET_COMMAND, x"00",
-                                                    NORMAL_DISPLAY_COMMAND,
-                                                    MUX_RATIO_COMMAND, x"3F",
-                                                    MASTER_CONFIG_COMMAND, EXT_VCC_SUPPLY_DATA,
-                                                    POWER_SAVE_MODE_COMMAND, DISABLE_POWER_SAVE_MODE_DATA,
-                                                    PHASE_LENGTH_COMMAND, x"31",
-                                                    DISP_CLK_DIV_OSC_FREQ_COMMAND, x"F0",
-                                                    SECOND_PRECHARGE_A_COMMAND, x"64",
-                                                    SECOND_PRECHARGE_B_COMMAND, x"78",
-                                                    SECOND_PRECHARGE_C_COMMAND, x"64",
-                                                    PRECHARGE_COMMAND, x"3A",
-                                                    VCOMH_COMMAND, x"3E",
-                                                    MASTER_CURRENT_COMMAND, x"06",
-                                                    CONTRAST_A_COMMAND, x"91",
-                                                    CONTRAST_B_COMMAND, x"50",
-                                                    CONTRAST_C_COMMAND, x"7D",
-                                                    DISABLE_SCROLL_COMMAND,
-                                                    CLEAR_WINDOW_COMMAND, MIN_COLUMN, MIN_ROW, MAX_COLUMN, MAX_ROW,
-                                                    others => EMPTY_COMMAND);
+                                                DISPLAY_OFF_COMMAND,
+                                                REMAP_COMMAND, x"72",
+                                                DISPLAY_START_LINE_COMMAND, x"00",
+                                                DISPLAY_OFFSET_COMMAND, x"00",
+                                                NORMAL_DISPLAY_COMMAND,
+                                                MUX_RATIO_COMMAND, x"3F",
+                                                MASTER_CONFIG_COMMAND, EXT_VCC_SUPPLY_DATA,
+                                                POWER_SAVE_MODE_COMMAND, DISABLE_POWER_SAVE_MODE_DATA,
+                                                PHASE_LENGTH_COMMAND, x"31",
+                                                DISP_CLK_DIV_OSC_FREQ_COMMAND, x"F0",
+                                                SECOND_PRECHARGE_A_COMMAND, x"64",
+                                                SECOND_PRECHARGE_B_COMMAND, x"78",
+                                                SECOND_PRECHARGE_C_COMMAND, x"64",
+                                                PRECHARGE_COMMAND, x"3A",
+                                                VCOMH_COMMAND, x"3E",
+                                                MASTER_CURRENT_COMMAND, x"06",
+                                                CONTRAST_A_COMMAND, x"91",
+                                                CONTRAST_B_COMMAND, x"50",
+                                                CONTRAST_C_COMMAND, x"7D",
+                                                DISABLE_SCROLL_COMMAND,
+                                                CLEAR_WINDOW_COMMAND, MIN_COLUMN, MIN_ROW, MAX_COLUMN, MAX_ROW,
+                                                others => EMPTY_COMMAND);
     constant ON_SEQUENCE_1_LEN : integer := 44;
 
     constant on_sequence_2 : spi_sequence := (DISPLAY_ON_COMMAND, others => EMPTY_COMMAND);
@@ -509,8 +509,8 @@ begin
             di_i       => spi_data,
             wren_i     => spi_write_en,
             wr_ack_o   => spi_write_ack,
-            do_valid_o => open,
-            do_o       => open,
+            do_valid_o => open, -- Unused
+            do_o       => open, -- Unused
             done_o     => spi_done
         );
 
