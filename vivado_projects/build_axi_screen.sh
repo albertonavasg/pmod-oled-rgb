@@ -1,0 +1,1 @@
+vivado -source axi_screen.tcl

@@ -3,3 +3,6 @@ vivado_projects/*
 !vivado_projects/screen.tcl
 !vivado_projects/build_screen.bat
 !vivado_projects/build_screen.sh
+!vivado_projects/axi_screen.tcl
+!vivado_projects/build_axi_screen.bat
+!vivado_projects/build_axi_screen.sh
