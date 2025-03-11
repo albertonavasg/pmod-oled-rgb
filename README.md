@@ -15,6 +15,8 @@ It is usable in `PYNQ-Z2` (and also in `PYNQ-Z1` taking care of physical pinouts
 - [Design](#design)
     - [The VHDL Block](#the-vhdl-block)
     - [Vivado project: screen](#vivado-project-screen)
+    - [Packaging the IP](#packaging-the-ip)
+    - [Vivado project: axi_screen](#vivado-project-axi_screen)
 
 ***
 
@@ -160,6 +162,8 @@ entity screen_controller is
 end screen_controller;
 ```
 
+***
+
 ### Vivado project: screen
 
 To create and test the `screen_controller` block, there is a vivado project called `screen`.  
@@ -183,8 +187,77 @@ If it receives a falling edge in its `ENABLE`, it sends the "ENTIRE_DISPLAY_OFF"
 The `top` module instantiates `screen_controller` and `screen_tester` and makes the necessary connections
 This way, we have a physical test to see that the commands sent to the screen work.
 
+- SW0: `ON_OFF` of screen_controller
+- SW1: `ENABLE` of screen_tester
+- LED0: `ON_OFF_STATUS`(0)
+- LED1: `ON_OFF_STATUS`(1)
+- LED2: `SPI_READY`
+- LED3: `ON_OFF`
+
 In this project, there are also testbenches, for the `spi_master`, `screen_controller` and `screen_tester`.
 they can be set as top in the simulation folder to be individually executed, and see how each block works.
+
+***
+
+### Packaging the IP
+
+Once I had the VHDL block working and tested, it is the moment to package it in an AXI4Lite IP.
+In a Vivado project, in the top bar:  
+ - Tools > Create and Package New IP > Create AXI4 Peropheral > [...] > Add IP to repository.
+
+Then, going to the IP Catalog, it can be edited with the IP Packager. It creates a project, where we need to add the user logic blocks (scree_controller and spi_master).
+
+With this IP, I basically connected the control/write ports (ON_OFF, SPI_TRIGGER, BYTE, DC_SELECT) and the status/read ports(ON_OFF_STATUS, SPI_READY, SPI_REQUEST_DATA) to the AXI registers of the IP block.
+
+After this is done, we can re-package the IP and close the temporal project.
+
+***
+
+### Vivado project: axi_screen
+
+To generate what will be the final hardware platform, I created the vivado project `axi_screen`.  
+This project can be re-generated using the script `build_axi_screen.bat` (Windows) or `build_axi_screen.sh` (Linux).  
+These scripts will invoke the `axi_screen.tcl` script, that generates the Vivado project, contained in its own folder.  
+This project only has one block, the HDL wrapper of the block diagram from the picture.
+
+<br>
+
+<div align="center">
+<img src="images/screen_block.jpg" title="AXI Screen block Diagram" width="100%" height="auto"> 
+</div>
+
+<br>
+
+In the block diagram, we can see the ZYNQ Processing System connected though AXI interface to 2 screen IP blocks.  
+The physical output ports of the screen IP are the PMOD and 2 LEDs (which show ON_OFF_STATUS).  
+
+We can generate the bitstream and after that export the hardware platform (a file with .xsa extension).
+ - Files > Export > Export Hardware > Include Bitstream
+
+To test if this hardware platform works correctly, we can open Vitis (Tools > Launch Vitis IDE).  
+We select a workspace or create a new one in a desired folder
+
+> [!TIP]
+> It is recommended to use a Vitis workspace with a short path, such as `C:/vitis_ws/` or else we can have some problems when trying to compile the hardware platform or the application
+
+Once we have a Vitis workspace, we create a hardware platform based on the .xsa we exported before (available in this repo: `src/hw/axi_screen_platform.xsa`).  
+
+Then we create an application project from the templates: the Empty Application.  
+In the `Sources > src` we add the C program `screen_platform_test.c` (available in this repo: `src/hw/screen_platform_test.c`).
+We can now build it and run it. We will see how the LEDs will turn ON (meaing ON_OFF_STATUS from screens A and B are ON "11") and how the screens receive the command "ENTIRE_DISPLAY_ON".
+
+<br>
+
+<div align="center">
+<img src="images/screen_plaftorm_test.jpeg" title="Screen Platform test" width="100%" height="auto"> 
+</div>
+
+<br>
+
+This setup with two screens is kind of temporal, one of them needs to be attached with cables because both can't fit in the PMODs header side by side.
+
+I decided not to create any scripts to replicate the Vitis project, as it is easier thant the Vivado projects and its only purpose is to perform a quick test of the hardware platform.  
+The further development will be done with the Petalinux OS: a C application to control the two screens.
 
 
 [comment]: (Links)
