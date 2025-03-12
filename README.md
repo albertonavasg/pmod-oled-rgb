@@ -249,7 +249,7 @@ We can now build it and run it. We will see how the LEDs will turn ON (meaning O
 <br>
 
 <div align="center">
-<img src="images/screen_plaftorm_test.jpeg" title="Screen Platform test" width="100%" height="auto"> 
+<img src="images/screen_platform_test.jpeg" title="Screen Platform test" width="100%" height="auto"> 
 </div>
 
 <br>
