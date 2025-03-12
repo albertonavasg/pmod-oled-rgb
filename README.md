@@ -244,7 +244,7 @@ Once we have a Vitis workspace, we create a hardware platform based on the .xsa 
 
 Then we create an application project from the templates: the Empty Application.  
 In the `Sources > src` we add the C program `screen_platform_test.c` (available in this repo: `src/hw/screen_platform_test.c`).
-We can now build it and run it. We will see how the LEDs will turn ON (meaing ON_OFF_STATUS from screens A and B are ON "11") and how the screens receive the command "ENTIRE_DISPLAY_ON".
+We can now build it and run it. We will see how the LEDs will turn ON (meaning ON_OFF_STATUS from screens A and B are ON "11") and how the screens receive the command "ENTIRE_DISPLAY_ON".
 
 <br>
 
@@ -254,10 +254,10 @@ We can now build it and run it. We will see how the LEDs will turn ON (meaing ON
 
 <br>
 
-This setup with two screens is kind of temporal, one of them needs to be attached with cables because both can't fit in the PMODs header side by side.
+This setup with two screens is kind of temporal, as one of them needs to be attached with cables because both can't fit in the PMOD connectors side by side.
 
-I decided not to create any scripts to replicate the Vitis project, as it is easier thant the Vivado projects and its only purpose is to perform a quick test of the hardware platform.  
-The further development will be done with the Petalinux OS: a C application to control the two screens.
+I decided not to create any scripts to replicate the Vitis project, as it is easier than the Vivado projects and its only purpose is to perform a quick test of the hardware platform.  
+The further development will be done with the Petalinux OS: the C application to control the two screens.
 
 
 [comment]: (Links)
