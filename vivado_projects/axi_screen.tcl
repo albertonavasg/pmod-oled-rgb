@@ -66,6 +66,8 @@ update_ip_catalog
 
 # Create block design
 source $path_bd/screen_block.tcl
+regenerate_bd_layout
+save_bd_design
 
 # Generate the wrapper
 make_wrapper -files [get_files *${block_design_name}.bd] -top
@@ -102,12 +104,6 @@ if {[string equal [get_filesets -quiet sim_1] ""]} {
 # Update the compile order
 update_compile_order -fileset sources_1
 update_compile_order -fileset sim_1
-
-# Ensure parameter propagation has been performed
-close_bd_design [current_bd_design]
-open_bd_design [get_files ${block_design_name}.bd]
-validate_bd_design -force
-save_bd_design
 
 puts "INFO: Project created:${project_name}"
 
