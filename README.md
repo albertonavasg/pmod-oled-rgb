@@ -265,8 +265,8 @@ The further development will be done with the Petalinux OS: the C application to
 > This typo doesn't affect the standalone project created by Vitis, but generates an error when building the petalinux OS.  
 > The typo needs to be corrected as follows:  
 >   ```
->   LIBSOURCES=(\$wildcard *.c) --> LIBSOURCES=\$(wildcard *.c)  
->   OUTS = (\$wildcard *.o)     --> OUTS = \$(wildcard *.o) 
+>   LIBSOURCES=($wildcard *.c) --> LIBSOURCES=$(wildcard *.c)  
+>   OUTS = ($wildcard *.o)     --> OUTS = $(wildcard *.o) 
 >   ``` 
 > Once this is done, it is necessary to repackage the IP and regenerate the hardware platform.  
 
