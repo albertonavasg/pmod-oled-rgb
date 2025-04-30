@@ -203,7 +203,7 @@ they can be set as top in the simulation folder to be individually executed, and
 
 Once I had the VHDL block working and tested, it is the moment to package it in an AXI4Lite IP.
 In a Vivado project, in the top bar:  
- - Tools > Create and Package New IP > Create AXI4 Peropheral > [...] > Add IP to repository.
+ - Tools > Create and Package New IP > Create AXI4 Peripheral > [...] > Add IP to repository.
 
 Then, going to the IP Catalog, it can be edited with the IP Packager. It creates a project, where we need to add the user logic blocks (scree_controller and spi_master).
 
@@ -228,7 +228,7 @@ This project only has one block, the HDL wrapper of the block diagram from the p
 
 <br>
 
-In the block diagram, we can see the ZYNQ Processing System connected though AXI interface to 2 screen IP blocks.  
+In the block diagram, we can see the ZYNQ Processing System connected through AXI interface to 2 `screen` IP blocks.  
 The physical output ports of the screen IP are the PMOD and 2 LEDs (which show ON_OFF_STATUS).  
 
 We can generate the bitstream and after that export the hardware platform (a file with .xsa extension).
@@ -240,11 +240,12 @@ We select a workspace or create a new one in a desired folder
 > [!TIP]
 > It is recommended to use a Vitis workspace with a short path, such as `C:/vitis_ws/` or else we can have some problems when trying to compile the hardware platform or the application
 
-Once we have a Vitis workspace, we create a hardware platform based on the .xsa we exported before (available in this repo: `src/hw/axi_screen_platform.xsa`).  
+Once we have a Vitis workspace, we create a hardware platform based on the .xsa we exported before (available in this repo: `src/hw/axi_screen_platform.xsa`) and compile it.  
 
-Then we create an application project from the templates: the Empty Application.  
+Then we create an application project from the templates: Empty Application.  
 In the `Sources > src` we add the C program `screen_platform_test.c` (available in this repo: `src/hw/screen_platform_test.c`).
-We can now build it and run it. We will see how the LEDs will turn ON (meaning ON_OFF_STATUS from screens A and B are ON "11") and how the screens receive the command "ENTIRE_DISPLAY_ON".
+We can now build it and run it.  
+We will see how the LEDs will turn ON (meaning ON_OFF_STATUS from screens A and B are ON "11") and how the screens receive the command "ENTIRE_DISPLAY_ON".
 
 <br>
 
@@ -259,6 +260,13 @@ This setup with two screens is kind of temporal, as one of them needs to be atta
 I decided not to create any scripts to replicate the Vitis project, as it is easier than the Vivado projects and its only purpose is to perform a quick test of the hardware platform.  
 The further development will be done with the Petalinux OS: the C application to control the two screens.
 
+> [!CAUTION]  
+> There is a typo in the Makefile created by the Vivado IP packager.
+> This typo doesn't affect the standalone project created by Vitis, but generates an error when building the petalinux OS
+> The typo needs to be corrected as follows:
+> LIBSOURCES=($wildcard *.c)    LIBSOURCES=$(wildcard *.c)
+> OUTS = ($wildcard *.o)        OUTS = $(wildcard *.o)
+> Once this is done, it is necessary to repackage the IP and regenerate the hardware platform.
 
 [comment]: (Links)
 [youtube-demo]: https://youtu.be/TNlVlC1Tnaw
