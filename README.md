@@ -264,8 +264,8 @@ The further development will be done with the Petalinux OS: the C application to
 > There is a typo in the Makefile created by the Vivado IP packager.  
 > This typo doesn't affect the standalone project created by Vitis, but generates an error when building the petalinux OS.  
 > The typo needs to be corrected as follows:  
-> LIBSOURCES=($wildcard *.c)    LIBSOURCES=$(wildcard *.c)  
-> OUTS = ($wildcard *.o)        OUTS = $(wildcard *.o)  
+> LIBSOURCES=($wildcard *.c) --> LIBSOURCES=$(wildcard *.c)  
+> OUTS = ($wildcard *.o)     --> OUTS = $(wildcard *.o)  
 > Once this is done, it is necessary to repackage the IP and regenerate the hardware platform.  
 
 [comment]: (Links)
