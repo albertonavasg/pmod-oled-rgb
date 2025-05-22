@@ -218,7 +218,7 @@ After this is done, we can re-package the IP and close the temporal project.
 To generate what will be the final hardware platform, I created the vivado project `axi_screen`.  
 This project can be re-generated using the script `build_axi_screen.bat` (Windows) or `build_axi_screen.sh` (Linux).  
 These scripts will invoke the `axi_screen.tcl` script, that generates the Vivado project, contained in its own folder.  
-This project only has one block, the HDL wrapper of the block diagram from the picture.
+This project only has the HDL wrapper of the block diagram from the picture.
 
 <br>
 
