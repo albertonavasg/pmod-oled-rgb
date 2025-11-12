@@ -1,0 +1,1 @@
+vivado -source generate_vivado_project.tcl

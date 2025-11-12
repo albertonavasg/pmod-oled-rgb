@@ -11,6 +11,7 @@ It is usable in `PYNQ-Z2` (and also in `PYNQ-Z1` taking care of physical pinouts
 
 ## Contents
 
+- [Requirements]()
 - [Project Overview](#project-overview)
 - [Design](#design)
     - [The VHDL Block](#the-vhdl-block)
@@ -20,13 +21,22 @@ It is usable in `PYNQ-Z2` (and also in `PYNQ-Z1` taking care of physical pinouts
 
 ***
 
+## Requirements
+
+Vivado: **2024.1**  
+Petalinux: **2024.1**
+
+The Vivado development can be done in Windows or Linux, but Petalinux requires Linux: [Petalinux 2024.1][petalinux-2024.1]
+
+***
 ## Project Overview
+
 
 The aim of this project was to design a VHDL block in the PL, package it in an IP, build a hardware platform and control the driver (in the PL) from the PS.
 
 This driver can be controlled from a baremetal application or from an application running in an Operating System.
 
-In this case, I control this little OLED screen via SPI commands.
+The system will control little OLED screen via SPI commands.
 
 Here is a little demo video of it working, executing some demo functions, such as the standard provided by the screen
 (drawing a full screen of pixels, drawing lines, squares, copy-pasting sections of the screnn) and some custom-built
@@ -38,7 +48,8 @@ This was the first version of the project.
 
 To see the code, go to the folder `old_version`  
 
-Currently I am working on the second version, with some enhacements: add support for a second screen, build the embedded operating system with petalinux, show the FPGA IP address on one of the screens, etc.
+Currently I am working on the second version, with some enhacements: add support for a second screen, build the embedded operating system with petalinux, show the FPGA IP address on one of the screens, etc.  
+This is the work described now.
 
 ## Design
 
@@ -167,8 +178,10 @@ end screen_controller;
 ### Vivado project: screen
 
 To create and test the `screen_controller` block, there is a vivado project called `screen`.  
-This project can be re-generated using the script `build_screen.bat` (Windows) or `build_screen.sh` (Linux).  
-These scripts will invoke the `screen.tcl` script, that generates the Vivado project, contained in its own folder.  
+
+To replicate the project, open a cmd/terminal in its folder and run the script `build_screen.bat` (Windows) or `build_screen.sh` (Linux).
+These scripts will invoke the `generate_vivado_project.tcl` script, that generates the Vivado project, contained in its own folder.  
+It is done through the GUI, as for the moment it is not necessary to fully automate all the process, but this can easily be done in the future.
 
 This project has the following hierarchy:
 
@@ -195,7 +208,7 @@ This way, we have a physical test to see that the commands sent to the screen wo
 - LED3: `ON_OFF`
 
 In this project, there are also testbenches, for the `spi_master`, `screen_controller` and `screen_tester`.
-they can be set as top in the simulation folder to be individually executed, and see how each block works.
+They can be set as top in the simulation folder to be individually executed, and see how each block works.
 
 ***
 
@@ -205,9 +218,13 @@ Once I had the VHDL block working and tested, it is the moment to package it in 
 In a Vivado project, in the top bar:  
  - Tools > Create and Package New IP > Create AXI4 Peripheral > [...] > Add IP to repository.
 
-Then, going to the IP Catalog, it can be edited with the IP Packager. It creates a project, where we need to add the user logic blocks (scree_controller and spi_master).
+Then, going to the IP Catalog, it can be edited with the IP Packager. It creates a project, where we need to add the user logic blocks (screen_controller and spi_master).
 
 With this IP, I basically connected the control/write ports (ON_OFF, SPI_TRIGGER, BYTE, DC_SELECT) and the status/read ports(ON_OFF_STATUS, SPI_READY, SPI_REQUEST_DATA) to the AXI registers of the IP block.
+
+The outputs of the IP are:
+- **PMOD[7:0]** Pmod pins, connected to the OLED display.
+- **LED[1:0]** To indicate ON_OFF_STATUS, as descibed before. This will give visual aid when turning on and off the screen.
 
 After this is done, we can re-package the IP and close the temporal project.
 
@@ -216,10 +233,13 @@ After this is done, we can re-package the IP and close the temporal project.
 ### Vivado project: axi_screen
 
 To generate what will be the final hardware platform, I created the vivado project `axi_screen`.  
-This project can be re-generated using the script `build_axi_screen.bat` (Windows) or `build_axi_screen.sh` (Linux).  
-These scripts will invoke the `axi_screen.tcl` script, that generates the Vivado project, contained in its own folder.  
-This project only has the HDL wrapper of the block diagram from the picture.
 
+To replicate the project, open a cmd/terminal in its folder and run the script `build_screen.bat` (Windows) or `build_screen.sh` (Linux).
+These scripts will invoke the `generate_vivado_project.tcl` script, that generates the Vivado project, contained in its own folder.  
+It is done through the GUI, as for the moment it is not necessary to fully automate all the process, but this can easily be done in the future.
+
+This project only has the HDL wrapper of the block diagram from the picture.
+T
 <br>
 
 <div align="center">
@@ -271,6 +291,7 @@ The further development will be done with the Petalinux OS: the C application to
 > Once this is done, it is necessary to repackage the IP and regenerate the hardware platform.  
 
 [comment]: (Links)
+[petalinux-2024.1]: https://docs.amd.com/r/2024.1-English/ug1144-petalinux-tools-reference-guide
 [youtube-demo]: https://youtu.be/TNlVlC1Tnaw
 [open-cores]: https://opencores.org/
 [pmod-oled-rgb-reference-manual]: https://digilent.com/reference/pmod/pmodoledrgb/reference-manual
