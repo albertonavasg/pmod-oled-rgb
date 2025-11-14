@@ -291,7 +291,7 @@ We select a workspace or create a new one in a desired folder
 Once we have a Vitis workspace, we create a hardware platform based on the `.xsa` we exported before and compile it.  
 
 Then we create an application project from the templates: Empty Application.  
-In `Sources > src` we add the C program `vitis_screen_test.c` (available in the repo: `sw/vitis_screen_test.c`).
+In `Sources > src` we add the C program `screen_test.c` (available in the repo: `sw/baremetal/screen_test.c`).
 We can now build it and run it.  
 We will see how the LEDs will turn ON (meaning ON_OFF_STATUS from screens A and B are ON "11") and how the screens receive the command "ENTIRE_DISPLAY_ON".
 
