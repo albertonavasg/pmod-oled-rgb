@@ -1,7 +1,6 @@
 # pmod-oled-rgb
 
-Project for Design of Embedded Systems, a subject from my Master's Degree in Industrial Electronics.  
-It is usable in `PYNQ-Z2` (and also in `PYNQ-Z1` taking care of physical pinouts).  
+Project for Design of Embedded Systems, a subject from my Master's Degree in Industrial Electronics.   
 
 <div align="center">
 <img src="images/pmod-oled-rgb.png" title="Pmod OLED RGB" width="100%" height="auto"> 
@@ -24,11 +23,13 @@ It is usable in `PYNQ-Z2` (and also in `PYNQ-Z1` taking care of physical pinouts
 ## Requirements
 
 Vivado: **2024.1**  
-Petalinux: **2024.1**
+Petalinux: **2024.1**  
+Board: **PYNQ-Z2**
 
 The Vivado development can be done in Windows or Linux, but Petalinux requires Linux: [Petalinux 2024.1][petalinux-2024.1]
 
 ***
+
 ## Project Overview
 
 
@@ -316,6 +317,35 @@ The further development will be done with the Petalinux OS: the C application to
 >   OUTS = ($wildcard *.o)     --> OUTS = $(wildcard *.o) 
 >   ``` 
 > Once this is done, it is necessary to repackage the IP and regenerate the hardware platform.  
+
+***
+
+### Embedded OS: Petalinux
+
+The petalinux project is stored in the repo, and the image can be regenerated executing the script:
+
+    $ ./generate_petalinux_image
+
+The necessary files to boot the OS from an SD card will appear in the dir `os/petalinux_screen/images/linux`.
+
+The SD card has to be formatted with two partitions:
+- **Unallocated**. 4MB of preceding space
+- **BOOT**. Formatted to fat32, recommended minimum of 500MB.
+- **rootfs**. Formated to ext4, take the rest of the space in the SD card.
+
+Once it is formatted (using a tool as parted or gparted), mount the SD card partitions.
+Assuming they have been mounted in `/media/BOOT` and `/media/rootfs`.
+For the boot files, copy them into the `BOOT` partition. For the root file system, extract it into the `rootfs` partition.
+
+    cp images/linux/BOOT.BIN /media/BOOT/
+    cp images/linux/image.ub /media/BOOT/
+    cp images/linux/boot.scr /media/BOOT/
+
+    sudo tar -xzvf rootfs.tar.gz -C /media/rootfs
+
+The SD is ready to bne plugged in the PYNQ-Z2.
+
+
 
 [comment]: (Links)
 [petalinux-2024.1]: https://docs.amd.com/r/2024.1-English/ug1144-petalinux-tools-reference-guide
