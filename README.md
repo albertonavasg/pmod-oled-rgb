@@ -1,6 +1,6 @@
 # pmod-oled-rgb
 
-Project for Design of Embedded Systems, a subject from my Master's Degree in Industrial Electronics.   
+Project for **Design of Embedded Systems**, a subject from my Master's Degree in Industrial Electronics.   
 
 <div align="center">
 <img src="images/pmod-oled-rgb.png" title="Pmod OLED RGB" width="100%" height="auto"> 
@@ -335,7 +335,8 @@ The SD card has to be formatted with two partitions:
 
 Once it is formatted (using a tool as parted or gparted), mount the SD card partitions.
 Assuming they have been mounted in `/media/BOOT` and `/media/rootfs`.
-For the boot files, copy them into the `BOOT` partition. For the root file system, extract it into the `rootfs` partition.
+For the boot files, copy them into the `BOOT` partition.
+For the root file system, extract it into the `rootfs` partition.
 
     cp images/linux/BOOT.BIN /media/BOOT/
     cp images/linux/image.ub /media/BOOT/
@@ -343,8 +344,11 @@ For the boot files, copy them into the `BOOT` partition. For the root file syste
 
     sudo tar -xzvf rootfs.tar.gz -C /media/rootfs
 
-The SD is ready to bne plugged in the PYNQ-Z2.
+The SD is ready to be plugged in the PYNQ-Z2.
 
+Custom details applied to Petalinux:
+
+- **EXT4 rootfs**. Same as INITRD (default) root file system, requires to be extracted into the SD before the first boot up, but is permanent between reboots.
 
 
 [comment]: (Links)
