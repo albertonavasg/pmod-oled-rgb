@@ -1,6 +1,8 @@
-#include "xparameters.h" // For Screen peripherals memory addresses
-//#include "xil_io.h"      // For IO (Xil_In, Xil_Out)
-#include "sleep.h"       // For sleep()
+#include "stdio.h"  // printf, perror
+#include "stdint.h" // uint32_t
+#include "unistd.h" // sleep
+#include "fcntl.h"  // open
+#include "sys/mman.h" // mmap, munmap
 
 /*
 -- SCREEN IP REGISTER MAP --
@@ -32,41 +34,43 @@
 */
 
 int main() {   
-    // Store Screen A and B memory positions
-    volatile uint32_t *screenA = (volatile uint32_t *) XPAR_SCREEN_A_BASEADDR;
-    volatile uint32_t *screenB = (volatile uint32_t *) XPAR_SCREEN_B_BASEADDR;
+    int fd = open("/dev/mem", O_RDWR | O_SYNC);
+    if (fd < 0) {
+        perror("Failed to open /dev/mem");
+        return -1;
+    }
+
+    // Store Screen A and B memory addresses
+    volatile uint32_t *screenA = (volatile uint32_t *) mmap(NULL, 4096, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0x43C00000);
+    volatile uint32_t *screenB = (volatile uint32_t *) mmap(NULL, 4096, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0x43C10000);
 
     // Write a '1' in ON_OFF of Screen A and Screen_B
     *screenA = 0x01;
     *screenB = 0x01;
-    //Xil_Out32(XPAR_SCREEN_A_BASEADDR, 0x01);
-    //Xil_Out32(XPAR_SCREEN_B_BASEADDR, 0x01);
     
     sleep(1);
 
     // Entire Display ON Command
     *(screenA + 2) = 0xA5 | 0 << 8  | 1 << 9;
     *(screenB + 2) = 0xA5 | 0 << 8  | 1 << 9;
-    //Xil_Out32(XPAR_SCREEN_A_BASEADDR + 8, 0xA5 | 0 << 8  | 1 << 9);
-    //Xil_Out32(XPAR_SCREEN_B_BASEADDR + 8, 0xA5 | 0 << 8  | 1 << 9);
 
     sleep(1);
 
     // Entire Display OFF Command
     *(screenA + 2) = 0xA6 | 0 << 8  | 1 << 9;
     *(screenB + 2) = 0xA6 | 0 << 8  | 1 << 9;
-    //Xil_Out32(XPAR_SCREEN_A_BASEADDR + 8, 0xA6 | 0 << 8  | 1 << 9);
-    //Xil_Out32(XPAR_SCREEN_B_BASEADDR + 8, 0xA6 | 0 << 8  | 1 << 9);
 
     sleep(1);
 
     // Write a '0' in ON_OFF of Screen A and Screen_B
     *screenA = 0x00;
     *screenB = 0x00;
-    //Xil_Out32(XPAR_SCREEN_A_BASEADDR, 0x00);
-    //Xil_Out32(XPAR_SCREEN_B_BASEADDR, 0x00);
 
     sleep(1);
+
+    close(fd);
+    munmap((void *)screenA, 4096);
+    munmap((void *)screenB, 4096);
 
     return 0;
 }

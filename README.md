@@ -350,6 +350,27 @@ Custom details applied to Petalinux:
 
 - **EXT4 rootfs**. Same as INITRD (default) root file system, requires to be extracted into the SD before the first boot up, but is permanent between reboots.
 
+### Embedded SW
+
+Once the Petalinux OS is up and running, the C/C++ software can be compiled, loaded and executed.
+
+For the first approach, the gcc-linaro toolchain is used, and stored in the `os` directory.
+
+    $ cd os
+    $ wget https://releases.linaro.org/components/toolchain/binaries/latest-7/arm-linux-gnueabihf/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf.tar.xz
+    $ tar -xzvf gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf.tar.xz
+
+Now, there is a small example program, that can be compiled and sent to the PYNQ-Z2.
+
+    $ ./compile_and_send.sh
+
+> [!TIP]  
+> The script `compile_and_send.sh` sends the binary to `pynqz2-screen:/home/petalinux`.  
+> This means there has to be a host alias in `.ssh/config` with its IP and user (petalinux).
+
+Connect to the board via SSH and execute it (with sudo privileges to open `/dev/mem`):
+
+    $ sudo ./screen_test
 
 [comment]: (Links)
 [petalinux-2024.1]: https://docs.amd.com/r/2024.1-English/ug1144-petalinux-tools-reference-guide
