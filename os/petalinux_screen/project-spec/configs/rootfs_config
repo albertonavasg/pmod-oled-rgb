@@ -2192,7 +2192,7 @@ CONFIG_linux-xlnx-udev-rules=y
 #
 # gcc-runtime 
 #
-# CONFIG_libstdcPLUSPLUS is not set
+CONFIG_libstdcPLUSPLUS=y
 # CONFIG_libstdcPLUSPLUS-dev is not set
 
 #

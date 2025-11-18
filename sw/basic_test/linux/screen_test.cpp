@@ -1,8 +1,8 @@
-#include "stdio.h"    // printf, perror
-#include "stdint.h"   // uint32_t
-#include "unistd.h"   // sleep
-#include "fcntl.h"    // open
-#include "sys/mman.h" // mmap, munmap
+#include <cstdio>     // perror
+#include <cstdint>    // uint32_t
+#include <unistd.h>   // sleep
+#include <fcntl.h>    // open
+#include <sys/mman.h> // mmap, munmap
 
 #define SCREEN_A_BASE_ADDR 0x43C00000
 #define SCREEN_B_BASE_ADDR 0x43C10000
@@ -37,8 +37,8 @@
 		-- Bit 0      : SPI_READY (R) Status signal to indicate that the screen_controller has finished sending the previous BYTE via SPI
 */
 
-int main() {   
-    
+int main() {
+
     // Open file descriptor for memory access
     int fd = open("/dev/mem", O_RDWR | O_SYNC);
     if (fd < 0) {
@@ -58,16 +58,16 @@ int main() {
     // Turn ON both screens
     screenA[0] = 0x01;
     screenB[0] = 0x01;
-    
+
     sleep(1);
 
-    // Entire Display ON Command
+    // Entire Display ON command
     screenA[2] = (0xA5) | (0 << 8) | (1 << 9);
     screenB[2] = (0xA5) | (0 << 8) | (1 << 9);
 
     sleep(1);
 
-    // Entire Display OFF Command
+    // Entire Display OFF command
     screenA[2] = (0xA6) | (0 << 8) | (1 << 9);
     screenB[2] = (0xA6) | (0 << 8) | (1 << 9);
 

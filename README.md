@@ -333,7 +333,7 @@ The SD card has to be formatted with two partitions:
 - **BOOT**. Formatted to fat32, recommended minimum of 500MB.
 - **rootfs**. Formated to ext4, take the rest of the space in the SD card.
 
-Once it is formatted (using a tool as parted or gparted), mount the SD card partitions.
+Once it is formatted (using a tool as `parted` or `gparted`), mount the SD card partitions.
 Assuming they have been mounted in `/media/BOOT` and `/media/rootfs`.
 For the boot files, copy them into the `BOOT` partition.
 For the root file system, extract it into the `rootfs` partition.
@@ -349,28 +349,38 @@ The SD is ready to be plugged in the PYNQ-Z2.
 Custom details applied to Petalinux:
 
 - **EXT4 rootfs**. Same as INITRD (default) root file system, requires to be extracted into the SD before the first boot up, but is permanent between reboots.
+- Fixed MAC address and let IP address get automatically assigned.
+- Added libstdc++ to support C++ applications.
 
 ### Embedded SW
 
 Once the Petalinux OS is up and running, the C/C++ software can be compiled, loaded and executed.
 
-For the first approach, the gcc-linaro toolchain is used, and stored in the `os` directory.
+In principle, petalinux provides a custom toolchain, than can be generated and extracted with the following commands:
 
-    $ cd os
-    $ wget https://releases.linaro.org/components/toolchain/binaries/latest-7/arm-linux-gnueabihf/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf.tar.xz
-    $ tar -xzvf gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf.tar.xz
+    $ petalinux-build --sdk
+    $ petalinux-package sysroot
 
-There is a small example program, that can be compiled and sent to the PYNQ-Z2, available in `sw/basic_test/linux/screen_test.c`:
+This is sometimes unpredictable and gets stuck on the process, so I proceeded with the standard Arm cross-compiler toolchain for 32 bit architecture: `AArch32 GNU/Linux target with hard float (arm-none-linux-gnueabihf)`.  
+Version: `14.3.Rel1 (July 03, 2025)`  
+Available here: [Arm GNU Toolchain Downloads][arm-toolchain]
+
+Download it and extract it in the `os/` directory:
+
+    $ tar -xvf arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-linux-gnueabihf.tar.xz
+
+In the folder `sw/basic_test/linux` there are two versions of the same program (C and C++) to test the screen. They can be compiled and sent to the PYNQ-Z2 board using the script:
 
     $ ./compile_and_send.sh
 
 > [!TIP]  
-> The script `compile_and_send.sh` sends the binary to `pynqz2-screen:/home/petalinux`.  
+> The script `compile_and_send.sh` sends the binaries to `pynqz2-screen:/home/petalinux`.  
 > This means there has to be a host alias in `.ssh/config` with its IP and user (petalinux).
 
-Connect to the board via SSH and execute it (with sudo privileges to open `/dev/mem`):
+Connect to the board via SSH and execute them (with sudo privileges to open `/dev/mem`):
 
-    $ sudo ./screen_test
+    $ sudo ./screen_test_c
+    $ sudo ./screen_test_cpp
 
 [comment]: (Links)
 [petalinux-2024.1]: https://docs.amd.com/r/2024.1-English/ug1144-petalinux-tools-reference-guide
@@ -378,3 +388,4 @@ Connect to the board via SSH and execute it (with sudo privileges to open `/dev/
 [youtube-demo]: https://youtu.be/TNlVlC1Tnaw
 [open-cores]: https://opencores.org/
 [pmod-oled-rgb-reference-manual]: https://digilent.com/reference/pmod/pmodoledrgb/reference-manual
+[arm-toolchain]: https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads
