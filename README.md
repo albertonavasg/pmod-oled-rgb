@@ -37,7 +37,7 @@ The aim of this project was to design a VHDL block in the PL, package it in an I
 
 This driver can be controlled from a baremetal application or from an application running in an Operating System.
 
-The system will control little OLED screen via SPI commands.
+The system will control the [Pmod OLEDrgb][pmod-oled-rgb] screen via SPI commands.
 
 Here is a little demo video of it working, executing some demo functions, such as the standard provided by the screen
 (drawing a full screen of pixels, drawing lines, squares, copy-pasting sections of the screnn) and some custom-built
@@ -291,22 +291,22 @@ We select a workspace or create a new one in a desired folder
 Once we have a Vitis workspace, we create a hardware platform based on the `.xsa` we exported before and compile it.  
 
 Then we create an application project from the templates: Empty Application.  
-In `Sources > src` we add the C program `screen_test.c` (available in the repo: `sw/baremetal/screen_test.c`).
+In `Sources > src` we add the C program `screen_test.c` (available in the repo: `sw/basic_test/baremetal/screen_test.c`).
 We can now build it and run it.  
 We will see how the LEDs will turn ON (meaning ON_OFF_STATUS from screens A and B are ON "11") and how the screens receive the command "ENTIRE_DISPLAY_ON".
 
 <br>
 
 <div align="center">
-<img src="images/screen_platform_test.jpeg" title="Screen Platform test" width="100%" height="auto"> 
+<img src="images/screen_test.jpg" title="Screen Platform test" width="100%" height="auto"> 
 </div>
 
 <br>
 
-This setup with two screens is kind of temporal, as one of them needs to be attached with cables because both can't fit in the PMOD connectors side by side.
+The screens are connected with 6x2 dupont cables because both can't fit directly in the PMOD connectors side by side.
 
 I decided not to create any scripts to replicate the Vitis project, as it is easier than the Vivado projects and its only purpose is to perform a quick test of the hardware platform.  
-The further development will be done with the Petalinux OS: the C application to control the two screens.
+The further development will be done with the Petalinux OS.
 
 > [!CAUTION]  
 > There is a typo in the Makefile created by the Vivado IP packager.  
@@ -360,7 +360,7 @@ For the first approach, the gcc-linaro toolchain is used, and stored in the `os`
     $ wget https://releases.linaro.org/components/toolchain/binaries/latest-7/arm-linux-gnueabihf/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf.tar.xz
     $ tar -xzvf gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf.tar.xz
 
-Now, there is a small example program, that can be compiled and sent to the PYNQ-Z2.
+There is a small example program, that can be compiled and sent to the PYNQ-Z2, available in `sw/basic_test/linux/screen_test.c`:
 
     $ ./compile_and_send.sh
 
@@ -374,6 +374,7 @@ Connect to the board via SSH and execute it (with sudo privileges to open `/dev/
 
 [comment]: (Links)
 [petalinux-2024.1]: https://docs.amd.com/r/2024.1-English/ug1144-petalinux-tools-reference-guide
+[pmod-oled-rgb]: https://digilent.com/reference/pmod/pmodoledrgb/start
 [youtube-demo]: https://youtu.be/TNlVlC1Tnaw
 [open-cores]: https://opencores.org/
 [pmod-oled-rgb-reference-manual]: https://digilent.com/reference/pmod/pmodoledrgb/reference-manual
