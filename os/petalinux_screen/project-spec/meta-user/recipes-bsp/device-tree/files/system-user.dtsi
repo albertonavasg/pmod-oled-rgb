@@ -1,3 +1,11 @@
 /include/ "system-conf.dtsi"
 / {
 };
+
+&screen_A {
+    compatible = "generic-uio";
+};
+
+&screen_B {
+    compatible = "generic-uio";
+};
