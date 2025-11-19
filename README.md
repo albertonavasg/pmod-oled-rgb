@@ -351,6 +351,7 @@ Custom details applied to Petalinux:
 - **EXT4 rootfs**. Same as INITRD (default) root file system, requires to be extracted into the SD before the first boot up, but is permanent between reboots.
 - Fixed MAC address and let IP address get automatically assigned.
 - Added libstdc++ to support C++ applications.
+- UIO driver support.
 
 ### Embedded SW
 
@@ -369,7 +370,12 @@ Download it and extract it in the `os/` directory:
 
     $ tar -xvf arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-linux-gnueabihf.tar.xz
 
-In the folder `sw/basic_test/linux` there are two versions of the same program (C and C++) to test the screen. They can be compiled and sent to the PYNQ-Z2 board using the script:
+In the folder `sw/basic_test/linux` there are four versions of the same program to test the screen (turn it ON, send the ENTIRE_DISPLAY_ON command, send the ENTIRE_DISPLAY_OFF command and turn it OFF).
+They aim to test two things:
+- The toolchain works for C and C++.
+- The screen memory addresses can be accessed through `/dev/mem` and `/dev/uioX` (being `X` the index of the screen, 0 for screenA and 1 for screenB)
+
+They can be compiled and sent to the PYNQ-Z2 board using the script:
 
     $ ./compile_and_send.sh
 
@@ -377,10 +383,12 @@ In the folder `sw/basic_test/linux` there are two versions of the same program (
 > The script `compile_and_send.sh` sends the binaries to `pynqz2-screen:/home/petalinux`.  
 > This means there has to be a host alias in `.ssh/config` with its IP and user (petalinux).
 
-Connect to the board via SSH and execute them (with sudo privileges to open `/dev/mem`):
+Connect to the board via SSH and execute them (with sudo privileges, in order to open the file descriptor for memory interfaces):
 
-    $ sudo ./screen_test_c
-    $ sudo ./screen_test_cpp
+    $ sudo ./mem_c
+    $ sudo ./uio_c
+    $ sudo ./mem_cpp
+    $ sudo ./uio_cpp
 
 [comment]: (Links)
 [petalinux-2024.1]: https://docs.amd.com/r/2024.1-English/ug1144-petalinux-tools-reference-guide
