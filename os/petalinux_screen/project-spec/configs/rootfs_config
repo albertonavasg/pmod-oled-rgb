@@ -2233,7 +2233,7 @@ CONFIG_libstdcPLUSPLUS=y
 #
 # glibc 
 #
-# CONFIG_glibc is not set
+CONFIG_glibc=y
 # CONFIG_glibc-dev is not set
 # CONFIG_glibc-dbg is not set
 # CONFIG_ldd is not set

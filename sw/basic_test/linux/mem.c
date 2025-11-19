@@ -39,6 +39,8 @@
 
 int main() {   
     
+    printf("Screen Test program using /dev/mem in C\n");
+    
     // Open file descriptor for memory access
     int fd = open("/dev/mem", O_RDWR | O_SYNC);
     if (fd < 0) {

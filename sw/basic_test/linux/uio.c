@@ -37,7 +37,9 @@
 		-- Bit 0      : SPI_READY (R) Status signal to indicate that the screen_controller has finished sending the previous BYTE via SPI
 */
 
-int main() {   
+int main() {
+
+    printf("Screen Test program using /dev/uioX in C\n");
     
     // Open file descriptors for memory access
     int fd0 = open("/dev/uio0", O_RDWR | O_SYNC);

@@ -350,6 +350,7 @@ Custom details applied to Petalinux:
 
 - **EXT4 rootfs**. Same as INITRD (default) root file system, requires to be extracted into the SD before the first boot up, but is permanent between reboots.
 - Fixed MAC address and let IP address get automatically assigned.
+- Added glibc to support C applications.
 - Added libstdc++ to support C++ applications.
 - UIO driver support.
 
@@ -363,12 +364,12 @@ In principle, petalinux provides a custom toolchain, than can be generated and e
     $ petalinux-package sysroot
 
 This is sometimes unpredictable and gets stuck on the process, so I proceeded with the standard Arm cross-compiler toolchain for 32 bit architecture: `AArch32 GNU/Linux target with hard float (arm-none-linux-gnueabihf)`.  
-Version: `14.3.Rel1 (July 03, 2025)`  
+Version: `12.2.Rel1 (December 22, 2022)`  
 Available here: [Arm GNU Toolchain Downloads][arm-toolchain]
 
 Download it and extract it in the `os/` directory:
 
-    $ tar -xvf arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-linux-gnueabihf.tar.xz
+    $ tar -xvf arm-gnu-toolchain-12.2.rel1-x86_64-arm-none-linux-gnueabihf.tar.xz
 
 In the folder `sw/basic_test/linux` there are four versions of the same program to test the screen (turn it ON, send the ENTIRE_DISPLAY_ON command, send the ENTIRE_DISPLAY_OFF command and turn it OFF).
 They aim to test two things:

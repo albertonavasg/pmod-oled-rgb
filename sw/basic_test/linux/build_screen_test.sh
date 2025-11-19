@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-TOOLCHAIN_PATH="../../../os/arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-linux-gnueabihf/bin"
+TOOLCHAIN_PATH="../../../os/arm-gnu-toolchain-12.2.rel1-x86_64-arm-none-linux-gnueabihf/bin"
 CC="${TOOLCHAIN_PATH}/arm-none-linux-gnueabihf-gcc"
 CXX="${TOOLCHAIN_PATH}/arm-none-linux-gnueabihf-g++"
 

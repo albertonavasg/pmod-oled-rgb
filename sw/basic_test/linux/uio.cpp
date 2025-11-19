@@ -1,4 +1,5 @@
 #include <cstdio>     // perror
+#include <iostream>   // cout
 #include <cstdint>    // uint32_t
 #include <unistd.h>   // sleep
 #include <fcntl.h>    // open
@@ -7,6 +8,8 @@
 #define SCREEN_A_BASE_ADDR 0x43C00000
 #define SCREEN_B_BASE_ADDR 0x43C10000
 #define MAP_SIZE 4096
+
+using namespace std;
 
 /*
 -- SCREEN IP REGISTER MAP --
@@ -38,6 +41,8 @@
 */
 
 int main() {
+
+    cout << "Screen Test program using /dev/uioX in C++" << endl;
 
     // Open file descriptors for memory access
     int fd0 = open("/dev/uio0", O_RDWR | O_SYNC);
