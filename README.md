@@ -367,7 +367,7 @@ This is sometimes unpredictable and gets stuck on the process, so I proceeded wi
 Version: `12.2.Rel1 (December 22, 2022)`  
 Available here: [Arm GNU Toolchain Downloads][arm-toolchain]
 
-Download it and extract it in the `os/` directory:
+Download it and extract it in `$HOME/tools/` directory:
 
     $ tar -xvf arm-gnu-toolchain-12.2.rel1-x86_64-arm-none-linux-gnueabihf.tar.xz
 
