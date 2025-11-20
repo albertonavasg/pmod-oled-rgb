@@ -161,7 +161,7 @@ begin
 
     JA(0) <= cs;
     JA(1) <= mosi;
-    JA(2) <= '0';
+    JA(2) <= 'Z';  -- Unused
     JA(3) <= sck;
     JA(4) <= data_command;
     JA(5) <= power_reset;
