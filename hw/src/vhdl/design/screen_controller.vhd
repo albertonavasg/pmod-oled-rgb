@@ -161,6 +161,9 @@ architecture Behavioral of screen_controller is
     constant off_sequence : spi_sequence := (DISPLAY_OFF_COMMAND, others => EMPTY_COMMAND);
     constant OFF_SEQUENCE_LEN : integer := 1;
 
+    -- Reset signal
+    signal rst : std_logic;
+
     -- Internal signals used during power on and power off transitions
     signal spi_data_internal    : std_logic_vector(7 downto 0) := (others => '0');
     signal spi_dc_internal      : std_logic := COMMAND_TYPE;
@@ -495,6 +498,9 @@ begin
         end if;
     end process;
 
+    -- Invert reset
+    rst <= not RESETN;
+
     -- Port Map
         spi_master_inst: spi_master
         Generic Map (
@@ -507,7 +513,7 @@ begin
         Port Map (
             sclk_i => CLK,
             pclk_i => CLK,
-            rst_i  => NOT RESETN,
+            rst_i  => rst,
             ---- serial interface ----
             spi_ssel_o => CS,
             spi_sck_o  => SCK,

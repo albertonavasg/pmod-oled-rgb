@@ -92,14 +92,20 @@ architecture Behavioral of top is
     -- Signals (screen_tester)
     signal enable_screen_tester : std_logic := '0';
 
+    -- Signal resetn
+    signal resetn : std_logic;
+
 begin
+
+    -- Invert reset
+    resetn <= not RESET;
 
     -- Port Map
     screen_controller_inst: screen_controller
         Port Map (
             -- Sync
             CLK    => CLK,
-            RESETN => not RESET,
+            RESETN => resetn,
     
             -- Control
             ON_OFF      => on_off,
@@ -130,7 +136,7 @@ begin
         Port Map (
             -- Sync
             CLK    => CLK,
-            RESETN => not RESET,
+            RESETN => resetn,
     
             -- Enable
             ENABLE => enable_screen_tester,
