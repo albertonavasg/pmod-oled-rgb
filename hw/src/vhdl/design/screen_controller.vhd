@@ -220,18 +220,26 @@ begin
                 when gsm_off =>
                     if (ON_OFF = '1' and on_off_d = '0') then
                         gsm_state <= gsm_turning_on;
+                    else
+                        gsm_state <= gsm_off;
                     end if;
                 when gsm_turning_on =>
                     if (transition_completed_flag = '1' and ON_OFF = '1') then
                         gsm_state <= gsm_on;
+                    else
+                        gsm_state <= gsm_turning_on;
                     end if;
                 when gsm_on =>
                     if (ON_OFF = '0' and on_off_d = '1') then
                         gsm_state <= gsm_turning_off;
+                    else
+                        gsm_state <= gsm_on;
                     end if;
                 when gsm_turning_off =>
                     if (transition_completed_flag = '1' and ON_OFF = '0') then
                         gsm_state <= gsm_off;
+                    else
+                        gsm_state <= gsm_turning_off;
                     end if;
             end case;
         end if;
@@ -431,7 +439,8 @@ begin
     ON_OFF_STATUS <= "00" when (gsm_state = gsm_off) else
                      "01" when (gsm_state = gsm_turning_on) else
                      "10" when (gsm_state = gsm_turning_off) else
-                     "11" when (gsm_state = gsm_on);
+                     "11" when (gsm_state = gsm_on) else
+                     "00"; -- Default for invalid state
 
     -- Bypass SPI status signals when screen is ON
     -- Set them as 0 in the other cases
