@@ -214,220 +214,228 @@ architecture Behavioral of screen_controller is
 begin
 
     -- General State Machine
-    GSM_proc : process(CLK, RESETN)
+    GSM_proc : process(CLK)
     begin
-        if (RESETN = '0') then
-            gsm_state <= gsm_off;
-        elsif (rising_edge(CLK)) then
-            case gsm_state is
-                when gsm_off =>
-                    if (ON_OFF = '1' and on_off_d = '0') then
-                        gsm_state <= gsm_turning_on;
-                    end if;
-                when gsm_turning_on =>
-                    if (transition_completed_flag = '1' and ON_OFF = '1') then
-                        gsm_state <= gsm_on;
-                    end if;
-                when gsm_on =>
-                    if (ON_OFF = '0' and on_off_d = '1') then
-                        gsm_state <= gsm_turning_off;
-                    end if;
-                when gsm_turning_off =>
-                    if (transition_completed_flag = '1' and ON_OFF = '0') then
-                        gsm_state <= gsm_off;
-                    end if;
-            end case;
+        if (rising_edge(CLK)) then
+            if (RESETN = '0') then
+                gsm_state <= gsm_off;
+            else
+                case gsm_state is
+                    when gsm_off =>
+                        if (ON_OFF = '1' and on_off_d = '0') then
+                            gsm_state <= gsm_turning_on;
+                        end if;
+                    when gsm_turning_on =>
+                        if (transition_completed_flag = '1' and ON_OFF = '1') then
+                            gsm_state <= gsm_on;
+                        end if;
+                    when gsm_on =>
+                        if (ON_OFF = '0' and on_off_d = '1') then
+                            gsm_state <= gsm_turning_off;
+                        end if;
+                    when gsm_turning_off =>
+                        if (transition_completed_flag = '1' and ON_OFF = '0') then
+                            gsm_state <= gsm_off;
+                        end if;
+                end case;
+            end if;
         end if;
     end process;
 
-    on_off_proc: process(CLK, RESETN)
+    on_off_proc: process(CLK)
         variable seq_counter : integer := 0;
     begin
-        if (RESETN = '0') then
-            spi_data_array <= (others => (others => '0'));
-            spi_start_flag <= '0';
-
-            POWER_RESET <= '1';
-            VCC_ENABLE  <= '0';
-            PMOD_ENABLE <= '0';
-
-            seq_counter := 0;
-            transition_completed_flag <= '0';
-
-        elsif (rising_edge(CLK)) then
-
-            case gsm_state is 
-
-                when gsm_off =>
-
-                    spi_data_array <= (others => (others => '0'));
-                    spi_start_flag <= '0';
+        if (rising_edge(CLK)) then
         
-                    POWER_RESET <= '1';
-                    VCC_ENABLE  <= '0';
-                    PMOD_ENABLE <= '0';
-        
-                    seq_counter := 0;
-                    transition_completed_flag <= '0';
+            if (RESETN = '0') then
+                spi_data_array <= (others => (others => '0'));
+                spi_start_flag <= '0';
 
-                when gsm_turning_on =>
+                POWER_RESET <= '1';
+                VCC_ENABLE  <= '0';
+                PMOD_ENABLE <= '0';
 
-                    if (seq_counter = 0) then
-                        configure_timer(timer_enable, '1', max_timer_value, TIMER_20MS, timer_auto_reset, '0');
-                        PMOD_ENABLE <= '1';
-                        seq_counter := seq_counter + 1;
+                seq_counter := 0;
+                transition_completed_flag <= '0';
 
-                    elsif (seq_counter = 1 and timer_expired = '1') then
-                        configure_timer(timer_enable, '0', max_timer_value, 0, timer_auto_reset, '0');
-                        seq_counter := seq_counter + 1;
+            else
 
-                    elsif (seq_counter = 2) then
-                        configure_timer(timer_enable, '1', max_timer_value, TIMER_5US, timer_auto_reset, '0');
-                        POWER_RESET <= '0';
-                        seq_counter := seq_counter + 1;
-                    
-                    elsif (seq_counter = 3 and timer_expired = '1') then
-                        configure_timer(timer_enable, '0', max_timer_value, 0, timer_auto_reset, '0');
-                        seq_counter := seq_counter + 1;
-                    
-                    elsif (seq_counter = 4) then
-                        configure_timer(timer_enable, '1', max_timer_value, TIMER_5US, timer_auto_reset, '0');
+                case gsm_state is 
+
+                    when gsm_off =>
+
+                        spi_data_array <= (others => (others => '0'));
+                        spi_start_flag <= '0';
+            
                         POWER_RESET <= '1';
-                        seq_counter := seq_counter + 1;
-                    
-                    elsif (seq_counter = 5 and timer_expired = '1') then
-                        configure_timer(timer_enable, '0', max_timer_value, 0, timer_auto_reset, '0');
-                        seq_counter := seq_counter + 1;
-                    
-                    elsif (seq_counter = 6) then
-                        spi_data_array     <= ON_SEQUENCE_1;
-                        spi_data_array_len <= ON_SEQUENCE_1_LEN;
-                        spi_start_flag     <= '1';
-                        seq_counter := seq_counter + 1;
-                    
-                    elsif (seq_counter = 7) then
-                        spi_start_flag <= '0';
-                        seq_counter    := seq_counter + 1;
-                    
-                    elsif (seq_counter = 8 and spi_done_flag = '1' and spi_done_flag_d = '0') then
-                        configure_timer(timer_enable, '1', max_timer_value, TIMER_25MS, timer_auto_reset, '0');
-                        VCC_ENABLE  <= '1';
-                        seq_counter := seq_counter + 1;
-                    
-                    elsif (seq_counter = 9 and timer_expired = '1') then
-                        configure_timer(timer_enable, '0', max_timer_value, 0, timer_auto_reset, '0');
-                        seq_counter := seq_counter + 1;
-                    
-                    elsif (seq_counter = 10) then
-                        spi_data_array     <= ON_SEQUENCE_2;
-                        spi_data_array_len <= ON_SEQUENCE_2_LEN;
-                        spi_start_flag     <= '1';
-                        seq_counter        := seq_counter + 1;
-                    
-                    elsif (seq_counter = 11) then
-                        spi_start_flag <= '0';
-                        seq_counter := seq_counter + 1;
-                    
-                    elsif (seq_counter = 12 and spi_done_flag = '1' and spi_done_flag_d = '0') then
-                        configure_timer(timer_enable, '1', max_timer_value, TIMER_100MS, timer_auto_reset, '0');
-                        seq_counter := seq_counter + 1;
-                    
-                    elsif (seq_counter = 13 and timer_expired = '1') then
-                        configure_timer(timer_enable, '0', max_timer_value, 0, timer_auto_reset, '0');
-                        transition_completed_flag <= '1';
-                        seq_counter               := seq_counter + 1;
-                    end if;
-                
-                when gsm_on =>
-
-                    spi_data_array <= (others => (others => '0'));
-                    spi_start_flag <= '0';
-        
-                    POWER_RESET <= '1';
-                    VCC_ENABLE  <= '1';
-                    PMOD_ENABLE <= '1';
-        
-                    seq_counter := 0;
-                    transition_completed_flag <= '0';
-
-                when gsm_turning_off =>
-
-                    if (seq_counter = 0) then
-                        spi_data_array     <= OFF_SEQUENCE;
-                        spi_data_array_len <= OFF_SEQUENCE_LEN;
-                        spi_start_flag     <= '1';
-                        seq_counter        := seq_counter + 1;
-                    
-                    elsif (seq_counter = 1) then
-                        spi_start_flag <= '0';
-                        seq_counter    := seq_counter + 1;
-                    
-                    elsif (seq_counter = 2 and spi_done_flag = '1' and spi_done_flag_d = '0') then
-                        configure_timer(timer_enable, '1', max_timer_value, TIMER_400MS, timer_auto_reset, '0');
                         VCC_ENABLE  <= '0';
-                        seq_counter := seq_counter + 1;
-                    
-                    elsif (seq_counter = 3 and timer_expired = '1') then
-                        configure_timer(timer_enable, '0', max_timer_value, 0, timer_auto_reset, '0');
-                        transition_completed_flag <= '1';
-                        seq_counter               := seq_counter + 1;
-                    end if;
+                        PMOD_ENABLE <= '0';
+            
+                        seq_counter := 0;
+                        transition_completed_flag <= '0';
 
-            end case;
+                    when gsm_turning_on =>
+
+                        if (seq_counter = 0) then
+                            configure_timer(timer_enable, '1', max_timer_value, TIMER_20MS, timer_auto_reset, '0');
+                            PMOD_ENABLE <= '1';
+                            seq_counter := seq_counter + 1;
+
+                        elsif (seq_counter = 1 and timer_expired = '1') then
+                            configure_timer(timer_enable, '0', max_timer_value, 0, timer_auto_reset, '0');
+                            seq_counter := seq_counter + 1;
+
+                        elsif (seq_counter = 2) then
+                            configure_timer(timer_enable, '1', max_timer_value, TIMER_5US, timer_auto_reset, '0');
+                            POWER_RESET <= '0';
+                            seq_counter := seq_counter + 1;
+                        
+                        elsif (seq_counter = 3 and timer_expired = '1') then
+                            configure_timer(timer_enable, '0', max_timer_value, 0, timer_auto_reset, '0');
+                            seq_counter := seq_counter + 1;
+                        
+                        elsif (seq_counter = 4) then
+                            configure_timer(timer_enable, '1', max_timer_value, TIMER_5US, timer_auto_reset, '0');
+                            POWER_RESET <= '1';
+                            seq_counter := seq_counter + 1;
+                        
+                        elsif (seq_counter = 5 and timer_expired = '1') then
+                            configure_timer(timer_enable, '0', max_timer_value, 0, timer_auto_reset, '0');
+                            seq_counter := seq_counter + 1;
+                        
+                        elsif (seq_counter = 6) then
+                            spi_data_array     <= ON_SEQUENCE_1;
+                            spi_data_array_len <= ON_SEQUENCE_1_LEN;
+                            spi_start_flag     <= '1';
+                            seq_counter := seq_counter + 1;
+                        
+                        elsif (seq_counter = 7) then
+                            spi_start_flag <= '0';
+                            seq_counter    := seq_counter + 1;
+                        
+                        elsif (seq_counter = 8 and spi_done_flag = '1' and spi_done_flag_d = '0') then
+                            configure_timer(timer_enable, '1', max_timer_value, TIMER_25MS, timer_auto_reset, '0');
+                            VCC_ENABLE  <= '1';
+                            seq_counter := seq_counter + 1;
+                        
+                        elsif (seq_counter = 9 and timer_expired = '1') then
+                            configure_timer(timer_enable, '0', max_timer_value, 0, timer_auto_reset, '0');
+                            seq_counter := seq_counter + 1;
+                        
+                        elsif (seq_counter = 10) then
+                            spi_data_array     <= ON_SEQUENCE_2;
+                            spi_data_array_len <= ON_SEQUENCE_2_LEN;
+                            spi_start_flag     <= '1';
+                            seq_counter        := seq_counter + 1;
+                        
+                        elsif (seq_counter = 11) then
+                            spi_start_flag <= '0';
+                            seq_counter := seq_counter + 1;
+                        
+                        elsif (seq_counter = 12 and spi_done_flag = '1' and spi_done_flag_d = '0') then
+                            configure_timer(timer_enable, '1', max_timer_value, TIMER_100MS, timer_auto_reset, '0');
+                            seq_counter := seq_counter + 1;
+                        
+                        elsif (seq_counter = 13 and timer_expired = '1') then
+                            configure_timer(timer_enable, '0', max_timer_value, 0, timer_auto_reset, '0');
+                            transition_completed_flag <= '1';
+                            seq_counter               := seq_counter + 1;
+                        end if;
+                    
+                    when gsm_on =>
+
+                        spi_data_array <= (others => (others => '0'));
+                        spi_start_flag <= '0';
+            
+                        POWER_RESET <= '1';
+                        VCC_ENABLE  <= '1';
+                        PMOD_ENABLE <= '1';
+            
+                        seq_counter := 0;
+                        transition_completed_flag <= '0';
+
+                    when gsm_turning_off =>
+
+                        if (seq_counter = 0) then
+                            spi_data_array     <= OFF_SEQUENCE;
+                            spi_data_array_len <= OFF_SEQUENCE_LEN;
+                            spi_start_flag     <= '1';
+                            seq_counter        := seq_counter + 1;
+                        
+                        elsif (seq_counter = 1) then
+                            spi_start_flag <= '0';
+                            seq_counter    := seq_counter + 1;
+                        
+                        elsif (seq_counter = 2 and spi_done_flag = '1' and spi_done_flag_d = '0') then
+                            configure_timer(timer_enable, '1', max_timer_value, TIMER_400MS, timer_auto_reset, '0');
+                            VCC_ENABLE  <= '0';
+                            seq_counter := seq_counter + 1;
+                        
+                        elsif (seq_counter = 3 and timer_expired = '1') then
+                            configure_timer(timer_enable, '0', max_timer_value, 0, timer_auto_reset, '0');
+                            transition_completed_flag <= '1';
+                            seq_counter               := seq_counter + 1;
+                        end if;
+
+                end case;
+            end if;
         end if;
     end process;
 
     -- SPI Communication process
-    spi_proc: process(CLK, RESETN)
+    spi_proc: process(CLK)
         variable write_byte_index : integer := 0;
     begin
-        if (RESETN = '0') then
-            spi_done_flag        <= '0';
-            spi_data_internal    <= (others => '0');
-            spi_trigger_internal <= '0';
-            write_byte_index     := 0;
-            spi_state            <= spi_idle;
-        elsif (rising_edge(CLK)) then
-            case spi_state is
+        if (rising_edge(CLK)) then
+            if (RESETN = '0') then
+                spi_done_flag        <= '0';
+                spi_data_internal    <= (others => '0');
+                spi_trigger_internal <= '0';
+                write_byte_index     := 0;
+                spi_state            <= spi_idle;
+            else
+                case spi_state is
 
-                when spi_idle =>         
-                    spi_done_flag        <= '0';
-                    spi_data_internal    <= (others => '0');
-                    spi_trigger_internal <= '0';
-                    write_byte_index     := 0;
-                    if (spi_start_flag = '1' and spi_start_flag_d = '0' and spi_done = '1') then
-                        spi_data_internal    <= spi_data_array(write_byte_index);
-                        spi_trigger_internal <= '1';
-                        write_byte_index     := write_byte_index + 1;
-                        spi_state            <= spi_write;
-                    end if;
-
-                when spi_write =>
-                    if (write_byte_index < spi_data_array_len) then
-                        -- Turn off write_en when write_ack is received
-                        if (spi_write_ack = '1' and spi_write_ack_d = '0' and spi_trigger_internal = '1') then
-                            spi_trigger_internal <= '0';
-                        end if;
-                        -- Write
-                        if (write_byte_index < spi_data_array_len and spi_data_req = '1' and spi_data_req_d = '0') then
+                    when spi_idle =>         
+                        spi_done_flag        <= '0';
+                        spi_data_internal    <= (others => '0');
+                        spi_trigger_internal <= '0';
+                        write_byte_index     := 0;
+                        if (spi_start_flag = '1' and spi_start_flag_d = '0' and spi_done = '1') then
                             spi_data_internal    <= spi_data_array(write_byte_index);
                             spi_trigger_internal <= '1';
                             write_byte_index     := write_byte_index + 1;
+                            spi_state            <= spi_write;
                         end if;
-                    else
-                        -- Turn off write_en when write_ack is received
-                        if (spi_write_ack = '1' and spi_write_ack_d = '0' and spi_trigger_internal = '1') then
-                            spi_trigger_internal <= '0';
-                        end if;
-                        if (spi_done = '1') then
-                            spi_state <= spi_finish;
-                        end if;
-                    end if;
 
-                when spi_finish =>
-                    spi_done_flag <= '1';
-                    spi_state     <= spi_idle;
-            end case;
+                    when spi_write =>
+                        if (write_byte_index < spi_data_array_len) then
+                            -- Turn off write_en when write_ack is received
+                            if (spi_write_ack = '1' and spi_write_ack_d = '0' and spi_trigger_internal = '1') then
+                                spi_trigger_internal <= '0';
+                            end if;
+                            -- Write
+                            if (write_byte_index < spi_data_array_len and spi_data_req = '1' and spi_data_req_d = '0') then
+                                spi_data_internal    <= spi_data_array(write_byte_index);
+                                spi_trigger_internal <= '1';
+                                write_byte_index     := write_byte_index + 1;
+                            end if;
+                        else
+                            -- Turn off write_en when write_ack is received
+                            if (spi_write_ack = '1' and spi_write_ack_d = '0' and spi_trigger_internal = '1') then
+                                spi_trigger_internal <= '0';
+                            end if;
+                            if (spi_done = '1') then
+                                spi_state <= spi_finish;
+                            end if;
+                        end if;
+
+                    when spi_finish =>
+                        spi_done_flag <= '1';
+                        spi_state     <= spi_idle;
+
+                end case;
+            end if;
         end if;
     end process;
 
@@ -449,43 +457,47 @@ begin
     spi_write_en <= SPI_TRIGGER when (gsm_state = gsm_on) else spi_trigger_internal;
 
     -- Process to delay signals and detect rising and falling edges
-    delay_signal_proc: process(CLK, RESETN)
+    delay_signal_proc: process(CLK)
     begin
-        if (RESETN = '0') then
-            on_off_d         <= '0';
-            spi_data_req_d   <= '0';
-            spi_write_ack_d  <= '0';
-            spi_start_flag_d <= '0';
-            spi_done_flag_d  <= '0';
-        elsif (rising_edge(CLK)) then
-            on_off_d         <= ON_OFF;
-            spi_data_req_d   <= spi_data_req;
-            spi_write_ack_d  <= spi_write_ack;
-            spi_start_flag_d <= spi_start_flag;
-            spi_done_flag_d  <= spi_done_flag;
+        if (rising_edge(CLK)) then
+            if (RESETN = '0') then
+                on_off_d         <= '0';
+                spi_data_req_d   <= '0';
+                spi_write_ack_d  <= '0';
+                spi_start_flag_d <= '0';
+                spi_done_flag_d  <= '0';
+            else
+                on_off_d         <= ON_OFF;
+                spi_data_req_d   <= spi_data_req;
+                spi_write_ack_d  <= spi_write_ack;
+                spi_start_flag_d <= spi_start_flag;
+                spi_done_flag_d  <= spi_done_flag;
+            end if;
         end if;
     end process;
 
     -- Configurable timer
-    counter_proc: process(CLK, RESETN)
+    counter_proc: process(CLK)
     begin
-        if (RESETN = '0') then
-            timer_value   <= 0;
-            timer_expired <= '0';
-        elsif (rising_edge(CLK)) then
-            if (timer_enable = '1') then
-                if (timer_value < max_timer_value) then
-                    timer_value   <= timer_value + 1;
-                    timer_expired <= '0';
-                else
-                    timer_expired <= '1';
-                    if (timer_auto_reset = '1') then
-                        timer_value <= 0;
-                    end if;
-                end if;
-            else 
+        if (rising_edge(CLK)) then
+            if (RESETN = '0') then
                 timer_value   <= 0;
                 timer_expired <= '0';
+            else
+                if (timer_enable = '1') then
+                    if (timer_value < max_timer_value) then
+                        timer_value   <= timer_value + 1;
+                        timer_expired <= '0';
+                    else
+                        timer_expired <= '1';
+                        if (timer_auto_reset = '1') then
+                            timer_value <= 0;
+                        end if;
+                    end if;
+                else 
+                    timer_value   <= 0;
+                    timer_expired <= '0';
+                end if;
             end if;
         end if;
     end process;
