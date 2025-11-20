@@ -12,5 +12,4 @@ pre-built/linux/
 components/plnx_workspace
 components/yocto
 
-# Ignore hardware platform files
 *.xsa
