@@ -341,6 +341,7 @@ For the root file system, extract it into the `rootfs` partition.
     cp images/linux/boot.scr /media/BOOT/
 
     sudo tar -xzvf rootfs.tar.gz -C /media/rootfs
+    sync
 
 The SD is ready to be plugged in the PYNQ-Z2.
 
@@ -351,6 +352,7 @@ Custom details applied to Petalinux:
 - Added glibc to support C applications.
 - Added libstdc++ to support C++ applications.
 - UIO driver support.
+- Added ntp to rootfs to get correct time and date.
 
 ### Embedded SW
 
@@ -374,6 +376,10 @@ Download it and extract it in `$HOME/tools/` directory:
 
     $ tar -xvf arm-gnu-toolchain-12.2.rel1-x86_64-arm-none-linux-gnueabihf.tar.xz
 
+***
+
+#### Basic test
+
 In the folder `sw/basic_test/linux` there are four versions of the same program to test the screen (turn it ON, send the ENTIRE_DISPLAY_ON command, send the ENTIRE_DISPLAY_OFF command and turn it OFF).
 They aim to test two things:
 - The toolchain works for C and C++.
@@ -393,6 +399,29 @@ Connect to the board via SSH and execute them (with sudo privileges, in order to
     $ sudo ./uio_c
     $ sudo ./mem_cpp
     $ sudo ./uio_cpp
+
+***
+
+#### Screen
+
+The final version of the software is in the `sw/screen` directory.
+
+For the moment, there are two main apps:
+
+- `screen_test`. Instantiates screen A and screen B and tests all the features. Under development.
+- `screen_service`. Unused for the moment, final application.
+
+To compile any of them, use the `Makefile`:
+
+    $ make screen_test
+    $ make screen_service
+    $ make all
+    $ make
+    
+To directly compile and send it to the board:
+
+    $ ./compile_and_send.sh
+
 
 [comment]: (Links)
 [petalinux-2024.1]: https://docs.amd.com/r/2024.1-English/ug1144-petalinux-tools-reference-guide
