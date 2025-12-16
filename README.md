@@ -135,10 +135,8 @@ To start an SPI transaction:
 - Set `DC_SELECT` to `0` (data) or `1` (command)
 - Set `SPI_TRIGGER` to `1`
 
-The byte will be sent and the block will request another byte putting a `1` in `SPI_DATA_REQUEST`. This allows for continous data transmit (useful for example to send a lot of pixels to draw an image).  
+The byte will be sent and the block will request another byte putting a `1` in `SPI_DATA_REQUEST`. This allows for continous data transmit (used when executing the `TURNING_ON` and `TURNING_OFF` sequence directly in hardware).
 If no more bytes are sent, the transaction will end and `SPI_READY` will show a `1`.
-
-It is still pending to see if the PS will be fast enough to put another `BYTE`, `DC_SELECT` and `SPI_TRIGGER` when required by `SPI_DATA_REQUEST`. If not, the transactions will be done one by one.  
 
 ```
 entity screen_controller is
@@ -363,9 +361,14 @@ In principle, petalinux provides a custom toolchain, than can be generated and e
     $ petalinux-build --sdk
     $ petalinux-package sysroot
 
-This is sometimes unpredictable and gets stuck on the process, so I proceeded with the standard Arm cross-compiler toolchain for 32 bit architecture: `AArch32 GNU/Linux target with hard float (arm-none-linux-gnueabihf)`.  
-Version: `12.2.Rel1 (December 22, 2022)`  
-Available here: [Arm GNU Toolchain Downloads][arm-toolchain]
+These two steps can be executed with the script `generate_petalinux_toolchain.sh`, located in the `os/` dir:
+
+    $ ./generate_petalinux_toolchain
+
+This is sometimes unpredictable and gets stuck on the process, so I proceeded with the standard Arm cross-compiler toolchain for 32 bit architecture:  
+`AArch32 GNU/Linux target with hard float (arm-none-linux-gnueabihf)`.  
+Version: `12.2.Rel1 (December 22, 2022)`.  
+Available here: [Arm GNU Toolchain Downloads][arm-toolchain].
 
 Download it and extract it in `$HOME/tools/` directory:
 
