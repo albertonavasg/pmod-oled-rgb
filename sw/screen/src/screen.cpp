@@ -1,23 +1,14 @@
 #include <iostream>   // cout
 #include <cstdint>    // uint32_t
-#include <stdexcept>  // std::runtime_error
-#include <cstring>    // strerror
-#include <cerrno>     // errno
 
 #include <fcntl.h>    // open
 #include <unistd.h>   // close
 #include <sys/mman.h> // mmap, munmap
 
-#include "screen.h"
 #include "screen_constants.h"
 #include "screen_registers.h"
-
-namespace {
-
-    std::runtime_error sys_error(const std::string &msg) {
-        return std::runtime_error(msg + ": " + strerror(errno));
-    }
-}
+#include "screen.h"
+#include "screen_utils.h"
 
 Screen::Screen(const std::string &uio_device) {
 

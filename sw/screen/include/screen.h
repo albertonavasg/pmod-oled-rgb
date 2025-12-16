@@ -4,8 +4,8 @@
 #include <cstdint> // uint32_t
 #include <string>  // string
 
-#include "screen_registers.h"
 #include "screen_constants.h"
+#include "screen_registers.h"
 
 class Screen {
 

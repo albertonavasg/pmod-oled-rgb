@@ -4,6 +4,9 @@ INCLUDE_DIR := include
 APP_DIR := apps
 BUILD_DIR := build
 
+# Makefile silent
+.SILENT:
+
 # Cross-compiler
 TOOLCHAIN_PATH := $(HOME)/tools/arm-gnu-toolchain-12.2.rel1-x86_64-arm-none-linux-gnueabihf/bin
 CXX := $(TOOLCHAIN_PATH)/arm-none-linux-gnueabihf-g++
@@ -37,7 +40,9 @@ $(BUILD_DIR)/%.o: $(APP_DIR)/%.cpp | $(BUILD_DIR)
 
 # Link apps
 $(BUILD_DIR)/%: $(OBJS) $(BUILD_DIR)/%.o
+	echo "Linking -> $@"
 	$(CXX) $(CXXFLAGS) $^ -o $@
+	echo "Built -> $@"
 
 # Make each app a phony target to force Make to expand pattern rules
 .PHONY: $(APPS)
@@ -47,3 +52,4 @@ $(APPS): %: $(BUILD_DIR)/%
 .PHONY: clean all
 clean:
 	rm -rf $(BUILD_DIR)/*
+	echo "Clean done"
