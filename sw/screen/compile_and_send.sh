@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-make screen_test
+make test_app
 
-echo "Sending screen_test to PYNQ-Z2 board..."
-scp build/screen_test pynqz2-screen:/home/petalinux
+echo "Sending test_app to PYNQ-Z2 board..."
+scp build/test_app pynqz2-screen:/home/petalinux

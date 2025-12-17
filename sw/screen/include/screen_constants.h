@@ -41,8 +41,6 @@ namespace screen {
         DisplayOnDimMode      = 0xAC,
         DisplayOffSleepMode   = 0xAE,
         DIsplayOnNormalMode   = 0xAF,
-        DisplayOff            = 0xAE,
-        DisplayOn             = 0xAF,
         PowerSaveMode         = 0xB0,
         PhasePeriodAdjustment = 0xB1,
         DisplayClockDiv       = 0xB3,

@@ -8,11 +8,11 @@
 class ScreenTester {
 
     public:
-        explicit ScreenTester(std::vector<Screen*>& screens);
+        explicit ScreenTester(const std::vector<std::reference_wrapper<Screen>>& screens);
         void testDisplay();
 
         private:
-            std::vector<Screen*> m_screens;
+            std::vector<std::reference_wrapper<Screen>> m_screens;
 };
 
 #endif // SCREEN_TESTER_H

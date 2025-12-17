@@ -1,6 +1,4 @@
-#include <iostream>   // cout
 #include <cstdint>    // uint32_t
-
 #include <fcntl.h>    // open
 #include <unistd.h>   // close
 #include <sys/mman.h> // mmap, munmap

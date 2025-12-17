@@ -1,8 +1,9 @@
 #ifndef SCREEN_UTILS_H
 #define SCREEN_UTILS_H
 
-#include <memory>
-#include <string>
+#include <memory>    // unique_ptr
+#include <stdexcept> // runtime_error
+#include <string>    // string
 
 #include "screen.h"
 

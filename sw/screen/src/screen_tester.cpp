@@ -7,34 +7,40 @@
 #include "screen.h"
 #include "screen_tester.h"
 
-ScreenTester::ScreenTester(std::vector<Screen*>& screens) {
+ScreenTester::ScreenTester(const std::vector<std::reference_wrapper<Screen>>& screens) {
 
     m_screens = screens;
 }
 
 void ScreenTester::testDisplay() {
 
-    for (auto* screen : m_screens) {
-        if (!screen) continue;  // Skip null pointers
-        screen->setPowerState(true);
+    for (Screen& screen : m_screens) {
+        screen.setPowerState(true);
     }
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
-    for (auto* screen : m_screens) {
-        if (!screen) continue;
-        screen->sendCommand(screen::Command::EntireDisplayOn);
+    for (Screen& screen : m_screens) {
+        screen.sendCommand(screen::Command::EntireDisplayOn);
     }
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
-    for (auto* screen : m_screens) {
-        if (!screen) continue;
-        screen->sendCommand(screen::Command::NormalDisplay);
+    for (Screen& screen : m_screens) {
+        screen.sendCommand(screen::Command::EntireDisplayOff);
     }
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
-    for (auto* screen : m_screens) {
-        if (!screen) continue;
-        screen->setPowerState(false);
+    for (Screen& screen : m_screens) {
+        screen.sendCommand(screen::Command::EntireDisplayOn);
+    }
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+
+    for (Screen& screen : m_screens) {
+        screen.sendCommand(screen::Command::NormalDisplay);
+    }
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+
+    for (Screen& screen : m_screens) {
+        screen.setPowerState(false);
     }
     std::this_thread::sleep_for(std::chrono::seconds(1));
 }

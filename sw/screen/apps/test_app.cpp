@@ -15,7 +15,7 @@ int main() {
     auto screenA = createScreen("uio0");
     auto screenB = createScreen("uio1");
 
-    std::vector<Screen*> screens = {screenA.get(), screenB.get()};
+    std::vector<std::reference_wrapper<Screen>> screens = {*screenA, *screenB};
     ScreenTester tester(screens);
 
     tester.testDisplay();

@@ -16,6 +16,6 @@ std::unique_ptr<Screen> createScreen(const std::string &uio) {
         return std::make_unique<Screen>(uio);
     } catch (const std::exception &e) {
         std::cerr << "Failed to create screen " << uio << ": " << e.what() << std::endl;
-        return nullptr;
+        std::exit(EXIT_FAILURE);
     }
 }
