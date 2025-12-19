@@ -29,17 +29,17 @@ Screen::Screen(const std::string &uio_device) {
         throw sys_error("mmap failed for " + path);
     }
 
-    setPowerState(true);
+    writePowerState(true);
 
-    while (getPowerState() != screen::PowerState::On) {
+    while (readPowerState() != screen::PowerState::On) {
         // Wait
     }
 }
 
 Screen::~Screen() {
 
-    setPowerState(false);
-    while (getPowerState() != screen::PowerState::Off) {
+    writePowerState(false);
+    while (readPowerState() != screen::PowerState::Off) {
         // Wait
     }
 
@@ -52,7 +52,7 @@ Screen::~Screen() {
     }
 }
 
-void Screen::setPowerState(bool value) {
+void Screen::writePowerState(bool value) {
 
     uint32_t ctrl = readRegister(screen::reg::POWER_CTRL);
 
@@ -65,7 +65,7 @@ void Screen::setPowerState(bool value) {
     writeRegister(screen::reg::POWER_CTRL, ctrl);
 }
 
-screen::PowerState Screen::getPowerState() const {
+screen::PowerState Screen::readPowerState() const {
 
     uint32_t status = readRegister(screen::reg::POWER_STATUS);
     return static_cast<screen::PowerState>(status & screen::mask::ON_OFF_STATUS);

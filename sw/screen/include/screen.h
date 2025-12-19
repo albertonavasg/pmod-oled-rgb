@@ -10,33 +10,18 @@
 
 class Screen {
 
+    friend class ScreenTester;
+
     public:
         //Constructor and Destructor
         explicit Screen(const std::string &uio_device);
         ~Screen();
 
-        // Power Control
-        void setPowerState(bool value);
-        screen::PowerState getPowerState() const;
-
-        // Basic
-        void sendCommand(screen::Command cmd, std::span<const uint8_t> params);
-        inline void sendCommand(screen::Command cmd) {
-            sendCommand(cmd, std::span<const uint8_t>{});
-        }
-        inline void sendCommand(screen::Command cmd, uint8_t param){
-            sendCommand(cmd, std::span<const uint8_t>{ &param, 1 });
-        }
-        inline void sendCommand(screen::Command cmd, const uint8_t* params, size_t length) {
-            sendCommand(cmd, std::span<const uint8_t>{ params, length });
-        }
-        void sendData(const uint8_t data);
-        void sendMultiData(const uint8_t *data, size_t length);
-
-        // Custom
+        // Utilities
         void sendPixel(const screen::Color color);
         void sendMultiPixel(const screen::Color *color, size_t length);
 
+        // Settings
         // Remap and Color Depth Settings
         void setAddressIncrement(bool vertical);
         void setColumnRemap(bool remap);
@@ -52,7 +37,7 @@ class Screen {
         volatile uint32_t *m_reg = nullptr;
         static constexpr uint64_t MAP_SIZE = 0x10000;
 
-        // Screen properties and configurations
+        // Settings
         uint8_t remapColorDepthCfg = screen::defaultRemapColorDepth;
 
         // Helper for byte manipulation
@@ -60,14 +45,31 @@ class Screen {
             reg = (reg & ~mask) | value;
         }
 
+        // Base
         // Register access
         void writeRegister(size_t reg, uint32_t value);
         uint32_t readRegister(size_t reg) const;
 
-        // SPI
+        // Power Control
+        void writePowerState(bool value);
+        screen::PowerState readPowerState() const;
+
+        // SPI Communication
         bool isSpiReady() const;
         bool isSpiDataRequest() const;
         void sendSpiByte(uint8_t byte, screen::DataMode mode);
+        void sendCommand(screen::Command cmd, std::span<const uint8_t> params);
+        inline void sendCommand(screen::Command cmd) {
+            sendCommand(cmd, std::span<const uint8_t>{});
+        }
+        inline void sendCommand(screen::Command cmd, uint8_t param){
+            sendCommand(cmd, std::span<const uint8_t>{ &param, 1 });
+        }
+        inline void sendCommand(screen::Command cmd, const uint8_t* params, size_t length) {
+            sendCommand(cmd, std::span<const uint8_t>{ params, length });
+        }
+        void sendData(const uint8_t data);
+        void sendMultiData(const uint8_t *data, size_t length);
 };
 
 #endif // SCREEN_H
