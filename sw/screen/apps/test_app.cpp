@@ -1,6 +1,4 @@
 #include <iostream> // cout
-#include <chrono>   // seconds, milliseconds
-#include <thread>   // sleep_for
 
 #include "screen_constants.h"
 #include "screen_registers.h"

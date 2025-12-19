@@ -1,7 +1,7 @@
 #include <iostream> // cout, endl
 #include <vector>   // vector
 #include <thread>   // sleep_for
-#include <chrono>   // time
+#include <chrono>   // time, seconds, milliseconds
 #include <random>   // rand
 
 #include "screen_constants.h"

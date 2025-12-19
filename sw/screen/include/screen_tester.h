@@ -5,6 +5,8 @@
 #include <utility>     // forward
 #include <functional>  // reference_wrapper, invoke
 #include <type_traits> // is_invocable_v
+#include <chrono>      // time, seconds, milliseconds
+#include <thread>      // sleep_for
 
 #include "screen.h"
 

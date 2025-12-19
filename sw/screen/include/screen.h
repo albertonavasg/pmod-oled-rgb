@@ -13,7 +13,7 @@ class Screen {
     friend class ScreenTester;
 
     public:
-        //Constructor and Destructor
+        // Constructor and Destructor
         explicit Screen(const std::string &uio_device);
         ~Screen();
 
