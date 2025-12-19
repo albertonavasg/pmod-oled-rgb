@@ -7,16 +7,16 @@
 #include "screen_constants.h"
 #include "screen_registers.h"
 #include "screen.h"
-#include "screen_tester.h"
+#include "test.h"
 
 using namespace std::chrono_literals;
 
-ScreenTester::ScreenTester(const std::vector<std::reference_wrapper<Screen>>& screens) {
+Test::Test(const std::vector<std::reference_wrapper<Screen>>& screens) {
 
     m_screens = screens;
 }
 
-void ScreenTester::testDisplay() {
+void Test::display() {
 
     broadcast([](Screen& s){s.sendCommand(screen::Command::EntireDisplayOn);}, 500ms);
     broadcast([](Screen& s){s.sendCommand(screen::Command::EntireDisplayOff);}, 500ms);
@@ -24,7 +24,7 @@ void ScreenTester::testDisplay() {
     broadcast([](Screen& s){s.sendCommand(screen::Command::NormalDisplay);}, 500ms);
 }
 
-void ScreenTester::testRemapColorDepth() {
+void Test::remapColorDepth() {
 
     screen::Color colors[screen::Geometry::Pixels];
 

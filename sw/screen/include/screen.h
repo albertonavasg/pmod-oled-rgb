@@ -10,7 +10,7 @@
 
 class Screen {
 
-    friend class ScreenTester;
+    friend class Test;
 
     public:
         // Constructor and Destructor

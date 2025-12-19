@@ -3,7 +3,7 @@
 #include "screen_constants.h"
 #include "screen_registers.h"
 #include "screen.h"
-#include "screen_tester.h"
+#include "test.h"
 
 int main() {
 
@@ -21,10 +21,10 @@ int main() {
     }
 
     std::vector<std::reference_wrapper<Screen>> screens = {*screenA, *screenB};
-    ScreenTester tester(screens);
+    Test test(screens);
 
-    tester.testDisplay();
-    tester.testRemapColorDepth();
+    test.display();
+    test.remapColorDepth();
 
     return 0;
 }

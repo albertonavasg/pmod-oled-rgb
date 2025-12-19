@@ -1,24 +1,23 @@
-#ifndef SCREEN_TESTER_H
-#define SCREEN_TESTER_H
+#ifndef TEST_H
+#define TEST_H
 
 #include <vector>      // vector
 #include <utility>     // forward
 #include <functional>  // reference_wrapper, invoke
-#include <type_traits> // is_invocable_v
 #include <chrono>      // time, seconds, milliseconds
 #include <thread>      // sleep_for
 
 #include "screen.h"
 
-class ScreenTester {
+class Test {
 
     public:
         // Constructor
-        explicit ScreenTester(const std::vector<std::reference_wrapper<Screen>>& screens);
+        explicit Test(const std::vector<std::reference_wrapper<Screen>>& screens);
 
         // Test routines
-        void testDisplay();
-        void testRemapColorDepth();
+        void display();
+        void remapColorDepth();
 
         private:
             std::vector<std::reference_wrapper<Screen>> m_screens;
@@ -36,4 +35,4 @@ class ScreenTester {
             }
 };
 
-#endif // SCREEN_TESTER_H
+#endif // TEST_H
