@@ -1,13 +1,15 @@
 #include <iostream> // cout, endl
-#include <vector> // vector
-#include <thread> // sleep_for
-#include <chrono> // seconds
-#include <random> // rand
+#include <vector>   // vector
+#include <thread>   // sleep_for
+#include <chrono>   // time
+#include <random>   // rand
 
 #include "screen_constants.h"
 #include "screen_registers.h"
 #include "screen.h"
 #include "screen_tester.h"
+
+using namespace std::chrono_literals;
 
 ScreenTester::ScreenTester(const std::vector<std::reference_wrapper<Screen>>& screens) {
 
@@ -16,26 +18,11 @@ ScreenTester::ScreenTester(const std::vector<std::reference_wrapper<Screen>>& sc
 
 void ScreenTester::testDisplay() {
 
-    for (Screen& screen : m_screens) {
-        screen.sendCommand(screen::Command::EntireDisplayOn);
-    }
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
-
-    for (Screen& screen : m_screens) {
-        screen.sendCommand(screen::Command::EntireDisplayOff);
-    }
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
-
-    for (Screen& screen : m_screens) {
-        screen.sendCommand(screen::Command::EntireDisplayOn);
-    }
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
-
-    for (Screen& screen : m_screens) {
-        screen.sendCommand(screen::Command::NormalDisplay);
-    }
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    }
+    broadcastCommand(500ms, screen::Command::EntireDisplayOn);
+    broadcastCommand(500ms, screen::Command::EntireDisplayOff);
+    broadcastCommand(200ms, screen::Command::EntireDisplayOn);
+    broadcastCommand(200ms, screen::Command::NormalDisplay);
+}
 
 void ScreenTester::testRemapColorDepth() {
 
