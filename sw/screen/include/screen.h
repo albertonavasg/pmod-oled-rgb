@@ -3,6 +3,7 @@
 
 #include <cstdint> // uint32_t
 #include <string>  // string
+#include <span>    // span
 
 #include "screen_constants.h"
 #include "screen_registers.h"
@@ -19,9 +20,16 @@ class Screen {
         screen::PowerState getPowerState() const;
 
         // Basic
-        void sendCommand(const screen::Command cmd);
-        void sendCommand(const screen::Command cmd, const uint8_t parameter);
-        void sendCommand(const screen::Command cmd, const uint8_t *parameter, size_t length);
+        void sendCommand(screen::Command cmd, std::span<const uint8_t> params);
+        inline void sendCommand(screen::Command cmd) {
+            sendCommand(cmd, std::span<const uint8_t>{});
+        }
+        inline void sendCommand(screen::Command cmd, uint8_t param){
+            sendCommand(cmd, std::span<const uint8_t>{ &param, 1 });
+        }
+        inline void sendCommand(screen::Command cmd, const uint8_t* params, size_t length) {
+            sendCommand(cmd, std::span<const uint8_t>{ params, length });
+        }
         void sendData(const uint8_t data);
         void sendMultiData(const uint8_t *data, size_t length);
 

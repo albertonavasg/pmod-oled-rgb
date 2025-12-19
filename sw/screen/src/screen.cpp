@@ -2,6 +2,7 @@
 #include <cstdint>    // uint32_t
 #include <chrono>     // milliseconds
 #include <thread>     // sleep_for
+#include <span>       // span
 #include <fcntl.h>    // open
 #include <unistd.h>   // close
 #include <sys/mman.h> // mmap, munmap
@@ -70,22 +71,12 @@ screen::PowerState Screen::getPowerState() const {
     return static_cast<screen::PowerState>(status & screen::mask::ON_OFF_STATUS);
 }
 
-void Screen::sendCommand(const screen::Command cmd) {
+void Screen::sendCommand(screen::Command cmd, std::span<const uint8_t> params) {
 
     sendSpiByte(static_cast<uint8_t>(cmd), screen::DataMode::Command);
-}
 
-void Screen::sendCommand(const screen::Command cmd, const uint8_t parameter) {
-
-    sendSpiByte(static_cast<uint8_t>(cmd), screen::DataMode::Command);
-    sendSpiByte(parameter, screen::DataMode::Command);
-}
-
-void Screen::sendCommand(const screen::Command cmd, const uint8_t *parameter, size_t length) {
-
-    sendSpiByte(static_cast<uint8_t>(cmd), screen::DataMode::Command);
-    for (size_t i = 0; i < length; i++) {
-        sendSpiByte(parameter[i], screen::DataMode::Command);
+    for (uint8_t p : params) {
+        sendSpiByte(p, screen::DataMode::Command);
     }
 }
 
