@@ -1,5 +1,8 @@
 #include <iostream>   // cout, endl
 #include <cstdint>    // uint32_t
+#include <stdexcept>  // runtime_error
+#include <cstring>    // strerror
+#include <cerrno>     // errno
 #include <chrono>     // milliseconds
 #include <thread>     // sleep_for
 #include <span>       // span
@@ -10,7 +13,6 @@
 #include "screen_constants.h"
 #include "screen_registers.h"
 #include "screen.h"
-#include "screen_utils.h"
 
 Screen::Screen(const std::string &uio_device) {
 
@@ -18,7 +20,7 @@ Screen::Screen(const std::string &uio_device) {
 
     m_fd = open(path.c_str(), O_RDWR | O_SYNC);
     if (m_fd < 0) {
-        throw sys_error("Failed to open " + path);
+        throw std::runtime_error("Failed to open " + path + ": " + std::strerror(errno));
     }
 
     m_reg = reinterpret_cast<volatile uint32_t *>(mmap(nullptr, MAP_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, m_fd, 0));
@@ -26,7 +28,7 @@ Screen::Screen(const std::string &uio_device) {
     if (m_reg == MAP_FAILED) {
         close(m_fd);
         m_fd = -1;
-        throw sys_error("mmap failed for " + path);
+        throw std::runtime_error("mmap failed for " + path + ": " + std::strerror(errno));
     }
 
     writePowerState(true);
