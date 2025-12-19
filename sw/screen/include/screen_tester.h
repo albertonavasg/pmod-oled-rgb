@@ -10,6 +10,7 @@ class ScreenTester {
     public:
         explicit ScreenTester(const std::vector<std::reference_wrapper<Screen>>& screens);
         void testDisplay();
+        void testRemapColorDepth();
 
         private:
             std::vector<std::reference_wrapper<Screen>> m_screens;

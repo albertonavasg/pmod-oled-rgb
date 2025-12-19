@@ -19,6 +19,7 @@ int main() {
     ScreenTester tester(screens);
 
     tester.testDisplay();
+    tester.testRemapColorDepth();
 
     return 0;
 }
