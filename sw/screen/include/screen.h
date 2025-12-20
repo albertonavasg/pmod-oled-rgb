@@ -20,6 +20,8 @@ class Screen {
         // Utilities
         void sendPixel(const screen::Color color);
         void sendMultiPixel(const screen::Color *color, size_t length);
+        void clearWindow(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2);
+        void clearScreen();
 
         // Settings
         // Remap and Color Depth Settings

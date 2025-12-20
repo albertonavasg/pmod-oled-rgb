@@ -22,6 +22,8 @@ void Test::display() {
     broadcast([](Screen& s){s.sendCommand(screen::Command::EntireDisplayOff);}, 500ms);
     broadcast([](Screen& s){s.sendCommand(screen::Command::EntireDisplayOn);}, 500ms);
     broadcast([](Screen& s){s.sendCommand(screen::Command::NormalDisplay);}, 500ms);
+
+    broadcast([](Screen& s){s.clearScreen();});
 }
 
 void Test::remapColorDepth() {
@@ -82,4 +84,6 @@ void Test::remapColorDepth() {
     }
 
     broadcast([&colors](Screen& screen){screen.sendMultiPixel(colors, screen::Geometry::Pixels);}, 500ms);
+
+    broadcast([](Screen& s){s.clearScreen();});
 }

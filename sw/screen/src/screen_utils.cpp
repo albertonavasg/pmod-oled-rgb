@@ -43,3 +43,14 @@ void Screen::sendMultiPixel(const screen::Color *color, size_t length) {
         sendPixel(color[i]);
     }
 }
+
+void Screen::clearWindow(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2) {
+
+    uint8_t params[4] = {c1, r1, c2, r2};
+    sendCommand(screen::Command::ClearWindow, params, 4);
+}
+
+void Screen::clearScreen() {
+
+    clearWindow(0, 0, screen::Geometry::Columns - 1, screen::Geometry::Rows - 1);
+}
