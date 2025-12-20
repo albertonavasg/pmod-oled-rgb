@@ -25,13 +25,16 @@ class Screen {
         void clearScreen();
 
         // Settings
+        // Default settings
+        void applyDefaultSettings();
         // SPI delay
         void setSpiDelay(std::chrono::nanoseconds delay);
         std::chrono::nanoseconds getSpiDelay();
         // Column and Row addresses
         void setColumnRowAddr(screen::ColumnRowAddr cr);
+        void applyColumnRowAddr(screen::ApplyMode mode = screen::ApplyMode::Current);
         screen::ColumnRowAddr getColumnRowAddr();
-        // Remap and Color Depth Settings
+        // Remap and Color Depth
         void setAddressIncrement(bool vertical);
         void setColumnRemap(bool remap);
         void setColorOrder(bool bgr);
@@ -39,7 +42,8 @@ class Screen {
         void setScanDirection(bool comNto0);
         void setCOMSplit(bool enable);
         void setColorDepth(uint8_t depth);
-        void applyRemapColorDepth(screen::RemapApplyMode mode = screen::RemapApplyMode::Current);
+        void applyRemapColorDepth(screen::ApplyMode mode = screen::ApplyMode::Current);
+        uint8_t getRemapColorDepth();
 
     private:
         int m_fd;

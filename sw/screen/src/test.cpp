@@ -40,12 +40,10 @@ void Test::randomPattern() {
         colors[i].g = dist63(gen);
         colors[i].b = dist31(gen);
     }
-
     broadcast([&colors](Screen& s){s.sendMultiPixel(colors, screen::Geometry::Pixels);}, 1s);
 
     broadcast([](Screen& s){s.clearScreen();});
-
-    broadcast([](Screen& s){s.applyRemapColorDepth(screen::RemapApplyMode::Default);});
+    broadcast([](Screen& s){s.applyDefaultSettings();});
 }
 
 void Test::colorDepth() {
@@ -70,7 +68,7 @@ void Test::colorDepth() {
     broadcast([&colors](Screen& s){s.sendMultiPixel(colors, screen::Geometry::Pixels);}, 1s);
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
 
-    broadcast([](Screen& s){s.applyRemapColorDepth(screen::RemapApplyMode::Default);});
+    broadcast([](Screen& s){s.applyDefaultSettings();});
 }
 
 void Test::addressIncrement() {
@@ -98,7 +96,5 @@ void Test::addressIncrement() {
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
 
 
-    broadcast([](Screen& s){s.setSpiDelay(0ns);});
-    broadcast([](Screen& s){s.applyRemapColorDepth(screen::RemapApplyMode::Default);});
-
+    broadcast([](Screen& s){s.applyDefaultSettings();});
 }

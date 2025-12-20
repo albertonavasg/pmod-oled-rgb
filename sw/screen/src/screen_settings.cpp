@@ -4,6 +4,8 @@
 #include "screen_registers.h"
 #include "screen.h"
 
+using namespace std::chrono_literals;
+
 void Screen::setSpiDelay(std::chrono::nanoseconds delay) {
 
     m_spiDelay = delay;
@@ -14,10 +16,23 @@ std::chrono::nanoseconds Screen::getSpiDelay() {
     return m_spiDelay;
 }
 
+void Screen::applyDefaultSettings() {
+
+    setSpiDelay(0ns);
+    applyColumnRowAddr(screen::ApplyMode::Default);
+    applyRemapColorDepth(screen::ApplyMode::Default);
+}
+
 void Screen::setColumnRowAddr(screen::ColumnRowAddr cr) {
 
     m_columnRowAddr = cr;
+}
 
+void Screen::applyColumnRowAddr(screen::ApplyMode mode) {
+
+    if (mode == screen::ApplyMode::Default) {
+        m_columnRowAddr = screen::defaultColumnRowAddr;
+    }
     uint8_t column_params[2] = {m_columnRowAddr.columnStart, m_columnRowAddr.columnEnd};
     uint8_t row_params[2] = {m_columnRowAddr.rowStart, m_columnRowAddr.rowEnd};
     sendCommand(screen::Command::ColumnAddress, column_params, 2);
@@ -78,9 +93,9 @@ void Screen::setColorDepth(uint8_t depth) {
              depth);
 }
 
-void Screen::applyRemapColorDepth(screen::RemapApplyMode mode) {
+void Screen::applyRemapColorDepth(screen::ApplyMode mode) {
 
-    if (mode == screen::RemapApplyMode::Default) {
+    if (mode == screen::ApplyMode::Default) {
         remapColorDepthCfg = screen::defaultRemapColorDepth;
     }
     sendCommand(screen::Command::RemapColorDepth, remapColorDepthCfg);

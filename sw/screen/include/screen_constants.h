@@ -67,16 +67,8 @@ namespace screen {
         ActivateScroll        = 0x2F,
     };
 
-    struct ColumnRowAddr {
-        uint8_t columnStart;
-        uint8_t columnEnd;
-        uint8_t rowStart;
-        uint8_t rowEnd;
-    };
-
-    constexpr ColumnRowAddr defaultColumnRowAddr = {0, screen::Geometry::Columns - 1, 0, screen::Geometry::Rows - 1};
-
     struct Color {
+
         uint8_t r;
         uint8_t g;
         uint8_t b;
@@ -88,6 +80,22 @@ namespace screen {
         constexpr uint8_t G_565_MAX = 63; // 6 bits
         constexpr uint8_t B_565_MAX = 31; // 5 bits
     };
+
+    enum class ApplyMode {
+
+        Current,
+        Default
+    };
+
+    struct ColumnRowAddr {
+
+        uint8_t columnStart;
+        uint8_t columnEnd;
+        uint8_t rowStart;
+        uint8_t rowEnd;
+    };
+
+    constexpr ColumnRowAddr defaultColumnRowAddr = {0, screen::Geometry::Columns - 1, 0, screen::Geometry::Rows - 1};
 
     namespace RemapColorDepth {
 
@@ -124,12 +132,6 @@ namespace screen {
         constexpr uint8_t COMSplit         = 1u << 5;    // bit 5
         constexpr uint8_t ColorDepth       = 0b11u << 6; // bits 6–7
     }
-
-    enum class RemapApplyMode {
-
-        Current,
-        Default
-    };
 
     constexpr uint8_t defaultRemapColorDepth =
         RemapColorDepth::HorizontalIncrement |
