@@ -1,7 +1,7 @@
 #include <iostream> // cout, endl
 #include <vector>   // vector
 #include <thread>   // sleep_for
-#include <chrono>   // time, seconds, milliseconds
+#include <chrono>   // time
 #include <random>   // rand
 
 #include "screen_constants.h"
@@ -77,16 +77,15 @@ void Test::addressIncrement() {
 
     screen::Color colors[screen::Geometry::Pixels];
 
+    broadcast([](Screen& s){s.setSpiDelay(1ns);});
+
     for (size_t i = 0; i < screen::Geometry::Pixels; i++) {
         colors[i].r = (i % screen::Geometry::Columns) * screen::ColorLimit::R_565_MAX / (screen::Geometry::Columns - 1);
         colors[i].g = 0;
         colors[i].b = (i / screen::Geometry::Columns) * screen::ColorLimit::B_565_MAX / (screen::Geometry::Rows - 1);
     }
-
     broadcast([](Screen& s){s.setColorDepth(screen::RemapColorDepth::Color65kAlt); s.setAddressIncrement(false); s.applyRemapColorDepth();});
-
     broadcast([&colors](Screen& s){s.sendMultiPixel(colors, screen::Geometry::Pixels);}, 1s);
-
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
 
     for (size_t i = 0; i < screen::Geometry::Pixels; i++) {
@@ -94,13 +93,12 @@ void Test::addressIncrement() {
         colors[i].g = (i % screen::Geometry::Rows) * screen::ColorLimit::G_565_MAX / (screen::Geometry::Rows - 1);
         colors[i].b = (i / screen::Geometry::Rows) * screen::ColorLimit::B_565_MAX / (screen::Geometry::Columns - 1);
     }
-
     broadcast([](Screen& s){s.setAddressIncrement(true); s.applyRemapColorDepth();});
-
     broadcast([&colors](Screen& s){s.sendMultiPixel(colors, screen::Geometry::Pixels);}, 1s);
+    broadcast([](Screen& s){s.clearScreen();}, 200ms);
 
-    broadcast([](Screen& s){s.clearScreen();}, 100ms);
 
+    broadcast([](Screen& s){s.setSpiDelay(0ns);});
     broadcast([](Screen& s){s.applyRemapColorDepth(screen::RemapApplyMode::Default);});
 
 }

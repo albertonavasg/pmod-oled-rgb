@@ -4,6 +4,16 @@
 #include "screen_registers.h"
 #include "screen.h"
 
+void Screen::setSpiDelay(std::chrono::nanoseconds delay) {
+
+    m_spiDelay = delay;
+}
+
+std::chrono::nanoseconds Screen::getSpiDelay() {
+
+    return m_spiDelay;
+}
+
 void Screen::setAddressIncrement(bool vertical) {
 
     setField(remapColorDepthCfg,

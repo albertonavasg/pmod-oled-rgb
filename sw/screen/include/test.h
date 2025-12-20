@@ -4,7 +4,7 @@
 #include <vector>      // vector
 #include <utility>     // forward
 #include <functional>  // reference_wrapper, invoke
-#include <chrono>      // time, seconds, milliseconds
+#include <chrono>      // time
 #include <thread>      // sleep_for
 
 #include "screen.h"

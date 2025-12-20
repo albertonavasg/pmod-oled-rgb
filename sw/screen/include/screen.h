@@ -4,6 +4,7 @@
 #include <cstdint> // uint32_t
 #include <string>  // string
 #include <span>    // span
+#include <chrono>  // time
 
 #include "screen_constants.h"
 #include "screen_registers.h"
@@ -24,6 +25,9 @@ class Screen {
         void clearScreen();
 
         // Settings
+        // SPI delay
+        void setSpiDelay(std::chrono::nanoseconds delay);
+        std::chrono::nanoseconds getSpiDelay();
         // Remap and Color Depth Settings
         void setAddressIncrement(bool vertical);
         void setColumnRemap(bool remap);
@@ -40,6 +44,7 @@ class Screen {
         static constexpr uint64_t MAP_SIZE = 0x10000;
 
         // Settings
+        std::chrono::nanoseconds m_spiDelay{0};
         uint8_t remapColorDepthCfg = screen::defaultRemapColorDepth;
 
         // Helper for byte manipulation
