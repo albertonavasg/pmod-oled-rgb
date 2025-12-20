@@ -32,7 +32,7 @@ class Screen {
         void setScanDirection(bool comNto0);
         void setCOMSplit(bool enable);
         void setColorDepth(uint8_t depth);
-        void applyRemapColorDepth();
+        void applyRemapColorDepth(screen::RemapApplyMode mode = screen::RemapApplyMode::Current);
 
     private:
         int m_fd;

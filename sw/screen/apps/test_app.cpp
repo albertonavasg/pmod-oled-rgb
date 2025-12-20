@@ -24,7 +24,9 @@ int main() {
     Test test(screens);
 
     test.display();
-    test.remapColorDepth();
+    test.randomPattern();
+    test.colorDepth();
+    test.addressIncrement();
 
     return 0;
 }

@@ -17,7 +17,9 @@ class Test {
 
         // Test routines
         void display();
-        void remapColorDepth();
+        void randomPattern();
+        void colorDepth();
+        void addressIncrement();
 
         private:
             std::vector<std::reference_wrapper<Screen>> m_screens;

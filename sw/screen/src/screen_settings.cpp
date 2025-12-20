@@ -53,7 +53,10 @@ void Screen::setColorDepth(uint8_t depth) {
              depth);
 }
 
-void Screen::applyRemapColorDepth(){
+void Screen::applyRemapColorDepth(screen::RemapApplyMode mode) {
 
+    if (mode == screen::RemapApplyMode::Default) {
+        remapColorDepthCfg = screen::defaultRemapColorDepth;
+    }
     sendCommand(screen::Command::RemapColorDepth, remapColorDepthCfg);
 }

@@ -3,6 +3,8 @@
 #include <stdexcept>  // runtime_error
 #include <cstring>    // strerror
 #include <cerrno>     // errno
+#include <chrono>     // milliseconds
+#include <thread>     // sleep_for
 #include <span>       // span
 #include <fcntl.h>    // open
 #include <unistd.h>   // close
@@ -104,6 +106,9 @@ void Screen::sendSpiByte(uint8_t byte, screen::DataMode mode) {
                     | (screen::mask::SPI_TRIGGER);
 
     writeRegister(screen::reg::SPI_CTRL, value);
+
+    // Uncommnent for visual debug
+    // std::this_thread::sleep_for(std::chrono::nanoseconds(1));
 
     while (!isSpiReady()) {
         // Wait

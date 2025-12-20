@@ -116,6 +116,11 @@ namespace screen {
         constexpr uint8_t ColorDepth       = 0b11u << 6; // bits 6–7
     }
 
+    enum class RemapApplyMode {
+        Current,
+        Default
+    };
+
     constexpr uint8_t defaultRemapColorDepth =
         RemapColorDepth::HorizontalIncrement |
         RemapColorDepth::ColumnRemap         |
