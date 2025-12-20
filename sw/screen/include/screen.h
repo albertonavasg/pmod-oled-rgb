@@ -28,6 +28,9 @@ class Screen {
         // SPI delay
         void setSpiDelay(std::chrono::nanoseconds delay);
         std::chrono::nanoseconds getSpiDelay();
+        // Column and Row addresses
+        void setColumnRowAddr(screen::ColumnRowAddr cr);
+        screen::ColumnRowAddr getColumnRowAddr();
         // Remap and Color Depth Settings
         void setAddressIncrement(bool vertical);
         void setColumnRemap(bool remap);
@@ -45,6 +48,7 @@ class Screen {
 
         // Settings
         std::chrono::nanoseconds m_spiDelay{0};
+        screen::ColumnRowAddr m_columnRowAddr = screen::defaultColumnRowAddr;
         uint8_t remapColorDepthCfg = screen::defaultRemapColorDepth;
 
         // Helper for byte manipulation

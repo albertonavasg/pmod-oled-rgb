@@ -14,6 +14,21 @@ std::chrono::nanoseconds Screen::getSpiDelay() {
     return m_spiDelay;
 }
 
+void Screen::setColumnRowAddr(screen::ColumnRowAddr cr) {
+
+    m_columnRowAddr = cr;
+
+    uint8_t column_params[2] = {m_columnRowAddr.columnStart, m_columnRowAddr.columnEnd};
+    uint8_t row_params[2] = {m_columnRowAddr.rowStart, m_columnRowAddr.rowEnd};
+    sendCommand(screen::Command::ColumnAddress, column_params, 2);
+    sendCommand(screen::Command::RowAddress, row_params, 2);
+}
+
+screen::ColumnRowAddr Screen::getColumnRowAddr() {
+
+    return m_columnRowAddr;
+}
+
 void Screen::setAddressIncrement(bool vertical) {
 
     setField(remapColorDepthCfg,

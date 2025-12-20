@@ -67,6 +67,15 @@ namespace screen {
         ActivateScroll        = 0x2F,
     };
 
+    struct ColumnRowAddr {
+        uint8_t columnStart;
+        uint8_t columnEnd;
+        uint8_t rowStart;
+        uint8_t rowEnd;
+    };
+
+    constexpr ColumnRowAddr defaultColumnRowAddr = {0, screen::Geometry::Columns - 1, 0, screen::Geometry::Rows - 1};
+
     struct Color {
         uint8_t r;
         uint8_t g;
@@ -117,6 +126,7 @@ namespace screen {
     }
 
     enum class RemapApplyMode {
+
         Current,
         Default
     };
