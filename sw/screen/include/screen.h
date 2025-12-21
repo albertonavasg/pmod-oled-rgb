@@ -23,6 +23,7 @@ class Screen {
         void sendMultiPixel(const screen::Color *color, size_t length);
         void clearWindow(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2);
         void clearScreen();
+        void drawBitmap(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, const screen::Color *color);
 
         // Settings
         // Default settings
@@ -31,7 +32,7 @@ class Screen {
         void setSpiDelay(std::chrono::nanoseconds delay);
         std::chrono::nanoseconds getSpiDelay();
         // Column and Row addresses
-        void setColumnRowAddr(screen::ColumnRowAddr cr);
+        void setColumnRowAddr(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2);
         void applyColumnRowAddr(screen::ApplyMode mode = screen::ApplyMode::Current);
         screen::ColumnRowAddr getColumnRowAddr();
         // Remap and Color Depth

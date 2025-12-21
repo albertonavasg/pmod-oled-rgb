@@ -90,12 +90,12 @@ namespace screen {
     struct ColumnRowAddr {
 
         uint8_t columnStart;
-        uint8_t columnEnd;
         uint8_t rowStart;
+        uint8_t columnEnd;
         uint8_t rowEnd;
     };
 
-    constexpr ColumnRowAddr defaultColumnRowAddr = {0, screen::Geometry::Columns - 1, 0, screen::Geometry::Rows - 1};
+    constexpr ColumnRowAddr defaultColumnRowAddr = {0, 0, screen::Geometry::Columns - 1, screen::Geometry::Rows - 1};
 
     namespace RemapColorDepth {
 

@@ -95,6 +95,29 @@ void Test::addressIncrement() {
     broadcast([&colors](Screen& s){s.sendMultiPixel(colors, screen::Geometry::Pixels);}, 1s);
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
 
+    broadcast([](Screen& s){s.applyDefaultSettings();});
+}
 
+void Test::bitmap() {
+
+    size_t size = screen::Geometry::Pixels / 4;
+
+    size_t c1 = (screen::Geometry::Columns / 4);
+    size_t r1 = (screen::Geometry::Rows / 4);
+    size_t c2 = ((screen::Geometry::Columns / 4) * 3) - 1;
+    size_t r2 = ((screen::Geometry::Rows / 4) * 3) - 1;
+
+    screen::Color colors[size];
+
+    broadcast([](Screen& s){s.setSpiDelay(1ns);});
+
+    for (size_t i = 0; i < size; i++) {
+        colors[i].r = (i % (c2 - c1 + 1)) * screen::ColorLimit::R_565_MAX/ ((c2 - c1 + 1) - 1);
+        colors[i].g = (i / (c2 - c1 + 1)) * screen::ColorLimit::G_565_MAX/ ((r2 - r1 + 1) - 1);
+        colors[i].b = screen::ColorLimit::B_565_MAX;
+    }
+    broadcast([&colors, c1, r1, c2, r2](Screen& s){s.drawBitmap(c1, r1, c2, r2, colors);}, 1s);
+
+    broadcast([](Screen& s){s.clearScreen();});
     broadcast([](Screen& s){s.applyDefaultSettings();});
 }

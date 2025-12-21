@@ -23,8 +23,9 @@ void Screen::applyDefaultSettings() {
     applyRemapColorDepth(screen::ApplyMode::Default);
 }
 
-void Screen::setColumnRowAddr(screen::ColumnRowAddr cr) {
+void Screen::setColumnRowAddr(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2) {
 
+    screen::ColumnRowAddr cr = {c1, r1, c2, r2};
     m_columnRowAddr = cr;
 }
 

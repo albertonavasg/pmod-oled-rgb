@@ -27,6 +27,7 @@ int main() {
     test.randomPattern();
     test.colorDepth();
     test.addressIncrement();
+    test.bitmap();
 
     return 0;
 }

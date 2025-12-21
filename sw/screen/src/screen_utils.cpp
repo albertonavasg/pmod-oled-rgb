@@ -54,3 +54,10 @@ void Screen::clearScreen() {
 
     clearWindow(0, 0, screen::Geometry::Columns - 1, screen::Geometry::Rows - 1);
 }
+
+ void Screen::drawBitmap(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, const screen::Color *color) {
+
+    setColumnRowAddr(c1, r1, c2, r2);
+    applyColumnRowAddr();
+    sendMultiPixel(color, ((c2-c1+1)*(r2-r1+1)));
+ }

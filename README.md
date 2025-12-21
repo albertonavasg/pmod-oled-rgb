@@ -408,13 +408,13 @@ The final version of the software is in the `sw/screen` directory.
 
 For the moment, there are two main apps:
 
-- `screen_test`. Instantiates screen A and screen B and tests all the features. Under development.
-- `screen_service`. Unused for the moment, final application.
+- `test_app`. Instantiates screen A and screen B and tests all the features. Under development.
+- `screen_app`. Unused for the moment, final application.
 
 To compile any of them, use the `Makefile`:
 
-    $ make screen_test
-    $ make screen_service
+    $ make test_app
+    $ make screen_app
     $ make all
     $ make
     

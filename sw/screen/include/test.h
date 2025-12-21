@@ -20,6 +20,7 @@ class Test {
         void randomPattern();
         void colorDepth();
         void addressIncrement();
+        void bitmap();
 
         private:
             std::vector<std::reference_wrapper<Screen>> m_screens;
