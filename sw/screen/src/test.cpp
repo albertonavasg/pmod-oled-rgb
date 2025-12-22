@@ -28,19 +28,19 @@ void Test::display() {
 
 void Test::randomPattern() {
 
-    screen::Color colors[screen::Geometry::Pixels];
+    std::vector<screen::Color> colors(screen::Geometry::Pixels);
 
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<int> dist31(0, 31);
     std::uniform_int_distribution<int> dist63(0, 63);
 
-    for (size_t i = 0; i < screen::Geometry::Pixels; i++) {
-        colors[i].r = dist31(gen);
-        colors[i].g = dist63(gen);
-        colors[i].b = dist31(gen);
+    for (auto& c : colors) {
+        c.r = dist31(gen);
+        c.g = dist63(gen);
+        c.b = dist31(gen);
     }
-    broadcast([&colors](Screen& s){s.sendMultiPixel(colors, screen::Geometry::Pixels);}, 1s);
+    broadcast([&colors](Screen& s){s.sendMultiPixel(colors);}, 1s);
 
     broadcast([](Screen& s){s.clearScreen();});
     broadcast([](Screen& s){s.applyDefaultSettings();});
@@ -48,24 +48,24 @@ void Test::randomPattern() {
 
 void Test::colorDepth() {
 
-    screen::Color colors[screen::Geometry::Pixels];
+    std::vector<screen::Color> colors(screen::Geometry::Pixels);
 
-    for (size_t i = 0; i < screen::Geometry::Pixels; i++) {
+    for (size_t i = 0; i < colors.size(); ++i) {
         colors[i].r = (i % screen::Geometry::Columns) * screen::ColorLimit::R_565_MAX / (screen::Geometry::Columns - 1);
         colors[i].g = (i / screen::Geometry::Columns) * screen::ColorLimit::G_565_MAX / (screen::Geometry::Rows - 1);
         colors[i].b = 0;
     }
 
     broadcast([](Screen& s){s.setColorDepth(screen::RemapColorDepth::Color256); s.applyRemapColorDepth();});
-    broadcast([&colors](Screen& s){s.sendMultiPixel(colors, screen::Geometry::Pixels);}, 1s);
+    broadcast([&colors](Screen& s){s.sendMultiPixel(colors);}, 1s);
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
 
     broadcast([](Screen& s){s.setColorDepth(screen::RemapColorDepth::Color65k); s.applyRemapColorDepth();});
-    broadcast([&colors](Screen& s){s.sendMultiPixel(colors, screen::Geometry::Pixels);}, 1s);
+    broadcast([&colors](Screen& s){s.sendMultiPixel(colors);}, 1s);
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
 
     broadcast([](Screen& s){s.setColorDepth(screen::RemapColorDepth::Color65kAlt); s.applyRemapColorDepth();});
-    broadcast([&colors](Screen& s){s.sendMultiPixel(colors, screen::Geometry::Pixels);}, 1s);
+    broadcast([&colors](Screen& s){s.sendMultiPixel(colors);}, 1s);
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
 
     broadcast([](Screen& s){s.applyDefaultSettings();});
@@ -73,26 +73,26 @@ void Test::colorDepth() {
 
 void Test::addressIncrement() {
 
-    screen::Color colors[screen::Geometry::Pixels];
+    std::vector<screen::Color> colors(screen::Geometry::Pixels);
 
     broadcast([](Screen& s){s.setSpiDelay(1ns);});
 
-    for (size_t i = 0; i < screen::Geometry::Pixels; i++) {
+    for (size_t i = 0; i < colors.size(); i++) {
         colors[i].r = (i % screen::Geometry::Columns) * screen::ColorLimit::R_565_MAX / (screen::Geometry::Columns - 1);
         colors[i].g = 0;
         colors[i].b = (i / screen::Geometry::Columns) * screen::ColorLimit::B_565_MAX / (screen::Geometry::Rows - 1);
     }
     broadcast([](Screen& s){s.setColorDepth(screen::RemapColorDepth::Color65kAlt); s.setAddressIncrement(false); s.applyRemapColorDepth();});
-    broadcast([&colors](Screen& s){s.sendMultiPixel(colors, screen::Geometry::Pixels);}, 1s);
+    broadcast([&colors](Screen& s){s.sendMultiPixel(colors);}, 1s);
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
 
-    for (size_t i = 0; i < screen::Geometry::Pixels; i++) {
+    for (size_t i = 0; i < colors.size(); i++) {
         colors[i].r = 0;
         colors[i].g = (i % screen::Geometry::Rows) * screen::ColorLimit::G_565_MAX / (screen::Geometry::Rows - 1);
         colors[i].b = (i / screen::Geometry::Rows) * screen::ColorLimit::B_565_MAX / (screen::Geometry::Columns - 1);
     }
     broadcast([](Screen& s){s.setAddressIncrement(true); s.applyRemapColorDepth();});
-    broadcast([&colors](Screen& s){s.sendMultiPixel(colors, screen::Geometry::Pixels);}, 1s);
+    broadcast([&colors](Screen& s){s.sendMultiPixel(colors);}, 1s);
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
 
     broadcast([](Screen& s){s.applyDefaultSettings();});
@@ -107,11 +107,11 @@ void Test::bitmap() {
     size_t c2 = ((screen::Geometry::Columns / 4) * 3) - 1;
     size_t r2 = ((screen::Geometry::Rows / 4) * 3) - 1;
 
-    screen::Color colors[size];
+    std::vector<screen::Color> colors(size);
 
     broadcast([](Screen& s){s.setSpiDelay(1ns);});
 
-    for (size_t i = 0; i < size; i++) {
+    for (size_t i = 0; i < colors.size(); i++) {
         colors[i].r = (i % (c2 - c1 + 1)) * screen::ColorLimit::R_565_MAX/ ((c2 - c1 + 1) - 1);
         colors[i].g = (i / (c2 - c1 + 1)) * screen::ColorLimit::G_565_MAX/ ((r2 - r1 + 1) - 1);
         colors[i].b = screen::ColorLimit::B_565_MAX;

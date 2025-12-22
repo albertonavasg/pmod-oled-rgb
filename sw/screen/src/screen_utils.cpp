@@ -1,5 +1,6 @@
-#include <iostream>   // cout, endl
-#include <cstdint>    // uint32_t
+#include <iostream> // cout, endl
+#include <cstdint>  // uint32_t
+#include <vector>   // vector
 
 #include "screen_constants.h"
 #include "screen_registers.h"
@@ -37,10 +38,10 @@ void Screen::sendPixel(const screen::Color color) {
     }
 }
 
-void Screen::sendMultiPixel(const screen::Color *color, size_t length) {
+void Screen::sendMultiPixel(const std::vector<screen::Color>& colors) {
 
-    for (size_t i = 0; i < length; i++) {
-        sendPixel(color[i]);
+    for (const auto& c : colors) {
+        sendPixel(c);
     }
 }
 
@@ -55,9 +56,9 @@ void Screen::clearScreen() {
     clearWindow(0, 0, screen::Geometry::Columns - 1, screen::Geometry::Rows - 1);
 }
 
- void Screen::drawBitmap(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, const screen::Color *color) {
+ void Screen::drawBitmap(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, const std::vector<screen::Color>& colors) {
 
     setColumnRowAddr(c1, r1, c2, r2);
     applyColumnRowAddr();
-    sendMultiPixel(color, ((c2-c1+1)*(r2-r1+1)));
+    sendMultiPixel(colors);
  }

@@ -4,6 +4,7 @@
 #include <cstdint> // uint32_t
 #include <string>  // string
 #include <span>    // span
+#include <vector>  // vector
 #include <chrono>  // time
 
 #include "screen_constants.h"
@@ -20,10 +21,10 @@ class Screen {
 
         // Utilities
         void sendPixel(const screen::Color color);
-        void sendMultiPixel(const screen::Color *color, size_t length);
+        void sendMultiPixel(const std::vector<screen::Color>& colors);
         void clearWindow(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2);
         void clearScreen();
-        void drawBitmap(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, const screen::Color *color);
+        void drawBitmap(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, const std::vector<screen::Color>& colors);
 
         // Settings
         // Default settings
