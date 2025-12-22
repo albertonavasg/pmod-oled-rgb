@@ -32,14 +32,12 @@ void Test::randomPattern() {
 
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<int> dist31(0, 31);
-    std::uniform_int_distribution<int> dist63(0, 63);
+    std::uniform_int_distribution<uint8_t> dist31(0, 31);
+    std::uniform_int_distribution<uint8_t> dist63(0, 63);
 
     // Random pixels
     for (auto& c : colors) {
-        c.r = dist31(gen);
-        c.g = dist63(gen);
-        c.b = dist31(gen);
+        c = {dist31(gen), dist63(gen), dist31(gen)};
     }
     broadcast([&colors](Screen& s){s.sendMultiPixel(colors);}, 1s);
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
@@ -53,9 +51,13 @@ void Test::colorDepth() {
 
     // Horizontal red and vertical green fade
     for (size_t i = 0; i < colors.size(); ++i) {
-        colors[i].r = (i % screen::Geometry::Columns) * screen::ColorLimit::R_565_MAX / (screen::Geometry::Columns - 1);
-        colors[i].g = (i / screen::Geometry::Columns) * screen::ColorLimit::G_565_MAX / (screen::Geometry::Rows - 1);
-        colors[i].b = 0;
+        const size_t x = i % screen::Geometry::Columns;
+        const size_t y = i / screen::Geometry::Columns;
+        colors[i] = {
+            static_cast<uint8_t>(x * screen::ColorLimit::R_565_MAX / (screen::Geometry::Columns - 1)),
+            static_cast<uint8_t>(y * screen::ColorLimit::G_565_MAX / (screen::Geometry::Rows - 1)),
+            0
+        };
     }
 
     broadcast([](Screen& s){s.setColorDepth(screen::RemapColorDepth::Color256); s.applyRemapColorDepth();});
@@ -80,10 +82,14 @@ void Test::addressIncrement() {
     broadcast([](Screen& s){s.setSpiDelay(1ns);});
 
     // Horizontal red and vertical blue fade
-    for (size_t i = 0; i < colors.size(); i++) {
-        colors[i].r = (i % screen::Geometry::Columns) * screen::ColorLimit::R_565_MAX / (screen::Geometry::Columns - 1);
-        colors[i].g = 0;
-        colors[i].b = (i / screen::Geometry::Columns) * screen::ColorLimit::B_565_MAX / (screen::Geometry::Rows - 1);
+    for (size_t i = 0; i < colors.size(); ++i) {
+        const size_t x = i % screen::Geometry::Columns;
+        const size_t y = i / screen::Geometry::Columns;
+        colors[i] = {
+            static_cast<uint8_t>(x * screen::ColorLimit::R_565_MAX / (screen::Geometry::Columns - 1)),
+            0,
+            static_cast<uint8_t>(y * screen::ColorLimit::B_565_MAX / (screen::Geometry::Rows - 1))
+        };
     }
     // Horizontal address increment
     broadcast([](Screen& s){s.setColorDepth(screen::RemapColorDepth::Color65kAlt); s.setAddressIncrement(false); s.applyRemapColorDepth();});
@@ -91,10 +97,14 @@ void Test::addressIncrement() {
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
 
     // Vertical green and horizontal blue fade
-    for (size_t i = 0; i < colors.size(); i++) {
-        colors[i].r = 0;
-        colors[i].g = (i % screen::Geometry::Rows) * screen::ColorLimit::G_565_MAX / (screen::Geometry::Rows - 1);
-        colors[i].b = (i / screen::Geometry::Rows) * screen::ColorLimit::B_565_MAX / (screen::Geometry::Columns - 1);
+    for (size_t i = 0; i < colors.size(); ++i) {
+        const size_t x = i % screen::Geometry::Rows;
+        const size_t y = i / screen::Geometry::Rows;
+        colors[i] = {
+            0,
+            static_cast<uint8_t>(x * screen::ColorLimit::G_565_MAX / (screen::Geometry::Rows - 1)),
+            static_cast<uint8_t>(y * screen::ColorLimit::B_565_MAX / (screen::Geometry::Columns - 1))
+        };
     }
     // Vertical address increment
     broadcast([](Screen& s){s.setAddressIncrement(true); s.applyRemapColorDepth();});
@@ -118,10 +128,16 @@ void Test::bitmap() {
     broadcast([](Screen& s){s.setSpiDelay(1ns);});
 
     // Horizontal red and vertical green fade with constant blue
-    for (size_t i = 0; i < colors.size(); i++) {
-        colors[i].r = (i % (c2 - c1 + 1)) * screen::ColorLimit::R_565_MAX/ ((c2 - c1 + 1) - 1);
-        colors[i].g = (i / (c2 - c1 + 1)) * screen::ColorLimit::G_565_MAX/ ((r2 - r1 + 1) - 1);
-        colors[i].b = screen::ColorLimit::B_565_MAX;
+    for (size_t i = 0; i < colors.size(); ++i) {
+        const size_t columns = (c2 - c1 + 1);
+        const size_t rows = (r2 - r1 + 1);
+        const size_t x = i % columns;
+        const size_t y = i / columns;
+        colors[i] = {
+            static_cast<uint8_t>(x * screen::ColorLimit::R_565_MAX / (columns - 1)),
+            static_cast<uint8_t>(y * screen::ColorLimit::G_565_MAX / (rows - 1)),
+            screen::ColorLimit::B_565_MAX,
+        };
     }
     broadcast([&colors, c1, r1, c2, r2](Screen& s){s.drawBitmap(c1, r1, c2, r2, colors);}, 1s);
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
@@ -132,18 +148,24 @@ void Test::bitmap() {
 void Test::scrolling() {
 
     std::vector<screen::Color> colors(screen::Geometry::Pixels);
-    uint8_t stripeWidth = 16;
+    size_t stripeWidth = 16;
 
     // Squares
-    for (size_t i = 0; i < colors.size(); i++) {
-        if (((i % screen::Geometry::Columns) / stripeWidth) % 2 != ((i / screen::Geometry::Columns) / stripeWidth) % 2) {
-            colors[i].r = screen::ColorLimit::R_565_MAX;
-            colors[i].g = 0;
-            colors[i].b = screen::ColorLimit::B_565_MAX;
+    for (size_t i = 0; i < colors.size(); ++i) {
+        const size_t xBlock = (i % screen::Geometry::Columns) / stripeWidth;
+        const size_t yBlock = (i / screen::Geometry::Columns) / stripeWidth;
+        if ((xBlock ^ yBlock) & 1) {
+            colors[i] = {
+                screen::ColorLimit::R_565_MAX,
+                0,
+                screen::ColorLimit::B_565_MAX
+            };
         } else {
-            colors[i].r = 0;
-            colors[i].g = screen::ColorLimit::G_565_MAX;
-            colors[i].b = screen::ColorLimit::B_565_MAX;
+            colors[i] = {
+                0,
+                screen::ColorLimit::G_565_MAX,
+                screen::ColorLimit::B_565_MAX
+            };
         }
     }
     broadcast([&colors](Screen& s){s.sendMultiPixel(colors);}, 1s);
