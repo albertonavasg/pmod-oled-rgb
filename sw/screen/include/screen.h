@@ -25,6 +25,8 @@ class Screen {
         void clearWindow(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2);
         void clearScreen();
         void drawBitmap(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, const std::vector<screen::Color>& colors);
+        void setupScrolling(uint8_t horizontalScrollOffset, uint8_t startRow, uint8_t rowsNumber, uint8_t verticalScrollOffset, uint8_t timeInterval);
+        void enableScrolling(bool value);
 
         // Settings
         // Default settings

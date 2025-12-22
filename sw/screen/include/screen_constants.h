@@ -7,9 +7,9 @@ namespace screen {
 
     namespace Geometry {
 
-        constexpr uint16_t Rows    = 64;
-        constexpr uint16_t Columns = 96;
-        constexpr uint16_t Pixels  = Rows * Columns;
+        constexpr uint8_t Rows    = 64;
+        constexpr uint8_t Columns = 96;
+        constexpr uint16_t Pixels  = static_cast<uint16_t>(Rows) * static_cast<uint16_t>(Columns);
     }
 
     enum class PowerState : uint8_t {

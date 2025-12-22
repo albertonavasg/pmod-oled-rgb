@@ -28,6 +28,7 @@ int main() {
     test.colorDepth();
     test.addressIncrement();
     test.bitmap();
+    test.scrolling();
 
     return 0;
 }

@@ -21,6 +21,7 @@ class Test {
         void colorDepth();
         void addressIncrement();
         void bitmap();
+        void scrolling();
 
         private:
             std::vector<std::reference_wrapper<Screen>> m_screens;

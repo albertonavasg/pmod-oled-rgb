@@ -62,3 +62,14 @@ void Screen::clearScreen() {
     applyColumnRowAddr();
     sendMultiPixel(colors);
  }
+
+void Screen::setupScrolling(uint8_t horizontalScrollOffset, uint8_t startRow, uint8_t rowsNumber, uint8_t verticalScrollOffset, uint8_t timeInterval) {
+
+    uint8_t params[5] = {horizontalScrollOffset, startRow, rowsNumber, verticalScrollOffset, timeInterval};
+    sendCommand(screen::Command::ContinuousScrolling, params, 5);
+}
+
+void Screen::enableScrolling(bool value) {
+
+    sendCommand(value ? screen::Command::ActivateScroll : screen::Command::DeactivateScroll);
+}
