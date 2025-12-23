@@ -88,6 +88,12 @@ void Screen::drawRectangle(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, const
     sendCommand(screen::Command::DrawRectangle, params, 10);
 }
 
+void Screen::copyWindow(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, uint8_t c3, uint8_t r3) {
+
+    uint8_t params[6] = {c1, r1, c2, r2, c3, r3};
+    sendCommand(screen::Command::Copy, params, 6);
+}
+
 void Screen::enableFill(bool fillRectangle, bool reverseCopy) {
 
     uint8_t params[2] = {static_cast<uint8_t>(fillRectangle), static_cast<uint8_t>(reverseCopy)};

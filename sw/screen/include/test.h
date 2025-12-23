@@ -24,6 +24,7 @@ class Test {
         void scrolling();
         void line();
         void rectangle();
+        void copy();
 
         private:
             std::vector<std::reference_wrapper<Screen>> m_screens;

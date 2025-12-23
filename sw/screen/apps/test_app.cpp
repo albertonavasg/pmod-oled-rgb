@@ -31,6 +31,7 @@ int main() {
     test.scrolling();
     test.line();
     test.rectangle();
+    test.copy();
 
     return 0;
 }

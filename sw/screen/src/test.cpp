@@ -293,3 +293,26 @@ void Test::rectangle() {
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
     broadcast([](Screen& s){s.applyDefaultSettings();});
 }
+
+void Test::copy() {
+
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<uint8_t> dist31(0, 31);
+    std::uniform_int_distribution<uint8_t> dist63(0, 63);
+
+    screen::Color cLine = {dist31(gen), dist63(gen), dist31(gen)};
+    screen::Color cFill = {0, 0, 0}; //Fill not enabled
+    uint8_t x1 = 15;
+    uint8_t y1 = 5;
+    uint8_t x2 = 35;
+    uint8_t y2 = 25;
+    broadcast([=](Screen& s){s.drawRectangle(x1, y1, x2, y2, cLine, cFill);}, 500ms);
+
+    broadcast([=](Screen& s){s.copyWindow(x1, y1, x2, y2, x1 + 5, y1 + 5);}, 500ms);
+    broadcast([=](Screen& s){s.copyWindow(x1, y1, x2 + 5, y2 + 5, x1, y1 + 30);}, 500ms);
+    broadcast([=](Screen& s){s.copyWindow(x1, y1, x2 + 5, y2 + 35, x1 + 40, y1);}, 1s);
+
+    broadcast([](Screen& s){s.clearScreen();}, 200ms);
+    broadcast([](Screen& s){s.applyDefaultSettings();});
+}
