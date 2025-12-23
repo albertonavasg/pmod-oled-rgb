@@ -56,12 +56,43 @@ void Screen::clearScreen() {
     clearWindow(0, 0, screen::Geometry::Columns - 1, screen::Geometry::Rows - 1);
 }
 
- void Screen::drawBitmap(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, const std::vector<screen::Color>& colors) {
+void Screen::drawBitmap(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, const std::vector<screen::Color>& colors) {
 
     setColumnRowAddr(c1, r1, c2, r2);
     applyColumnRowAddr();
     sendMultiPixel(colors);
- }
+}
+
+void Screen::drawLine(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, const screen::Color color) {
+
+    uint8_t params[7] = {
+        c1, r1, c2, r2,
+        static_cast<uint8_t>(color.r << 1),
+        color.g,
+        static_cast<uint8_t>(color.b << 1)
+    };
+    sendCommand(screen::Command::DrawLine, params, 10);
+}
+
+void Screen::drawRectangle(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, const screen::Color colorLine, const screen::Color colorFill) {
+
+    uint8_t params[10] = {
+        c1, r1, c2, r2,
+        static_cast<uint8_t>(colorLine.r << 1),
+        colorLine.g,
+        static_cast<uint8_t>(colorLine.b << 1),
+        static_cast<uint8_t>(colorFill.r << 1),
+        colorFill.g,
+        static_cast<uint8_t>(colorFill.b << 1)
+    };
+    sendCommand(screen::Command::DrawRectangle, params, 10);
+}
+
+void Screen::enableFill(bool fillRectangle, bool reverseCopy) {
+
+    uint8_t params[2] = {static_cast<uint8_t>(fillRectangle), static_cast<uint8_t>(reverseCopy)};
+    sendCommand(screen::Command::FillEnable, params, 2);
+}
 
 void Screen::setupScrolling(uint8_t horizontalScrollOffset, uint8_t startRow, uint8_t rowsNumber, uint8_t verticalScrollOffset, uint8_t timeInterval) {
 

@@ -29,6 +29,8 @@ int main() {
     test.addressIncrement();
     test.bitmap();
     test.scrolling();
+    test.line();
+    test.rectangle();
 
     return 0;
 }

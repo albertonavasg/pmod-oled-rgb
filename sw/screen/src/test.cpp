@@ -218,3 +218,78 @@ void Test::scrolling() {
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
     broadcast([](Screen& s){s.applyDefaultSettings();});
 }
+
+void Test::line() {
+
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<uint8_t> dist31(0, 31);
+    std::uniform_int_distribution<uint8_t> dist63(0, 63);
+    std::uniform_int_distribution<uint8_t> dist95(0, 95);
+
+    // Random colors and coordinates for the lines
+    for (size_t i = 0; i < 30; i++) {
+        screen::Color c = {dist31(gen), dist63(gen), dist31(gen)};
+        uint8_t x1 = dist95(gen);
+        uint8_t y1 = dist63(gen);
+        uint8_t x2 = dist95(gen);
+        uint8_t y2 = dist63(gen);
+        broadcast([=](Screen& s){s.drawLine(x1, y1, x2, y2, c);}, 100ms);
+    }
+    std::this_thread::sleep_for(1s);
+
+    broadcast([](Screen& s){s.clearScreen();}, 200ms);
+    broadcast([](Screen& s){s.applyDefaultSettings();});
+}
+
+void Test::rectangle() {
+
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<uint8_t> dist31(0, 31);
+    std::uniform_int_distribution<uint8_t> dist63(0, 63);
+    std::uniform_int_distribution<uint8_t> dist95(0, 95);
+
+    // Random colors and coordinates for the rectangles with no fill
+    for (size_t i = 0; i < 10; i++) {
+        screen::Color c1 = {dist31(gen), dist63(gen), dist31(gen)};
+        screen::Color c2 = {0, 0, 0};
+        uint8_t x1 = dist95(gen);
+        uint8_t y1 = dist63(gen);
+        uint8_t x2 = dist95(gen);
+        uint8_t y2 = dist63(gen);
+        broadcast([=](Screen& s){s.drawRectangle(x1, y1, x2, y2, c1, c2);}, 100ms);
+    }
+    std::this_thread::sleep_for(1s);
+    broadcast([](Screen& s){s.clearScreen();}, 200ms);
+
+    broadcast([](Screen& s){s.enableFill(true, false);});
+    // Random colors and coordinates for the rectangles with fill
+    for (size_t i = 0; i < 10; i++) {
+        screen::Color c1 = {dist31(gen), dist63(gen), dist31(gen)};
+        screen::Color c2 = {dist31(gen), dist63(gen), dist31(gen)};
+        uint8_t x1 = dist95(gen);
+        uint8_t y1 = dist63(gen);
+        uint8_t x2 = dist95(gen);
+        uint8_t y2 = dist63(gen);
+        broadcast([=](Screen& s){s.drawRectangle(x1, y1, x2, y2, c1, c2);}, 100ms);
+    }
+    std::this_thread::sleep_for(1s);
+    broadcast([](Screen& s){s.clearScreen();}, 200ms);
+
+    // Rectangles with fill that grow from a corner
+    for (size_t i = 0; i < screen::Geometry::Rows; i++) {
+        screen::Color c1 = {dist31(gen), dist63(gen), dist31(gen)};
+        screen::Color c2 = {dist31(gen), dist63(gen), dist31(gen)};
+        uint8_t x1 = 0;
+        uint8_t y1 = 0;
+        uint8_t x2 = i;
+        uint8_t y2 = i;
+        broadcast([=](Screen& s){s.drawRectangle(x1, y1, x2, y2, c1, c2);}, 100ms);
+    }
+    std::this_thread::sleep_for(1s);
+    broadcast([](Screen& s){s.clearScreen();}, 200ms);
+
+    broadcast([](Screen& s){s.clearScreen();}, 200ms);
+    broadcast([](Screen& s){s.applyDefaultSettings();});
+}
