@@ -60,7 +60,7 @@ class Screen {
         // Settings
         std::chrono::nanoseconds m_spiDelay{0};
         screen::ColumnRowAddr m_columnRowAddr = screen::defaultColumnRowAddr;
-        uint8_t remapColorDepthCfg = screen::defaultRemapColorDepth;
+        uint8_t m_remapColorDepthCfg = screen::defaultRemapColorDepth;
         bool m_enableFill = false;
         bool m_reverseCopy = false;
 

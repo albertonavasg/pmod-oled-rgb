@@ -50,7 +50,7 @@ void Test::colorDepth() {
     std::vector<screen::Color> colors(screen::Geometry::Pixels);
 
     // Horizontal red and vertical green fade
-    for (size_t i = 0; i < colors.size(); ++i) {
+    for (size_t i = 0; i < colors.size(); i++) {
         const size_t x = i % screen::Geometry::Columns;
         const size_t y = i / screen::Geometry::Columns;
         colors[i] = {
@@ -82,7 +82,7 @@ void Test::addressIncrement() {
     broadcast([](Screen& s){s.setSpiDelay(1ns);});
 
     // Horizontal red and vertical blue fade
-    for (size_t i = 0; i < colors.size(); ++i) {
+    for (size_t i = 0; i < colors.size(); i++) {
         const size_t x = i % screen::Geometry::Columns;
         const size_t y = i / screen::Geometry::Columns;
         colors[i] = {
@@ -97,7 +97,7 @@ void Test::addressIncrement() {
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
 
     // Vertical green and horizontal blue fade
-    for (size_t i = 0; i < colors.size(); ++i) {
+    for (size_t i = 0; i < colors.size(); i++) {
         const size_t x = i % screen::Geometry::Rows;
         const size_t y = i / screen::Geometry::Rows;
         colors[i] = {
@@ -128,7 +128,7 @@ void Test::bitmap() {
     broadcast([](Screen& s){s.setSpiDelay(1ns);});
 
     // Horizontal red and vertical green fade with constant blue
-    for (size_t i = 0; i < colors.size(); ++i) {
+    for (size_t i = 0; i < colors.size(); i++) {
         const size_t columns = (c2 - c1 + 1);
         const size_t rows = (r2 - r1 + 1);
         const size_t x = i % columns;
@@ -151,7 +151,7 @@ void Test::scrolling() {
     size_t stripeWidth = 16;
 
     // Squares
-    for (size_t i = 0; i < colors.size(); ++i) {
+    for (size_t i = 0; i < colors.size(); i++) {
         const size_t xBlock = (i % screen::Geometry::Columns) / stripeWidth;
         const size_t yBlock = (i / screen::Geometry::Columns) / stripeWidth;
         if ((xBlock ^ yBlock) & 1) {

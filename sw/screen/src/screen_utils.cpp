@@ -10,7 +10,7 @@ void Screen::sendPixel(const screen::Color color) {
 
     uint32_t data = 0;
 	uint8_t byte[3] = {0};
-    uint8_t colorDepth = remapColorDepthCfg & screen::RemapColorDepthMask::ColorDepth;
+    uint8_t colorDepth = m_remapColorDepthCfg & screen::RemapColorDepthMask::ColorDepth;
 
     switch (colorDepth) {
         case screen::RemapColorDepth::Color256: {

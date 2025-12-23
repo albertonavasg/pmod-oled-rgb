@@ -49,49 +49,49 @@ screen::ColumnRowAddr Screen::getColumnRowAddr() {
 
 void Screen::setAddressIncrement(bool vertical) {
 
-    setField(remapColorDepthCfg,
+    setField(m_remapColorDepthCfg,
              screen::RemapColorDepthMask::AddressIncrement,
              vertical ? screen::RemapColorDepth::VerticalIncrement : screen::RemapColorDepth::HorizontalIncrement);
 }
 
 void Screen::setColumnRemap(bool remap) {
 
-    setField(remapColorDepthCfg,
+    setField(m_remapColorDepthCfg,
              screen::RemapColorDepthMask::ColumnRemap,
              remap ? screen::RemapColorDepth::ColumnRemap : screen::RemapColorDepth::ColumnNormal);
 }
 
 void Screen::setColorOrder(bool bgr) {
 
-    setField(remapColorDepthCfg,
+    setField(m_remapColorDepthCfg,
              screen::RemapColorDepthMask::ColorOrder,
              bgr ? screen::RemapColorDepth::BGR : screen::RemapColorDepth::RGB);
 }
 
 void Screen::setCOMSwap(bool swap) {
 
-    setField(remapColorDepthCfg,
+    setField(m_remapColorDepthCfg,
              screen::RemapColorDepthMask::COMSwap,
              swap ? screen::RemapColorDepth::COMSwap : screen::RemapColorDepth::COMNoSwap);
 }
 
 void Screen::setScanDirection(bool comNto0) {
 
-    setField(remapColorDepthCfg,
+    setField(m_remapColorDepthCfg,
              screen::RemapColorDepthMask::ScanDirection,
              comNto0 ? screen::RemapColorDepth::ScanCOMNto0 : screen::RemapColorDepth::ScanCOM0toN);
 }
 
 void Screen::setCOMSplit(bool enable) {
 
-    setField(remapColorDepthCfg,
+    setField(m_remapColorDepthCfg,
              screen::RemapColorDepthMask::COMSplit,
              enable ? screen::RemapColorDepth::COMSplitEnable : screen::RemapColorDepth::COMSplitDisable);
 }
 
 void Screen::setColorDepth(uint8_t depth) {
 
-    setField(remapColorDepthCfg,
+    setField(m_remapColorDepthCfg,
              screen::RemapColorDepthMask::ColorDepth,
              depth);
 }
@@ -99,7 +99,7 @@ void Screen::setColorDepth(uint8_t depth) {
 void Screen::applyRemapColorDepth(screen::ApplyMode mode) {
 
     if (mode == screen::ApplyMode::Default) {
-        remapColorDepthCfg = screen::defaultRemapColorDepth;
+        m_remapColorDepthCfg = screen::defaultRemapColorDepth;
     }
-    sendCommand(screen::Command::RemapColorDepth, remapColorDepthCfg);
+    sendCommand(screen::Command::RemapColorDepth, m_remapColorDepthCfg);
 }
