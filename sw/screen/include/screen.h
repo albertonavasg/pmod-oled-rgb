@@ -28,6 +28,7 @@ class Screen {
         void drawLine(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, const screen::Color color);
         void drawRectangle(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, const screen::Color colorLine, const screen::Color colorFill);
         void copyWindow(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, uint8_t c3, uint8_t r3);
+        void drawImage(const std::string &path);
         void enableFill(bool fillRectangle, bool reverseCopy);
         void setupScrolling(uint8_t horizontalScrollOffset, uint8_t startRow, uint8_t rowsNumber, uint8_t verticalScrollOffset, uint8_t timeInterval);
         void enableScrolling(bool value);
@@ -95,6 +96,9 @@ class Screen {
         }
         void sendData(const uint8_t data);
         void sendMultiData(const uint8_t *data, size_t length);
+
+        // Helpers
+        std::vector<screen::Color> importImageAsBitmap(const std::string &path);
 };
 
 #endif // SCREEN_H

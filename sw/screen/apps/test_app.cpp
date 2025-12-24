@@ -32,6 +32,7 @@ int main() {
     test.line();
     test.rectangle();
     test.copy();
+    test.image();
 
     return 0;
 }

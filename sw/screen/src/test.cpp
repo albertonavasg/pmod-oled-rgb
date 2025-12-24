@@ -316,3 +316,31 @@ void Test::copy() {
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
     broadcast([](Screen& s){s.applyDefaultSettings();});
 }
+
+void Test::image() {
+
+    const std::string imagePath1 = "/home/petalinux/images/default1.jpg";
+    const std::string imagePath2 = "/home/petalinux/images/default2.jpg";
+
+    broadcast([](Screen& s){s.setColorDepth(screen::RemapColorDepth::Color256); s.applyRemapColorDepth();});
+    broadcast([=](Screen& s){s.drawImage(imagePath1);}, 2s);
+    broadcast([](Screen& s){s.clearScreen();}, 200ms);
+    broadcast([](Screen& s){s.setColorDepth(screen::RemapColorDepth::Color65k); s.applyRemapColorDepth();});
+    broadcast([=](Screen& s){s.drawImage(imagePath1);}, 2s);
+    broadcast([](Screen& s){s.clearScreen();}, 200ms);
+    broadcast([](Screen& s){s.setColorDepth(screen::RemapColorDepth::Color65kAlt); s.applyRemapColorDepth();});
+    broadcast([=](Screen& s){s.drawImage(imagePath1);}, 2s);
+    broadcast([](Screen& s){s.clearScreen();}, 200ms);
+
+    broadcast([](Screen& s){s.setColorDepth(screen::RemapColorDepth::Color256); s.applyRemapColorDepth();});
+    broadcast([=](Screen& s){s.drawImage(imagePath2);}, 2s);
+    broadcast([](Screen& s){s.clearScreen();}, 200ms);
+    broadcast([](Screen& s){s.setColorDepth(screen::RemapColorDepth::Color65k); s.applyRemapColorDepth();});
+    broadcast([=](Screen& s){s.drawImage(imagePath2);}, 2s);
+    broadcast([](Screen& s){s.clearScreen();}, 200ms);
+    broadcast([](Screen& s){s.setColorDepth(screen::RemapColorDepth::Color65kAlt); s.applyRemapColorDepth();});
+    broadcast([=](Screen& s){s.drawImage(imagePath2);}, 2s);
+    broadcast([](Screen& s){s.clearScreen();}, 200ms);
+
+    broadcast([](Screen& s){s.applyDefaultSettings();});
+}

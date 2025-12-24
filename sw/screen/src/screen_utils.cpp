@@ -94,6 +94,17 @@ void Screen::copyWindow(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, uint8_t 
     sendCommand(screen::Command::Copy, params, 6);
 }
 
+void Screen::drawImage(const std::string &path) {
+
+    std::vector<screen::Color> bitmap = importImageAsBitmap(path);
+
+    if (bitmap.empty() || bitmap.size() != screen::Geometry::Pixels) {
+        return;
+    }
+
+    drawBitmap(0, 0, screen::Geometry::Columns - 1 , screen::Geometry::Rows - 1, bitmap);
+}
+
 void Screen::enableFill(bool fillRectangle, bool reverseCopy) {
 
     uint8_t params[2] = {static_cast<uint8_t>(fillRectangle), static_cast<uint8_t>(reverseCopy)};
