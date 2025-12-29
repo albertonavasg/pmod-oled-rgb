@@ -33,6 +33,7 @@ int main() {
     test.rectangle();
     test.copy();
     test.image();
+    test.symbol();
 
     return 0;
 }

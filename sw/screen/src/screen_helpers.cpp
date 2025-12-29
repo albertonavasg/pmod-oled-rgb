@@ -11,6 +11,8 @@
 #include "screen_registers.h"
 #include "screen.h"
 
+#include "font8x8_basic.h"
+
 std::vector<screen::Color> Screen::importImageAsBitmap(const std::string &path){
 
     int width, height, channels;
@@ -63,6 +65,23 @@ std::vector<screen::Color> Screen::importImageAsBitmap(const std::string &path){
             static_cast<uint8_t>(g8 >> 2),
             static_cast<uint8_t>(b8 >> 3)
         });
+    }
+
+    return bitmap;
+}
+
+std::vector<screen::Color> Screen::importSymbolAsBitmap(const uint8_t symbol, screen::Color color) {
+
+    std::vector<screen::Color> bitmap(screen::FontPixels);
+
+    for (size_t i = 0; i < screen::FontHeight; i++) {
+        for (size_t j = 0; j < screen::FontWidth; j++) {
+            if (font8x8_basic[symbol][i] >> j & 1) {
+                bitmap[screen::FontWidth * i + j] = color;
+            } else {
+                bitmap[screen::FontWidth * i + j] = {0, 0, 0};
+            }
+        }
     }
 
     return bitmap;

@@ -97,6 +97,25 @@ namespace screen {
 
     constexpr ColumnRowAddr defaultColumnRowAddr = {0, 0, screen::Geometry::Columns - 1, screen::Geometry::Rows - 1};
 
+    constexpr uint8_t FontHeight = 8;
+    constexpr uint8_t FontWidth = 8;
+    constexpr uint16_t FontPixels = static_cast<uint16_t>(FontHeight) * static_cast<uint16_t>(FontWidth);
+
+    namespace TextGeometry {
+
+        constexpr uint8_t TextRows    = Geometry::Rows / FontHeight;
+        constexpr uint8_t TextColumns = Geometry::Columns / FontWidth;
+        constexpr uint16_t TextPixels = static_cast<uint16_t>(TextRows) * static_cast<uint16_t>(TextColumns);
+    }
+
+    struct TextCursor {
+
+        uint8_t x;
+        uint8_t y;
+    };
+
+    constexpr TextCursor defaultTextCursor = {0, 0};
+
     namespace RemapColorDepth {
 
         constexpr uint8_t HorizontalIncrement = 0 << 0;

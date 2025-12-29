@@ -29,6 +29,10 @@ class Screen {
         void drawRectangle(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, const screen::Color colorLine, const screen::Color colorFill);
         void copyWindow(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, uint8_t c3, uint8_t r3);
         void drawImage(const std::string &path);
+        void setTextCursor(uint8_t x, uint8_t y);
+        screen::TextCursor getTextCursor();
+        void incrementTextCursor();
+        void drawSymbol(const uint8_t symbol, screen::Color color);
         void enableFill(bool fillRectangle, bool reverseCopy);
         void setupScrolling(uint8_t horizontalScrollOffset, uint8_t startRow, uint8_t rowsNumber, uint8_t verticalScrollOffset, uint8_t timeInterval);
         void enableScrolling(bool value);
@@ -65,6 +69,7 @@ class Screen {
         uint8_t m_remapColorDepthCfg = screen::defaultRemapColorDepth;
         bool m_enableFill = false;
         bool m_reverseCopy = false;
+        screen::TextCursor m_textCursor = screen::defaultTextCursor;
 
         // Helper for byte manipulation
         static constexpr void setField(uint8_t& reg, uint8_t mask, uint8_t value) {
@@ -99,6 +104,7 @@ class Screen {
 
         // Helpers
         std::vector<screen::Color> importImageAsBitmap(const std::string &path);
+        std::vector<screen::Color> importSymbolAsBitmap(const uint8_t symbol, screen::Color color);
 };
 
 #endif // SCREEN_H

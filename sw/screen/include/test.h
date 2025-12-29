@@ -26,6 +26,7 @@ class Test {
         void rectangle();
         void copy();
         void image();
+        void symbol();
 
         private:
             std::vector<std::reference_wrapper<Screen>> m_screens;

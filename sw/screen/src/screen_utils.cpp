@@ -105,6 +105,52 @@ void Screen::drawImage(const std::string &path) {
     drawBitmap(0, 0, screen::Geometry::Columns - 1 , screen::Geometry::Rows - 1, bitmap);
 }
 
+void Screen::setTextCursor(uint8_t x, uint8_t y) {
+
+    if (x > screen::TextGeometry::TextColumns - 1) {
+        m_textCursor.x = screen::TextGeometry::TextColumns - 1;
+    } else {
+        m_textCursor.x = x;
+    }
+
+    if (y > screen::TextGeometry::TextRows - 1) {
+        m_textCursor.y = screen::TextGeometry::TextRows - 1;
+    } else {
+        m_textCursor.y = y;
+    }
+}
+
+screen::TextCursor Screen::getTextCursor() {
+
+    return m_textCursor;
+}
+
+void Screen::incrementTextCursor() {
+
+    if (m_textCursor.x < screen::TextGeometry::TextColumns - 1) {
+        m_textCursor.x++;
+    } else if (m_textCursor.y < screen::TextGeometry::TextRows - 1) {
+        m_textCursor.x = 0;
+        m_textCursor.y++;
+    } else {
+        m_textCursor.x = 0;
+        m_textCursor.y = 0;
+    }
+}
+
+void Screen::drawSymbol(const uint8_t symbol, screen::Color color) {
+
+    auto bitmap = importSymbolAsBitmap(symbol, color);
+
+    drawBitmap(
+        m_textCursor.x * screen::FontWidth,
+        m_textCursor.y * screen::FontHeight,
+        ((m_textCursor.x + 1) * screen::FontWidth) - 1,
+        ((m_textCursor.y + 1) * screen::FontHeight)- 1,
+        bitmap
+    );
+}
+
 void Screen::enableFill(bool fillRectangle, bool reverseCopy) {
 
     uint8_t params[2] = {static_cast<uint8_t>(fillRectangle), static_cast<uint8_t>(reverseCopy)};

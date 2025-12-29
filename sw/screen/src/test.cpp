@@ -344,3 +344,23 @@ void Test::image() {
 
     broadcast([](Screen& s){s.applyDefaultSettings();});
 }
+
+void Test::symbol() {
+
+    screen::Color color = {screen::ColorLimit::R_565_MAX, screen::ColorLimit::G_565_MAX, screen::ColorLimit::B_565_MAX};
+
+    for (size_t i = 0; i < screen::TextGeometry::TextPixels; i++) {
+        broadcast([=](Screen& s){s.drawSymbol(i, color); s.incrementTextCursor();});
+    }
+    std::this_thread::sleep_for(5s);
+
+    broadcast([](Screen& s){s.clearScreen();}, 200ms);
+
+    for (size_t i = 97; i < 128; i++) {
+        broadcast([=](Screen& s){s.drawSymbol(i, color); s.incrementTextCursor();});
+    }
+    std::this_thread::sleep_for(5s);
+
+    broadcast([](Screen& s){s.clearScreen();}, 200ms);
+    broadcast([](Screen& s){s.applyDefaultSettings();});
+}
