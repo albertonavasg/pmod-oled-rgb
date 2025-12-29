@@ -148,12 +148,12 @@ void Test::bitmap() {
 void Test::scrolling() {
 
     std::vector<screen::Color> colors(screen::Geometry::Pixels);
-    size_t stripeWidth = 16;
+    size_t squareDimension = 16;
 
     // Squares
     for (size_t i = 0; i < colors.size(); i++) {
-        const size_t xBlock = (i % screen::Geometry::Columns) / stripeWidth;
-        const size_t yBlock = (i / screen::Geometry::Columns) / stripeWidth;
+        const size_t xBlock = (i % screen::Geometry::Columns) / squareDimension;
+        const size_t yBlock = (i / screen::Geometry::Columns) / squareDimension;
         if ((xBlock ^ yBlock) & 1) {
             colors[i] = {
                 screen::ColorLimit::R_565_MAX,
@@ -348,6 +348,8 @@ void Test::image() {
 void Test::symbol() {
 
     screen::Color color = {screen::ColorLimit::R_565_MAX, screen::ColorLimit::G_565_MAX, screen::ColorLimit::B_565_MAX};
+
+    broadcast([](Screen& s){s.setSpiDelay(1ns);});
 
     for (size_t i = 0; i < screen::TextGeometry::TextPixels; i++) {
         broadcast([=](Screen& s){s.drawSymbol(i, color); s.incrementTextCursor();});

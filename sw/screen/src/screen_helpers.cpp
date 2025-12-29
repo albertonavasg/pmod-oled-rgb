@@ -38,7 +38,7 @@ std::vector<screen::Color> Screen::importImageAsBitmap(const std::string &path){
         width,                       // Input width
         height,                      // Input height
         0,                           // Input stride (0 = tightly packed)
-        resized.data(),              // Output bitmap
+        resized.data(),              // Output vector
         screen::Geometry::Columns,   // Output width
         screen::Geometry::Rows,      // Output height
         0,                           // Output stride (0 = tightly packed)
@@ -52,19 +52,18 @@ std::vector<screen::Color> Screen::importImageAsBitmap(const std::string &path){
     stbi_image_free(img);
 
     // Convert to Color bitmap
-    std::vector<screen::Color> bitmap;
-    bitmap.reserve(screen::Geometry::Pixels);
+    std::vector<screen::Color> bitmap(screen::Geometry::Pixels);
 
     for (int i = 0; i < screen::Geometry::Pixels; i++) {
         uint8_t r8 = resized[3*i + 0];
         uint8_t g8 = resized[3*i + 1];
         uint8_t b8 = resized[3*i + 2];
 
-        bitmap.push_back({
+        bitmap[i] = {
             static_cast<uint8_t>(r8 >> 3),
             static_cast<uint8_t>(g8 >> 2),
             static_cast<uint8_t>(b8 >> 3)
-        });
+        };
     }
 
     return bitmap;
