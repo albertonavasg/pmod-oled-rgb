@@ -23,6 +23,7 @@ void Screen::applyDefaultSettings() {
     applyRemapColorDepth(screen::ApplyMode::Default);
     m_enableFill = false;
     m_reverseCopy = false;
+    m_textCursor = screen::defaultTextCursor;
 }
 
 void Screen::setColumnRowAddr(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2) {

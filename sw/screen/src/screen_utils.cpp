@@ -151,6 +151,14 @@ void Screen::drawSymbol(const uint8_t symbol, screen::Color color) {
     );
 }
 
+void Screen::drawString(const std::string &phrase, screen::Color color) {
+
+    for (char c : phrase) {
+        drawSymbol(c, color);
+        incrementTextCursor();
+    }
+}
+
 void Screen::enableFill(bool fillRectangle, bool reverseCopy) {
 
     uint8_t params[2] = {static_cast<uint8_t>(fillRectangle), static_cast<uint8_t>(reverseCopy)};

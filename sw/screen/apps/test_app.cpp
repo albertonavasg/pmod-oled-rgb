@@ -34,6 +34,7 @@ int main() {
     test.copy();
     test.image();
     test.symbol();
+    test.string();
 
     return 0;
 }
