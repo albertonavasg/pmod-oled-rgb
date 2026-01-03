@@ -30,6 +30,7 @@ class Test {
         void string();
         void remap();
         void screenUpsideDown();
+        void inverseDisplay();
 
         private:
             std::vector<std::reference_wrapper<Screen>> m_screens;
