@@ -29,6 +29,7 @@ class Test {
         void symbol();
         void string();
         void remap();
+        void screenUpsideDown();
 
         private:
             std::vector<std::reference_wrapper<Screen>> m_screens;

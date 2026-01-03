@@ -466,3 +466,30 @@ void Test::remap() {
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
     broadcast([](Screen& s){s.applyDefaultSettings();});
 }
+
+void Test::screenUpsideDown() {
+
+    std::vector<screen::Color> colors = {
+        {screen::ColorLimit::R_565_MAX, screen::ColorLimit::G_565_MAX, screen::ColorLimit::B_565_MAX},
+        {screen::ColorLimit::R_565_MAX, screen::ColorLimit::G_565_MAX, 0},
+        {screen::ColorLimit::R_565_MAX, 0, screen::ColorLimit::B_565_MAX},
+        {0, screen::ColorLimit::G_565_MAX, screen::ColorLimit::B_565_MAX},
+        {screen::ColorLimit::R_565_MAX, 0, 0},
+        {0, screen::ColorLimit::G_565_MAX, 0},
+        {0, 0, screen::ColorLimit::B_565_MAX},
+        {screen::ColorLimit::R_565_MAX, screen::ColorLimit::G_565_MAX, screen::ColorLimit::B_565_MAX}
+    };
+
+    std::string phrase = "ScreenUPDown";
+
+    broadcast([](Screen& s){s.setSpiDelay(1ns);});
+
+    broadcast([](Screen& s){s.setColumnRemap(screen::RemapColorDepth::ColumnNormal); s.setScanDirection(screen::RemapColorDepth::ScanCOM0toN); s.applyRemapColorDepth();});
+    for (size_t i = 0; i < colors.size(); i++) {
+        broadcast([&](Screen& s){s.setTextCursor(0, i); s.drawString(phrase, colors[i]);});
+    }
+    std::this_thread::sleep_for(2s);
+
+    broadcast([](Screen& s){s.clearScreen();}, 200ms);
+    broadcast([](Screen& s){s.applyDefaultSettings();});
+}

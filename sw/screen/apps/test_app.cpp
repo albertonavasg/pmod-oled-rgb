@@ -36,6 +36,7 @@ int main() {
     test.symbol();
     test.string();
     test.remap();
+    test.screenUpsideDown();
 
     return 0;
 }
