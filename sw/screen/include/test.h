@@ -28,6 +28,7 @@ class Test {
         void image();
         void symbol();
         void string();
+        void remap();
 
         private:
             std::vector<std::reference_wrapper<Screen>> m_screens;

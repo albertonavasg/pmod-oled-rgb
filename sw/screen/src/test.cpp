@@ -392,3 +392,77 @@ void Test::string() {
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
     broadcast([](Screen& s){s.applyDefaultSettings();});
 }
+
+void Test::remap() {
+
+    std::vector<screen::Color> colors = {
+        {screen::ColorLimit::R_565_MAX, screen::ColorLimit::G_565_MAX, screen::ColorLimit::B_565_MAX},
+        {screen::ColorLimit::R_565_MAX, screen::ColorLimit::G_565_MAX, 0},
+        {screen::ColorLimit::R_565_MAX, 0, screen::ColorLimit::B_565_MAX},
+        {0, screen::ColorLimit::G_565_MAX, screen::ColorLimit::B_565_MAX},
+        {screen::ColorLimit::R_565_MAX, 0, 0},
+        {0, screen::ColorLimit::G_565_MAX, 0},
+        {0, 0, screen::ColorLimit::B_565_MAX},
+        {screen::ColorLimit::R_565_MAX, screen::ColorLimit::G_565_MAX, screen::ColorLimit::B_565_MAX}
+    };
+
+    std::string phrase;
+
+    broadcast([](Screen& s){s.setSpiDelay(1ns);});
+
+    phrase = "Default";
+    for (size_t i = 0; i < colors.size(); i++) {
+        broadcast([&](Screen& s){s.setTextCursor(0, i); s.drawString(phrase, colors[i]);});
+    }
+    std::this_thread::sleep_for(2s);
+    broadcast([](Screen& s){s.clearScreen();}, 200ms);
+    broadcast([](Screen& s){s.applyRemapColorDepth(screen::ApplyMode::Default);});
+
+    phrase = "ColumnNormal";
+    broadcast([](Screen& s){s.setColumnRemap(screen::RemapColorDepth::ColumnNormal); s.applyRemapColorDepth();});
+    for (size_t i = 0; i < colors.size(); i++) {
+        broadcast([&](Screen& s){s.setTextCursor(0, i); s.drawString(phrase, colors[i]);});
+    }
+    std::this_thread::sleep_for(2s);
+    broadcast([](Screen& s){s.applyRemapColorDepth(screen::ApplyMode::Default);});
+    broadcast([](Screen& s){s.clearScreen();}, 200ms);
+
+    phrase = "BGR";
+    broadcast([](Screen& s){s.setColorOrder(screen::RemapColorDepth::BGR); s.applyRemapColorDepth();});
+    for (size_t i = 0; i < colors.size(); i++) {
+        broadcast([&](Screen& s){s.setTextCursor(0, i); s.drawString(phrase, colors[i]);});
+    }
+    std::this_thread::sleep_for(2s);
+    broadcast([](Screen& s){s.applyRemapColorDepth(screen::ApplyMode::Default);});
+    broadcast([](Screen& s){s.clearScreen();}, 200ms);
+
+    phrase = "COM Swap";
+    broadcast([](Screen& s){s.setCOMSwap(screen::RemapColorDepth::COMSwap); s.applyRemapColorDepth();});
+    for (size_t i = 0; i < colors.size(); i++) {
+        broadcast([&](Screen& s){s.setTextCursor(0, i); s.drawString(phrase, colors[i]);});
+    }
+    std::this_thread::sleep_for(2s);
+    broadcast([](Screen& s){s.applyRemapColorDepth(screen::ApplyMode::Default);});
+    broadcast([](Screen& s){s.clearScreen();}, 200ms);
+
+    phrase = "ScanCOM0toN";
+    broadcast([](Screen& s){s.setScanDirection(screen::RemapColorDepth::ScanCOM0toN); s.applyRemapColorDepth();});
+    for (size_t i = 0; i < colors.size(); i++) {
+        broadcast([&](Screen& s){s.setTextCursor(0, i); s.drawString(phrase, colors[i]);});
+    }
+    std::this_thread::sleep_for(2s);
+    broadcast([](Screen& s){s.applyRemapColorDepth(screen::ApplyMode::Default);});
+    broadcast([](Screen& s){s.clearScreen();}, 200ms);
+
+    phrase = "COMSplitDis";
+    broadcast([](Screen& s){s.setCOMSplit(screen::RemapColorDepth::COMSplitDisable); s.applyRemapColorDepth();});
+    for (size_t i = 0; i < colors.size(); i++) {
+        broadcast([&](Screen& s){s.setTextCursor(0, i); s.drawString(phrase, colors[i]);});
+    }
+    std::this_thread::sleep_for(2s);
+    broadcast([](Screen& s){s.applyRemapColorDepth(screen::ApplyMode::Default);});
+    broadcast([](Screen& s){s.clearScreen();}, 200ms);
+
+    broadcast([](Screen& s){s.clearScreen();}, 200ms);
+    broadcast([](Screen& s){s.applyDefaultSettings();});
+}

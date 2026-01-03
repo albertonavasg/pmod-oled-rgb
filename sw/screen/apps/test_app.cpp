@@ -35,6 +35,7 @@ int main() {
     test.image();
     test.symbol();
     test.string();
+    test.remap();
 
     return 0;
 }
