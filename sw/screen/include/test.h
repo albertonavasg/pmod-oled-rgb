@@ -29,8 +29,8 @@ class Test {
         void symbol();
         void string();
         void remap();
-        void screenUpsideDown();
         void inverseDisplay();
+        void screenOrientation();
 
         private:
             std::vector<std::reference_wrapper<Screen>> m_screens;

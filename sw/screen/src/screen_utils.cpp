@@ -107,17 +107,32 @@ void Screen::drawImage(const std::string &path) {
 
 void Screen::setTextCursor(uint8_t x, uint8_t y) {
 
-    if (x > screen::TextGeometry::TextColumns - 1) {
-        m_textCursor.x = screen::TextGeometry::TextColumns - 1;
+    if (m_orientation == screen::Orientation::Horizontal) {
+        if (x > screen::TextGeometry::TextColumns - 1) {
+            m_textCursor.x = screen::TextGeometry::TextColumns - 1;
+        } else {
+            m_textCursor.x = x;
+        }
+
+        if (y > screen::TextGeometry::TextRows - 1) {
+            m_textCursor.y = screen::TextGeometry::TextRows - 1;
+        } else {
+            m_textCursor.y = y;
+        }
     } else {
-        m_textCursor.x = x;
+        if (x > screen::TextGeometry::TextRows - 1) {
+            m_textCursor.x = screen::TextGeometry::TextRows - 1;
+        } else {
+            m_textCursor.x = x;
+        }
+
+        if (y > screen::TextGeometry::TextColumns - 1) {
+            m_textCursor.y = screen::TextGeometry::TextColumns - 1;
+        } else {
+            m_textCursor.y = y;
+        }
     }
 
-    if (y > screen::TextGeometry::TextRows - 1) {
-        m_textCursor.y = screen::TextGeometry::TextRows - 1;
-    } else {
-        m_textCursor.y = y;
-    }
 }
 
 screen::TextCursor Screen::getTextCursor() {
@@ -127,28 +142,52 @@ screen::TextCursor Screen::getTextCursor() {
 
 void Screen::incrementTextCursor() {
 
-    if (m_textCursor.x < screen::TextGeometry::TextColumns - 1) {
-        m_textCursor.x++;
-    } else if (m_textCursor.y < screen::TextGeometry::TextRows - 1) {
-        m_textCursor.x = 0;
-        m_textCursor.y++;
+    if (m_orientation == screen::Orientation::Horizontal) {
+        if (m_textCursor.x < screen::TextGeometry::TextColumns - 1) {
+            m_textCursor.x++;
+        } else if (m_textCursor.y < screen::TextGeometry::TextRows - 1) {
+            m_textCursor.x = 0;
+            m_textCursor.y++;
+        } else {
+            m_textCursor.x = 0;
+            m_textCursor.y = 0;
+        }
     } else {
-        m_textCursor.x = 0;
-        m_textCursor.y = 0;
+        if (m_textCursor.x < screen::TextGeometry::TextRows - 1) {
+            m_textCursor.x++;
+        } else if (m_textCursor.y < screen::TextGeometry::TextColumns - 1) {
+            m_textCursor.x = 0;
+            m_textCursor.y++;
+        } else {
+            m_textCursor.x = 0;
+            m_textCursor.y = 0;
+        }
     }
+
 }
 
 void Screen::drawSymbol(const uint8_t symbol, screen::Color color) {
 
     auto bitmap = importSymbolAsBitmap(symbol, color);
 
-    drawBitmap(
-        m_textCursor.x * screen::FontWidth,
-        m_textCursor.y * screen::FontHeight,
-        ((m_textCursor.x + 1) * screen::FontWidth) - 1,
-        ((m_textCursor.y + 1) * screen::FontHeight)- 1,
-        bitmap
-    );
+    if (m_orientation == screen::Orientation::Horizontal) {
+        drawBitmap(
+            m_textCursor.x * screen::FontWidth,
+            m_textCursor.y * screen::FontHeight,
+            ((m_textCursor.x + 1) * screen::FontWidth) - 1,
+            ((m_textCursor.y + 1) * screen::FontHeight)- 1,
+            bitmap
+        );
+    } else {
+        drawBitmap(
+            m_textCursor.y * screen::FontWidth,
+            m_textCursor.x * screen::FontHeight,
+            ((m_textCursor.y + 1) * screen::FontWidth) - 1,
+            ((m_textCursor.x + 1) * screen::FontHeight)- 1,
+            bitmap
+        );
+    }
+
 }
 
 void Screen::drawString(const std::string &phrase, screen::Color color) {

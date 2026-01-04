@@ -12,7 +12,16 @@ namespace screen {
         constexpr uint16_t Pixels  = static_cast<uint16_t>(Rows) * static_cast<uint16_t>(Columns);
     }
 
+    enum class Orientation : uint8_t {
+
+        Horizontal = 0,
+        Vertical = 1
+    };
+
+    constexpr Orientation defaultOrientation = Orientation::Horizontal;
+
     enum class PowerState : uint8_t {
+
         Off = 0b00,
         TurningOn = 0b01,
         TurningOff = 0b10,
@@ -20,6 +29,7 @@ namespace screen {
     };
 
     enum class DataMode : uint8_t {
+
         Command = 0,
         Data    = 1
     };

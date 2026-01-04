@@ -467,33 +467,6 @@ void Test::remap() {
     broadcast([](Screen& s){s.applyDefaultSettings();});
 }
 
-void Test::screenUpsideDown() {
-
-    std::vector<screen::Color> colors = {
-        {screen::ColorLimit::R_565_MAX, screen::ColorLimit::G_565_MAX, screen::ColorLimit::B_565_MAX},
-        {screen::ColorLimit::R_565_MAX, screen::ColorLimit::G_565_MAX, 0},
-        {screen::ColorLimit::R_565_MAX, 0, screen::ColorLimit::B_565_MAX},
-        {0, screen::ColorLimit::G_565_MAX, screen::ColorLimit::B_565_MAX},
-        {screen::ColorLimit::R_565_MAX, 0, 0},
-        {0, screen::ColorLimit::G_565_MAX, 0},
-        {0, 0, screen::ColorLimit::B_565_MAX},
-        {screen::ColorLimit::R_565_MAX, screen::ColorLimit::G_565_MAX, screen::ColorLimit::B_565_MAX}
-    };
-
-    std::string phrase = "ScreenUPDown";
-
-    broadcast([](Screen& s){s.setSpiDelay(1ns);});
-
-    broadcast([](Screen& s){s.setColumnRemap(screen::RemapColorDepth::ColumnNormal); s.setScanDirection(screen::RemapColorDepth::ScanCOM0toN); s.applyRemapColorDepth();});
-    for (size_t i = 0; i < colors.size(); i++) {
-        broadcast([&](Screen& s){s.setTextCursor(0, i); s.drawString(phrase, colors[i]);});
-    }
-    std::this_thread::sleep_for(2s);
-
-    broadcast([](Screen& s){s.clearScreen();}, 200ms);
-    broadcast([](Screen& s){s.applyDefaultSettings();});
-}
-
 void Test::inverseDisplay() {
 
     std::vector<screen::Color> colors = {
@@ -531,6 +504,36 @@ void Test::inverseDisplay() {
     std::this_thread::sleep_for(200ms);
     broadcast([](Screen& s){s.sendCommand(screen::Command::NormalDisplay);}, 1s);
 
+
+    broadcast([](Screen& s){s.clearScreen();}, 200ms);
+    broadcast([](Screen& s){s.applyDefaultSettings();});
+}
+
+void Test::screenOrientation() {
+
+    screen::Color color = {screen::ColorLimit::R_565_MAX, screen::ColorLimit::G_565_MAX, screen::ColorLimit::B_565_MAX};
+
+    std::string phrase;
+
+    broadcast([](Screen& s){s.setSpiDelay(1ns);});
+
+    // Horizontal orientation
+    phrase = "Horizontal";
+    broadcast([](Screen& s){s.setScreenOrientation(screen::Orientation::Horizontal);});
+    for (size_t i = 0; i < screen::TextGeometry::TextRows; i++) {
+        broadcast([&](Screen& s){s.setTextCursor(0, i); s.drawString(phrase, color);});
+    }
+    std::this_thread::sleep_for(2s);
+
+    broadcast([](Screen& s){s.clearScreen();}, 200ms);
+
+    // Vertical orientation
+    phrase = "Vertical";
+    broadcast([](Screen& s){s.setScreenOrientation(screen::Orientation::Vertical);});
+    for (size_t i = 0; i < screen::TextGeometry::TextColumns; i++) {
+        broadcast([&](Screen& s){s.setTextCursor(0, i); s.drawString(phrase, color);});
+    }
+    std::this_thread::sleep_for(2s);
 
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
     broadcast([](Screen& s){s.applyDefaultSettings();});

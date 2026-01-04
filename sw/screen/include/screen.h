@@ -58,6 +58,9 @@ class Screen {
         void setColorDepth(uint8_t depth);
         void applyRemapColorDepth(screen::ApplyMode mode = screen::ApplyMode::Current);
         uint8_t getRemapColorDepth();
+        // Screen orientation
+        void setScreenOrientation(const screen::Orientation orientation);
+        screen::Orientation getScreenOrientation();
 
     private:
         int m_fd;
@@ -71,6 +74,7 @@ class Screen {
         bool m_enableFill = false;
         bool m_reverseCopy = false;
         screen::TextCursor m_textCursor = screen::defaultTextCursor;
+        screen::Orientation m_orientation = screen::defaultOrientation;
 
         // Helper for byte manipulation
         static constexpr void setField(uint8_t& reg, uint8_t mask, uint8_t value) {

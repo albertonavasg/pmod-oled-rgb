@@ -24,6 +24,7 @@ void Screen::applyDefaultSettings() {
     m_enableFill = false;
     m_reverseCopy = false;
     m_textCursor = screen::defaultTextCursor;
+    m_orientation = screen::Orientation::Horizontal;
 }
 
 void Screen::setColumnRowAddr(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2) {
@@ -103,4 +104,26 @@ void Screen::applyRemapColorDepth(screen::ApplyMode mode) {
         m_remapColorDepthCfg = screen::defaultRemapColorDepth;
     }
     sendCommand(screen::Command::RemapColorDepth, m_remapColorDepthCfg);
+}
+
+void Screen::setScreenOrientation(const screen::Orientation orientation) {
+
+    m_orientation = orientation;
+
+    if (m_orientation == screen::Orientation::Horizontal) {
+        setAddressIncrement(false);
+        setColumnRemap(true);
+        setScanDirection(true);
+    } else {
+        setAddressIncrement(true);
+        setColumnRemap(true);
+        setScanDirection(false);
+    }
+
+    applyRemapColorDepth();
+}
+
+screen::Orientation Screen::getScreenOrientation() {
+
+    return m_orientation;
 }

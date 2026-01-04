@@ -36,8 +36,8 @@ int main() {
     test.symbol();
     test.string();
     test.remap();
-    test.screenUpsideDown();
     test.inverseDisplay();
+    test.screenOrientation();
 
     return 0;
 }
