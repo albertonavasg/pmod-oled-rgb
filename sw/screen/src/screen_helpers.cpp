@@ -15,38 +15,50 @@
 
 std::vector<screen::Color> Screen::importImageAsBitmap(const std::string &path){
 
-    int width, height, channels;
+    int inputWidth, inputHeight, channels, outputWidth, outputHeight;
 
     // Load image, force RGB
-    unsigned char* img = stbi_load(path.c_str(), &width, &height, &channels, 3);
+    unsigned char* img = stbi_load(path.c_str(), &inputWidth, &inputHeight, &channels, 3);
     // Check valid imported image
     if (!img) {
         std::cerr << "Error importing the image: " << path.c_str() << std::endl;
         return {};  // Empty vector
     }
     // Check aspect ratio
-    if ((width * screen::Geometry::Rows) != (height * screen::Geometry::Columns)) {
-        std::cerr << "Wrong aspect ratio of image " << path.c_str() << std::endl;
-        return {};
+    if (m_orientation == screen::Orientation::Horizontal || m_orientation == screen::Orientation::HorizontalReverse){
+        if ((inputWidth * screen::Geometry::Rows) != (inputHeight * screen::Geometry::Columns)) {
+            std::cerr << "Wrong aspect ratio of horizontal image " << path.c_str() << std::endl;
+            return {};
+        }
+        outputWidth = screen::Geometry::Columns;
+        outputHeight = screen::Geometry::Rows;
+    } else {
+        if ((inputWidth * screen::Geometry::Columns) != (inputHeight * screen::Geometry::Rows)) {
+            std::cerr << "Wrong aspect ratio of vertical image " << path.c_str() << std::endl;
+            return {};
+        }
+        outputWidth = screen::Geometry::Rows;
+        outputHeight = screen::Geometry::Columns;
     }
+
 
     // Resized buffer
     std::vector<uint8_t> resized(screen::Geometry::Pixels * 3);
 
     unsigned char* result = stbir_resize_uint8_linear(
-        img,                         // Input image
-        width,                       // Input width
-        height,                      // Input height
-        0,                           // Input stride (0 = tightly packed)
-        resized.data(),              // Output vector
-        screen::Geometry::Columns,   // Output width
-        screen::Geometry::Rows,      // Output height
-        0,                           // Output stride (0 = tightly packed)
-        STBIR_RGB                    // Pixel format
+        img,            // Input image
+        inputWidth,     // Input width
+        inputHeight,    // Input height
+        0,              // Input stride (0 = tightly packed)
+        resized.data(), // Output vector
+        outputWidth,    // Output width
+        outputHeight,   // Output height
+        0,              // Output stride (0 = tightly packed)
+        STBIR_RGB       // Pixel format
     );
 
     if (!result) {
-        std::cerr << "Error resizing image to " << screen::Geometry::Columns << " x " << screen::Geometry::Rows << std::endl;
+        std::cerr << "Error resizing image to " << outputWidth << " x " << outputHeight << std::endl;
     }
 
     stbi_image_free(img);

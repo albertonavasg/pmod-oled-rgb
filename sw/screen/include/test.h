@@ -28,8 +28,8 @@ class Test {
         void image();
         void symbol();
         void string();
-        void remap();
         void inverseDisplay();
+        void remap();
         void screenOrientation();
 
         private:

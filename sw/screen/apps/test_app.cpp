@@ -35,8 +35,8 @@ int main() {
     test.image();
     test.symbol();
     test.string();
-    test.remap();
     test.inverseDisplay();
+    test.remap();
     test.screenOrientation();
 
     return 0;

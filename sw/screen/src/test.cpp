@@ -251,7 +251,7 @@ void Test::line() {
     std::this_thread::sleep_for(1s);
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
 
-    // Random colors and coordinates for the lines
+    // Random colors and coordinates for lines
     for (size_t i = 0; i < 20; i++) {
         screen::Color c = {dist31(gen), dist63(gen), dist31(gen)};
         uint8_t x1 = dist95(gen);
@@ -274,7 +274,7 @@ void Test::rectangle() {
     std::uniform_int_distribution<uint8_t> dist63(0, 63);
     std::uniform_int_distribution<uint8_t> dist95(0, 95);
 
-    // Random colors and coordinates for the rectangles with no fill
+    // Random colors and coordinates for rectangles with no fill
     for (size_t i = 0; i < 20; i++) {
         screen::Color c1 = {dist31(gen), dist63(gen), dist31(gen)};
         screen::Color c2 = {0, 0, 0};
@@ -292,7 +292,7 @@ void Test::rectangle() {
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
 
     broadcast([](Screen& s){s.enableFill(true, false);});
-    // Random colors and coordinates for the rectangles with fill
+    // Random colors and coordinates for rectangles with fill
     for (size_t i = 0; i < 20; i++) {
         screen::Color c1 = {dist31(gen), dist63(gen), dist31(gen)};
         screen::Color c2 = {dist31(gen), dist63(gen), dist31(gen)};
@@ -425,6 +425,48 @@ void Test::string() {
     broadcast([](Screen& s){s.applyDefaultSettings();});
 }
 
+void Test::inverseDisplay() {
+
+    std::vector<screen::Color> colors = {
+        {screen::ColorLimit::R_565_MAX, screen::ColorLimit::G_565_MAX, screen::ColorLimit::B_565_MAX},
+        {screen::ColorLimit::R_565_MAX, screen::ColorLimit::G_565_MAX, 0},
+        {screen::ColorLimit::R_565_MAX, 0, screen::ColorLimit::B_565_MAX},
+        {0, screen::ColorLimit::G_565_MAX, screen::ColorLimit::B_565_MAX},
+        {screen::ColorLimit::R_565_MAX, 0, 0},
+        {0, screen::ColorLimit::G_565_MAX, 0},
+        {0, 0, screen::ColorLimit::B_565_MAX},
+        {screen::ColorLimit::R_565_MAX, screen::ColorLimit::G_565_MAX, screen::ColorLimit::B_565_MAX}
+    };
+
+    std::vector<std::string> phrases = {
+        "Inverting",
+        "Display",
+        "In 3 2 1 ...",
+        "",
+        "",
+        "Going back",
+        "To normal",
+        "In 3 2 1 ..."
+    };
+
+    broadcast([](Screen& s){s.setSpiDelay(1ns);});
+
+    for (size_t i = 0; i < colors.size() / 2; i++) {
+        broadcast([&](Screen& s){s.setTextCursor(0, i); s.drawString(phrases[i], colors[i]);});
+    }
+    std::this_thread::sleep_for(200ms);
+    broadcast([](Screen& s){s.sendCommand(screen::Command::InverseDisplay);}, 1s);
+    for (size_t i = colors.size() / 2; i < colors.size(); i++) {
+        broadcast([&](Screen& s){s.setTextCursor(0, i); s.drawString(phrases[i], colors[i]);});
+    }
+    std::this_thread::sleep_for(200ms);
+    broadcast([](Screen& s){s.sendCommand(screen::Command::NormalDisplay);}, 1s);
+
+
+    broadcast([](Screen& s){s.clearScreen();}, 200ms);
+    broadcast([](Screen& s){s.applyDefaultSettings();});
+}
+
 void Test::remap() {
 
     std::vector<screen::Color> colors = {
@@ -499,53 +541,14 @@ void Test::remap() {
     broadcast([](Screen& s){s.applyDefaultSettings();});
 }
 
-void Test::inverseDisplay() {
-
-    std::vector<screen::Color> colors = {
-        {screen::ColorLimit::R_565_MAX, screen::ColorLimit::G_565_MAX, screen::ColorLimit::B_565_MAX},
-        {screen::ColorLimit::R_565_MAX, screen::ColorLimit::G_565_MAX, 0},
-        {screen::ColorLimit::R_565_MAX, 0, screen::ColorLimit::B_565_MAX},
-        {0, screen::ColorLimit::G_565_MAX, screen::ColorLimit::B_565_MAX},
-        {screen::ColorLimit::R_565_MAX, 0, 0},
-        {0, screen::ColorLimit::G_565_MAX, 0},
-        {0, 0, screen::ColorLimit::B_565_MAX},
-        {screen::ColorLimit::R_565_MAX, screen::ColorLimit::G_565_MAX, screen::ColorLimit::B_565_MAX}
-    };
-
-    std::vector<std::string> phrases = {
-        "Inverting",
-        "Display",
-        "In 3 2 1 ...",
-        "",
-        "",
-        "Going back",
-        "To normal",
-        "In 3 2 1 ..."
-    };
-
-    broadcast([](Screen& s){s.setSpiDelay(1ns);});
-
-    for (size_t i = 0; i < colors.size() / 2; i++) {
-        broadcast([&](Screen& s){s.setTextCursor(0, i); s.drawString(phrases[i], colors[i]);});
-    }
-    std::this_thread::sleep_for(200ms);
-    broadcast([](Screen& s){s.sendCommand(screen::Command::InverseDisplay);}, 1s);
-    for (size_t i = colors.size() / 2; i < colors.size(); i++) {
-        broadcast([&](Screen& s){s.setTextCursor(0, i); s.drawString(phrases[i], colors[i]);});
-    }
-    std::this_thread::sleep_for(200ms);
-    broadcast([](Screen& s){s.sendCommand(screen::Command::NormalDisplay);}, 1s);
-
-
-    broadcast([](Screen& s){s.clearScreen();}, 200ms);
-    broadcast([](Screen& s){s.applyDefaultSettings();});
-}
-
 void Test::screenOrientation() {
 
     screen::Color color = {screen::ColorLimit::R_565_MAX, screen::ColorLimit::G_565_MAX, screen::ColorLimit::B_565_MAX};
 
     std::string phrase;
+
+    const std::string imagePathHorizontal = "/home/petalinux/images/horizontal.jpg";
+    const std::string imagePathVertical = "/home/petalinux/images/vertical.jpg";
 
     broadcast([](Screen& s){s.setSpiDelay(1ns);});
 
@@ -555,7 +558,10 @@ void Test::screenOrientation() {
     for (size_t i = 0; i < screen::TextGeometry::TextRows; i++) {
         broadcast([&](Screen& s){s.setTextCursor(0, i); s.drawString(phrase, color);});
     }
-    std::this_thread::sleep_for(2s);
+    std::this_thread::sleep_for(1s);
+    broadcast([](Screen& s){s.clearScreen();}, 200ms);
+
+    broadcast([=](Screen& s){s.drawImage(imagePathHorizontal);}, 1s);
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
 
     // Vertical orientation
@@ -564,25 +570,34 @@ void Test::screenOrientation() {
     for (size_t i = 0; i < screen::TextGeometry::TextColumns; i++) {
         broadcast([&](Screen& s){s.setTextCursor(0, i); s.drawString(phrase, color);});
     }
-    std::this_thread::sleep_for(2s);
+    std::this_thread::sleep_for(1s);
+    broadcast([](Screen& s){s.clearScreen();}, 200ms);
+
+    broadcast([=](Screen& s){s.drawImage(imagePathVertical);}, 1s);
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
 
     // Horizontal reverse orientation
-    phrase = "Horizontal";
+    phrase = "Horiz rev";
     broadcast([](Screen& s){s.setScreenOrientation(screen::Orientation::HorizontalReverse);});
     for (size_t i = 0; i < screen::TextGeometry::TextRows; i++) {
         broadcast([&](Screen& s){s.setTextCursor(0, i); s.drawString(phrase, color);});
     }
-    std::this_thread::sleep_for(2s);
+    std::this_thread::sleep_for(1s);
+    broadcast([](Screen& s){s.clearScreen();}, 200ms);
+
+    broadcast([=](Screen& s){s.drawImage(imagePathHorizontal);}, 1s);
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
 
     // Vertical reverse orientation
-    phrase = "Vertical";
+    phrase = "Vert rev";
     broadcast([](Screen& s){s.setScreenOrientation(screen::Orientation::VerticalReverse);});
     for (size_t i = 0; i < screen::TextGeometry::TextColumns; i++) {
         broadcast([&](Screen& s){s.setTextCursor(0, i); s.drawString(phrase, color);});
     }
-    std::this_thread::sleep_for(2s);
+    std::this_thread::sleep_for(1s);
+    broadcast([](Screen& s){s.clearScreen();}, 200ms);
+
+    broadcast([=](Screen& s){s.drawImage(imagePathVertical);}, 1s);
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
 
     broadcast([](Screen& s){s.applyDefaultSettings();});
