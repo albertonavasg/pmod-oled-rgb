@@ -556,7 +556,6 @@ void Test::screenOrientation() {
         broadcast([&](Screen& s){s.setTextCursor(0, i); s.drawString(phrase, color);});
     }
     std::this_thread::sleep_for(2s);
-
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
 
     // Vertical orientation
@@ -566,7 +565,25 @@ void Test::screenOrientation() {
         broadcast([&](Screen& s){s.setTextCursor(0, i); s.drawString(phrase, color);});
     }
     std::this_thread::sleep_for(2s);
-
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
+
+    // Horizontal reverse orientation
+    phrase = "Horizontal";
+    broadcast([](Screen& s){s.setScreenOrientation(screen::Orientation::HorizontalReverse);});
+    for (size_t i = 0; i < screen::TextGeometry::TextRows; i++) {
+        broadcast([&](Screen& s){s.setTextCursor(0, i); s.drawString(phrase, color);});
+    }
+    std::this_thread::sleep_for(2s);
+    broadcast([](Screen& s){s.clearScreen();}, 200ms);
+
+    // Vertical reverse orientation
+    phrase = "Vertical";
+    broadcast([](Screen& s){s.setScreenOrientation(screen::Orientation::VerticalReverse);});
+    for (size_t i = 0; i < screen::TextGeometry::TextColumns; i++) {
+        broadcast([&](Screen& s){s.setTextCursor(0, i); s.drawString(phrase, color);});
+    }
+    std::this_thread::sleep_for(2s);
+    broadcast([](Screen& s){s.clearScreen();}, 200ms);
+
     broadcast([](Screen& s){s.applyDefaultSettings();});
 }

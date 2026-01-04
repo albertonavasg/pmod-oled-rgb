@@ -14,8 +14,10 @@ namespace screen {
 
     enum class Orientation : uint8_t {
 
-        Horizontal = 0,
-        Vertical = 1
+        Horizontal,
+        Vertical,
+        HorizontalReverse,
+        VerticalReverse
     };
 
     constexpr Orientation defaultOrientation = Orientation::Horizontal;

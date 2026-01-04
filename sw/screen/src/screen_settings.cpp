@@ -117,14 +117,29 @@ void Screen::setScreenOrientation(const screen::Orientation orientation) {
 
     m_orientation = orientation;
 
-    if (m_orientation == screen::Orientation::Horizontal) {
-        setAddressIncrement(screen::RemapColorDepth::AddressIncrement::Horizontal);
-        setColumnRemap(screen::RemapColorDepth::ColumnRemap::Remap);
-        setScanDirection(screen::RemapColorDepth::ScanDirection::COMNto0);
-    } else {
-        setAddressIncrement(screen::RemapColorDepth::AddressIncrement::Vertical);
-        setColumnRemap(screen::RemapColorDepth::ColumnRemap::Remap);
-        setScanDirection(screen::RemapColorDepth::ScanDirection::COM0toN);
+    switch (m_orientation) {
+        case screen::Orientation::Horizontal:
+            setAddressIncrement(screen::RemapColorDepth::AddressIncrement::Horizontal);
+            setColumnRemap(screen::RemapColorDepth::ColumnRemap::Remap);
+            setScanDirection(screen::RemapColorDepth::ScanDirection::COMNto0);
+            break;
+        case screen::Orientation::Vertical:
+            setAddressIncrement(screen::RemapColorDepth::AddressIncrement::Vertical);
+            setColumnRemap(screen::RemapColorDepth::ColumnRemap::Remap);
+            setScanDirection(screen::RemapColorDepth::ScanDirection::COM0toN);
+            break;
+        case screen::Orientation::HorizontalReverse:
+            setAddressIncrement(screen::RemapColorDepth::AddressIncrement::Horizontal);
+            setColumnRemap(screen::RemapColorDepth::ColumnRemap::Normal);
+            setScanDirection(screen::RemapColorDepth::ScanDirection::COM0toN);
+            break;
+        case screen::Orientation::VerticalReverse:
+            setAddressIncrement(screen::RemapColorDepth::AddressIncrement::Vertical);
+            setColumnRemap(screen::RemapColorDepth::ColumnRemap::Normal);
+            setScanDirection(screen::RemapColorDepth::ScanDirection::COMNto0);
+            break;
+        default:
+            break;
     }
 
     applyRemapColorDepth();
