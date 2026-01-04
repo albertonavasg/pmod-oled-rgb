@@ -49,13 +49,13 @@ class Screen {
         void applyColumnRowAddr(screen::ApplyMode mode = screen::ApplyMode::Current);
         screen::ColumnRowAddr getColumnRowAddr();
         // Remap and Color Depth
-        void setAddressIncrement(bool vertical);
-        void setColumnRemap(bool remap);
-        void setColorOrder(bool bgr);
-        void setCOMSwap(bool swap);
-        void setScanDirection(bool comNto0);
-        void setCOMSplit(bool enable);
-        void setColorDepth(uint8_t depth);
+        void setAddressIncrement(screen::RemapColorDepth::AddressIncrement inc);
+        void setColumnRemap(screen::RemapColorDepth::ColumnRemap col);
+        void setColorOrder(screen::RemapColorDepth::ColorOrder ord);
+        void setCOMSwap(screen::RemapColorDepth::COMSwap swap);
+        void setScanDirection(screen::RemapColorDepth::ScanDirection scan);
+        void setCOMSplit(screen::RemapColorDepth::COMSplit split);
+        void setColorDepth(screen::RemapColorDepth::ColorDepth depth);
         void applyRemapColorDepth(screen::ApplyMode mode = screen::ApplyMode::Current);
         uint8_t getRemapColorDepth();
         // Screen orientation
@@ -77,8 +77,8 @@ class Screen {
         screen::Orientation m_orientation = screen::defaultOrientation;
 
         // Helper for byte manipulation
-        static constexpr void setField(uint8_t& reg, uint8_t mask, uint8_t value) {
-            reg = (reg & ~mask) | value;
+        static constexpr void setField(uint8_t &reg, uint8_t mask, uint8_t pos, uint8_t value) {
+            reg = (reg & ~mask) | ((value << pos) & mask);
         }
 
         // Base

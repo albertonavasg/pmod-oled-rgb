@@ -49,53 +49,60 @@ screen::ColumnRowAddr Screen::getColumnRowAddr() {
     return m_columnRowAddr;
 }
 
-void Screen::setAddressIncrement(bool vertical) {
+void Screen::setAddressIncrement(screen::RemapColorDepth::AddressIncrement inc) {
 
     setField(m_remapColorDepthCfg,
-             screen::RemapColorDepthMask::AddressIncrement,
-             vertical ? screen::RemapColorDepth::VerticalIncrement : screen::RemapColorDepth::HorizontalIncrement);
+            screen::RemapColorDepth::AddressIncrement_Msk,
+            screen::RemapColorDepth::AddressIncrement_Pos,
+            static_cast<uint8_t>(inc));
 }
 
-void Screen::setColumnRemap(bool remap) {
+void Screen::setColumnRemap(screen::RemapColorDepth::ColumnRemap col) {
 
     setField(m_remapColorDepthCfg,
-             screen::RemapColorDepthMask::ColumnRemap,
-             remap ? screen::RemapColorDepth::ColumnRemap : screen::RemapColorDepth::ColumnNormal);
+            screen::RemapColorDepth::ColumnRemap_Msk,
+            screen::RemapColorDepth::ColumnRemap_Pos,
+            static_cast<uint8_t>(col));
 }
 
-void Screen::setColorOrder(bool bgr) {
+void Screen::setColorOrder(screen::RemapColorDepth::ColorOrder ord) {
 
     setField(m_remapColorDepthCfg,
-             screen::RemapColorDepthMask::ColorOrder,
-             bgr ? screen::RemapColorDepth::BGR : screen::RemapColorDepth::RGB);
+            screen::RemapColorDepth::ColorOrder_Msk,
+            screen::RemapColorDepth::ColorOrder_Pos,
+            static_cast<uint8_t>(ord));
 }
 
-void Screen::setCOMSwap(bool swap) {
+void Screen::setCOMSwap(screen::RemapColorDepth::COMSwap swap) {
 
     setField(m_remapColorDepthCfg,
-             screen::RemapColorDepthMask::COMSwap,
-             swap ? screen::RemapColorDepth::COMSwap : screen::RemapColorDepth::COMNoSwap);
+            screen::RemapColorDepth::COMSwap_Msk,
+            screen::RemapColorDepth::COMSwap_Pos,
+            static_cast<uint8_t>(swap));
 }
 
-void Screen::setScanDirection(bool comNto0) {
+void Screen::setScanDirection(screen::RemapColorDepth::ScanDirection scan) {
 
     setField(m_remapColorDepthCfg,
-             screen::RemapColorDepthMask::ScanDirection,
-             comNto0 ? screen::RemapColorDepth::ScanCOMNto0 : screen::RemapColorDepth::ScanCOM0toN);
+            screen::RemapColorDepth::ScanDirection_Msk,
+            screen::RemapColorDepth::ScanDirection_Pos,
+            static_cast<uint8_t>(scan));
 }
 
-void Screen::setCOMSplit(bool enable) {
+void Screen::setCOMSplit(screen::RemapColorDepth::COMSplit split) {
 
     setField(m_remapColorDepthCfg,
-             screen::RemapColorDepthMask::COMSplit,
-             enable ? screen::RemapColorDepth::COMSplitEnable : screen::RemapColorDepth::COMSplitDisable);
+            screen::RemapColorDepth::COMSplit_Msk,
+            screen::RemapColorDepth::COMSplit_Pos,
+            static_cast<uint8_t>(split));
 }
 
-void Screen::setColorDepth(uint8_t depth) {
+void Screen::setColorDepth(screen::RemapColorDepth::ColorDepth depth) {
 
     setField(m_remapColorDepthCfg,
-             screen::RemapColorDepthMask::ColorDepth,
-             depth);
+            screen::RemapColorDepth::ColorDepth_Msk,
+            screen::RemapColorDepth::ColorDepth_Pos,
+            static_cast<uint8_t>(depth));
 }
 
 void Screen::applyRemapColorDepth(screen::ApplyMode mode) {
@@ -111,13 +118,13 @@ void Screen::setScreenOrientation(const screen::Orientation orientation) {
     m_orientation = orientation;
 
     if (m_orientation == screen::Orientation::Horizontal) {
-        setAddressIncrement(false);
-        setColumnRemap(true);
-        setScanDirection(true);
+        setAddressIncrement(screen::RemapColorDepth::AddressIncrement::Horizontal);
+        setColumnRemap(screen::RemapColorDepth::ColumnRemap::Remap);
+        setScanDirection(screen::RemapColorDepth::ScanDirection::COMNto0);
     } else {
-        setAddressIncrement(true);
-        setColumnRemap(true);
-        setScanDirection(false);
+        setAddressIncrement(screen::RemapColorDepth::AddressIncrement::Vertical);
+        setColumnRemap(screen::RemapColorDepth::ColumnRemap::Remap);
+        setScanDirection(screen::RemapColorDepth::ScanDirection::COM0toN);
     }
 
     applyRemapColorDepth();

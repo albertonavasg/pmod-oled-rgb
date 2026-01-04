@@ -128,48 +128,42 @@ namespace screen {
 
     namespace RemapColorDepth {
 
-        constexpr uint8_t HorizontalIncrement = 0 << 0;
-        constexpr uint8_t VerticalIncrement   = 1 << 0;
+        // Bit positions
+        constexpr uint8_t AddressIncrement_Pos = 0;
+        constexpr uint8_t ColumnRemap_Pos      = 1;
+        constexpr uint8_t ColorOrder_Pos       = 2;
+        constexpr uint8_t COMSwap_Pos           = 3;
+        constexpr uint8_t ScanDirection_Pos    = 4;
+        constexpr uint8_t COMSplit_Pos          = 5;
+        constexpr uint8_t ColorDepth_Pos        = 6;
 
-        constexpr uint8_t ColumnNormal        = 0 << 1;
-        constexpr uint8_t ColumnRemap         = 1 << 1;
+        // Masks (shifted)
+        constexpr uint8_t AddressIncrement_Msk = 1u << AddressIncrement_Pos;
+        constexpr uint8_t ColumnRemap_Msk      = 1u << ColumnRemap_Pos;
+        constexpr uint8_t ColorOrder_Msk       = 1u << ColorOrder_Pos;
+        constexpr uint8_t COMSwap_Msk           = 1u << COMSwap_Pos;
+        constexpr uint8_t ScanDirection_Msk    = 1u << ScanDirection_Pos;
+        constexpr uint8_t COMSplit_Msk          = 1u << COMSplit_Pos;
+        constexpr uint8_t ColorDepth_Msk        = 0b11u << ColorDepth_Pos;
 
-        constexpr uint8_t RGB                 = 0 << 2;
-        constexpr uint8_t BGR                 = 1 << 2;
-
-        constexpr uint8_t COMNoSwap           = 0 << 3;
-        constexpr uint8_t COMSwap             = 1 << 3;
-
-        constexpr uint8_t ScanCOM0toN         = 0 << 4;
-        constexpr uint8_t ScanCOMNto0         = 1 << 4;
-
-        constexpr uint8_t COMSplitDisable     = 0 << 5;
-        constexpr uint8_t COMSplitEnable      = 1 << 5;
-
-        constexpr uint8_t Color256            = 0b00 << 6;
-        constexpr uint8_t Color65k            = 0b01 << 6;
-        constexpr uint8_t Color65kAlt         = 0b10 << 6;
-    }
-
-    namespace RemapColorDepthMask {
-
-        constexpr uint8_t AddressIncrement = 1u << 0;    // bit 0
-        constexpr uint8_t ColumnRemap      = 1u << 1;    // bit 1
-        constexpr uint8_t ColorOrder       = 1u << 2;    // bit 2
-        constexpr uint8_t COMSwap          = 1u << 3;    // bit 3
-        constexpr uint8_t ScanDirection    = 1u << 4;    // bit 4
-        constexpr uint8_t COMSplit         = 1u << 5;    // bit 5
-        constexpr uint8_t ColorDepth       = 0b11u << 6; // bits 6–7
+        // Raw values (NOT shifted)
+        enum class AddressIncrement : uint8_t { Horizontal = 0, Vertical = 1 };
+        enum class ColumnRemap      : uint8_t { Normal = 0, Remap = 1 };
+        enum class ColorOrder       : uint8_t { RGB = 0, BGR = 1 };
+        enum class COMSwap          : uint8_t { NoSwap = 0, Swap = 1 };
+        enum class ScanDirection    : uint8_t { COM0toN = 0, COMNto0 = 1 };
+        enum class COMSplit         : uint8_t { Disable = 0, Enable = 1 };
+        enum class ColorDepth       : uint8_t { Color256 = 0b00, Color65k = 0b01, Color65kAlt = 0b10 };
     }
 
     constexpr uint8_t defaultRemapColorDepth =
-        RemapColorDepth::HorizontalIncrement |
-        RemapColorDepth::ColumnRemap         |
-        RemapColorDepth::RGB                 |
-        RemapColorDepth::COMNoSwap           |
-        RemapColorDepth::ScanCOMNto0         |
-        RemapColorDepth::COMSplitEnable      |
-        RemapColorDepth::Color65k;
+        (static_cast<uint8_t>(RemapColorDepth::AddressIncrement::Horizontal) << RemapColorDepth::AddressIncrement_Pos) |
+        (static_cast<uint8_t>(RemapColorDepth::ColumnRemap::Remap)           << RemapColorDepth::ColumnRemap_Pos)      |
+        (static_cast<uint8_t>(RemapColorDepth::ColorOrder::RGB)              << RemapColorDepth::ColorOrder_Pos)       |
+        (static_cast<uint8_t>(RemapColorDepth::COMSwap::NoSwap)              << RemapColorDepth::COMSwap_Pos)          |
+        (static_cast<uint8_t>(RemapColorDepth::ScanDirection::COMNto0)       << RemapColorDepth::ScanDirection_Pos)    |
+        (static_cast<uint8_t>(RemapColorDepth::COMSplit::Enable)             << RemapColorDepth::COMSplit_Pos)         |
+        (static_cast<uint8_t>(RemapColorDepth::ColorDepth::Color65k)         << RemapColorDepth::ColorDepth_Pos);
 }
 
 #endif // SCREEN_CONSTANTS_H

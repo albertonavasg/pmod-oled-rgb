@@ -60,15 +60,15 @@ void Test::colorDepth() {
         };
     }
 
-    broadcast([](Screen& s){s.setColorDepth(screen::RemapColorDepth::Color256); s.applyRemapColorDepth();});
+    broadcast([](Screen& s){s.setColorDepth(screen::RemapColorDepth::ColorDepth::Color256); s.applyRemapColorDepth();});
     broadcast([&colors](Screen& s){s.sendMultiPixel(colors);}, 1s);
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
 
-    broadcast([](Screen& s){s.setColorDepth(screen::RemapColorDepth::Color65k); s.applyRemapColorDepth();});
+    broadcast([](Screen& s){s.setColorDepth(screen::RemapColorDepth::ColorDepth::Color65k); s.applyRemapColorDepth();});
     broadcast([&colors](Screen& s){s.sendMultiPixel(colors);}, 1s);
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
 
-    broadcast([](Screen& s){s.setColorDepth(screen::RemapColorDepth::Color65kAlt); s.applyRemapColorDepth();});
+    broadcast([](Screen& s){s.setColorDepth(screen::RemapColorDepth::ColorDepth::Color65kAlt); s.applyRemapColorDepth();});
     broadcast([&colors](Screen& s){s.sendMultiPixel(colors);}, 1s);
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
 
@@ -92,7 +92,7 @@ void Test::addressIncrement() {
         };
     }
     // Horizontal address increment
-    broadcast([](Screen& s){s.setColorDepth(screen::RemapColorDepth::Color65kAlt); s.setAddressIncrement(false); s.applyRemapColorDepth();});
+    broadcast([](Screen& s){s.setColorDepth(screen::RemapColorDepth::ColorDepth::Color65kAlt); s.setAddressIncrement(screen::RemapColorDepth::AddressIncrement::Horizontal); s.applyRemapColorDepth();});
     broadcast([&colors](Screen& s){s.sendMultiPixel(colors);}, 1s);
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
 
@@ -107,7 +107,7 @@ void Test::addressIncrement() {
         };
     }
     // Vertical address increment
-    broadcast([](Screen& s){s.setAddressIncrement(true); s.applyRemapColorDepth();});
+    broadcast([](Screen& s){s.setAddressIncrement(screen::RemapColorDepth::AddressIncrement::Vertical); s.applyRemapColorDepth();});
     broadcast([&colors](Screen& s){s.sendMultiPixel(colors);}, 1s);
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
 
@@ -322,23 +322,23 @@ void Test::image() {
     const std::string imagePath1 = "/home/petalinux/images/default1.jpg";
     const std::string imagePath2 = "/home/petalinux/images/default2.jpg";
 
-    broadcast([](Screen& s){s.setColorDepth(screen::RemapColorDepth::Color256); s.applyRemapColorDepth();});
+    broadcast([](Screen& s){s.setColorDepth(screen::RemapColorDepth::ColorDepth::Color256); s.applyRemapColorDepth();});
     broadcast([=](Screen& s){s.drawImage(imagePath1);}, 2s);
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
-    broadcast([](Screen& s){s.setColorDepth(screen::RemapColorDepth::Color65k); s.applyRemapColorDepth();});
+    broadcast([](Screen& s){s.setColorDepth(screen::RemapColorDepth::ColorDepth::Color65k); s.applyRemapColorDepth();});
     broadcast([=](Screen& s){s.drawImage(imagePath1);}, 2s);
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
-    broadcast([](Screen& s){s.setColorDepth(screen::RemapColorDepth::Color65kAlt); s.applyRemapColorDepth();});
+    broadcast([](Screen& s){s.setColorDepth(screen::RemapColorDepth::ColorDepth::Color65kAlt); s.applyRemapColorDepth();});
     broadcast([=](Screen& s){s.drawImage(imagePath1);}, 2s);
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
 
-    broadcast([](Screen& s){s.setColorDepth(screen::RemapColorDepth::Color256); s.applyRemapColorDepth();});
+    broadcast([](Screen& s){s.setColorDepth(screen::RemapColorDepth::ColorDepth::Color256); s.applyRemapColorDepth();});
     broadcast([=](Screen& s){s.drawImage(imagePath2);}, 2s);
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
-    broadcast([](Screen& s){s.setColorDepth(screen::RemapColorDepth::Color65k); s.applyRemapColorDepth();});
+    broadcast([](Screen& s){s.setColorDepth(screen::RemapColorDepth::ColorDepth::Color65k); s.applyRemapColorDepth();});
     broadcast([=](Screen& s){s.drawImage(imagePath2);}, 2s);
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
-    broadcast([](Screen& s){s.setColorDepth(screen::RemapColorDepth::Color65kAlt); s.applyRemapColorDepth();});
+    broadcast([](Screen& s){s.setColorDepth(screen::RemapColorDepth::ColorDepth::Color65kAlt); s.applyRemapColorDepth();});
     broadcast([=](Screen& s){s.drawImage(imagePath2);}, 2s);
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
 
@@ -419,7 +419,7 @@ void Test::remap() {
     broadcast([](Screen& s){s.applyRemapColorDepth(screen::ApplyMode::Default);});
 
     phrase = "ColumnNormal";
-    broadcast([](Screen& s){s.setColumnRemap(screen::RemapColorDepth::ColumnNormal); s.applyRemapColorDepth();});
+    broadcast([](Screen& s){s.setColumnRemap(screen::RemapColorDepth::ColumnRemap::Normal); s.applyRemapColorDepth();});
     for (size_t i = 0; i < colors.size(); i++) {
         broadcast([&](Screen& s){s.setTextCursor(0, i); s.drawString(phrase, colors[i]);});
     }
@@ -428,7 +428,7 @@ void Test::remap() {
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
 
     phrase = "BGR";
-    broadcast([](Screen& s){s.setColorOrder(screen::RemapColorDepth::BGR); s.applyRemapColorDepth();});
+    broadcast([](Screen& s){s.setColorOrder(screen::RemapColorDepth::ColorOrder::BGR); s.applyRemapColorDepth();});
     for (size_t i = 0; i < colors.size(); i++) {
         broadcast([&](Screen& s){s.setTextCursor(0, i); s.drawString(phrase, colors[i]);});
     }
@@ -437,7 +437,7 @@ void Test::remap() {
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
 
     phrase = "COM Swap";
-    broadcast([](Screen& s){s.setCOMSwap(screen::RemapColorDepth::COMSwap); s.applyRemapColorDepth();});
+    broadcast([](Screen& s){s.setCOMSwap(screen::RemapColorDepth::COMSwap::Swap); s.applyRemapColorDepth();});
     for (size_t i = 0; i < colors.size(); i++) {
         broadcast([&](Screen& s){s.setTextCursor(0, i); s.drawString(phrase, colors[i]);});
     }
@@ -446,7 +446,7 @@ void Test::remap() {
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
 
     phrase = "ScanCOM0toN";
-    broadcast([](Screen& s){s.setScanDirection(screen::RemapColorDepth::ScanCOM0toN); s.applyRemapColorDepth();});
+    broadcast([](Screen& s){s.setScanDirection(screen::RemapColorDepth::ScanDirection::COM0toN); s.applyRemapColorDepth();});
     for (size_t i = 0; i < colors.size(); i++) {
         broadcast([&](Screen& s){s.setTextCursor(0, i); s.drawString(phrase, colors[i]);});
     }
@@ -455,7 +455,7 @@ void Test::remap() {
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
 
     phrase = "COMSplitDis";
-    broadcast([](Screen& s){s.setCOMSplit(screen::RemapColorDepth::COMSplitDisable); s.applyRemapColorDepth();});
+    broadcast([](Screen& s){s.setCOMSplit(screen::RemapColorDepth::COMSplit::Disable); s.applyRemapColorDepth();});
     for (size_t i = 0; i < colors.size(); i++) {
         broadcast([&](Screen& s){s.setTextCursor(0, i); s.drawString(phrase, colors[i]);});
     }
