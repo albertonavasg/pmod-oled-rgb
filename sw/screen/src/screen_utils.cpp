@@ -40,9 +40,9 @@ void Screen::sendPixel(const screen::Color color) {
     }
 }
 
-void Screen::sendMultiPixel(const std::vector<screen::Color>& colors) {
+void Screen::sendMultiPixel(const std::vector<screen::Color> &colors) {
 
-    for (const auto& c : colors) {
+    for (const auto &c : colors) {
         sendPixel(c);
     }
 }
@@ -58,7 +58,7 @@ void Screen::clearScreen() {
     clearWindow(0, 0, screen::Geometry::Columns - 1, screen::Geometry::Rows - 1);
 }
 
-void Screen::drawBitmap(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, const std::vector<screen::Color>& colors) {
+void Screen::drawBitmap(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, const std::vector<screen::Color> &colors) {
 
     setColumnRowAddr(c1, r1, c2, r2);
     applyColumnRowAddr();

@@ -21,10 +21,10 @@ class Screen {
 
         // Utilities
         void sendPixel(const screen::Color color);
-        void sendMultiPixel(const std::vector<screen::Color>& colors);
+        void sendMultiPixel(const std::vector<screen::Color> &colors);
         void clearWindow(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2);
         void clearScreen();
-        void drawBitmap(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, const std::vector<screen::Color>& colors);
+        void drawBitmap(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, const std::vector<screen::Color> &colors);
         void drawLine(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, const screen::Color color);
         void drawRectangle(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, const screen::Color colorLine, const screen::Color colorFill);
         void copyWindow(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, uint8_t c3, uint8_t r3);

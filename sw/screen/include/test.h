@@ -13,7 +13,7 @@ class Test {
 
     public:
         // Constructor
-        explicit Test(const std::vector<std::reference_wrapper<Screen>>& screens);
+        explicit Test(const std::vector<std::reference_wrapper<Screen>> &screens);
 
         // Test routines
         void display();
@@ -40,7 +40,7 @@ class Test {
             template <typename F, typename... Args>
             void broadcast(F&& f, std::chrono::milliseconds delay = std::chrono::milliseconds(0), Args&&... args)
             {
-                for (Screen& s : m_screens) {
+                for (Screen &s : m_screens) {
                     std::invoke(std::forward<F>(f), s, std::forward<Args>(args)...);
                 }
                 if (delay.count() > 0) {
