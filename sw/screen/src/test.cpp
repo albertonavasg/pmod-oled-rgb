@@ -155,17 +155,9 @@ void Test::scrolling() {
         const size_t xBlock = (i % screen::Geometry::Columns) / squareDimension;
         const size_t yBlock = (i / screen::Geometry::Columns) / squareDimension;
         if ((xBlock ^ yBlock) & 1) {
-            colors[i] = {
-                screen::ColorLimit::R_565_MAX,
-                0,
-                screen::ColorLimit::B_565_MAX
-            };
+            colors[i] = screen::StandardColor::Violet;
         } else {
-            colors[i] = {
-                0,
-                screen::ColorLimit::G_565_MAX,
-                screen::ColorLimit::B_565_MAX
-            };
+            colors[i] = screen::StandardColor::Cyan;
         }
     }
     broadcast([&colors](Screen& s){s.sendMultiPixel(colors);}, 1s);
@@ -379,7 +371,7 @@ void Test::image() {
 
 void Test::symbol() {
 
-    screen::Color color = {screen::ColorLimit::R_565_MAX, screen::ColorLimit::G_565_MAX, screen::ColorLimit::B_565_MAX};
+    screen::Color color = screen::StandardColor::White;
 
     broadcast([](Screen& s){s.setSpiDelay(1ns);});
 
@@ -404,14 +396,14 @@ void Test::string() {
     std::string phrase = "Pmod OLEDrgb";
 
     std::vector<screen::Color> colors = {
-        {screen::ColorLimit::R_565_MAX, screen::ColorLimit::G_565_MAX, screen::ColorLimit::B_565_MAX},
-        {screen::ColorLimit::R_565_MAX, screen::ColorLimit::G_565_MAX, 0},
-        {screen::ColorLimit::R_565_MAX, 0, screen::ColorLimit::B_565_MAX},
-        {0, screen::ColorLimit::G_565_MAX, screen::ColorLimit::B_565_MAX},
-        {screen::ColorLimit::R_565_MAX, 0, 0},
-        {0, screen::ColorLimit::G_565_MAX, 0},
-        {0, 0, screen::ColorLimit::B_565_MAX},
-        {screen::ColorLimit::R_565_MAX, screen::ColorLimit::G_565_MAX, screen::ColorLimit::B_565_MAX}
+        screen::StandardColor::White,
+        screen::StandardColor::Red,
+        screen::StandardColor::Green,
+        screen::StandardColor::Blue,
+        screen::StandardColor::Yellow,
+        screen::StandardColor::Violet,
+        screen::StandardColor::Cyan,
+        screen::StandardColor::White,
     };
 
     broadcast([](Screen& s){s.setSpiDelay(1ns);});
@@ -425,17 +417,87 @@ void Test::string() {
     broadcast([](Screen& s){s.applyDefaultSettings();});
 }
 
+void Test::standardColors() {
+
+    std::vector<screen::Color> colors = {
+        screen::StandardColor::White,
+
+        screen::StandardColor::Red,
+        screen::StandardColor::Green,
+        screen::StandardColor::Blue,
+
+        screen::StandardColor::Yellow,
+        screen::StandardColor::Violet,
+        screen::StandardColor::Cyan,
+
+        screen::StandardColor::Grey,
+
+        screen::StandardColor::Orange,
+        screen::StandardColor::Lime,
+        screen::StandardColor::Olive,
+
+        screen::StandardColor::Pink,
+        screen::StandardColor::Purple,
+        screen::StandardColor::DarkViolet,
+
+        screen::StandardColor::LightGreen,
+        screen::StandardColor::SkyBlue,
+        screen::StandardColor::Teal
+    };
+
+    std::vector<std::string> phrases = {
+        "White",
+
+        "Red",
+        "Green",
+        "Blue",
+
+        "Yellow",
+        "Violet",
+        "Cyan",
+
+        "Grey",
+
+        "Orange",
+        "Lime",
+        "Olive",
+
+        "Pink",
+        "Purple",
+        "DarkViolet",
+
+        "LightGreen",
+        "SkyBlue",
+        "Teal",
+    };
+
+    size_t totalColors = colors.size();
+    size_t rows = screen::TextGeometry::TextRows;
+
+    for (size_t i = 0; i < totalColors; i += rows) {
+        size_t end = std::min(i + rows, totalColors);
+        for (size_t j = i; j < end; j++) {
+            broadcast([&](Screen& s){s.setTextCursor(0, j - i); s.drawString(phrases[j], colors[j]);});
+        }
+        std::this_thread::sleep_for(4s);
+        broadcast([](Screen& s){s.clearScreen();}, 200ms);
+    }
+
+    broadcast([](Screen& s){s.clearScreen();}, 200ms);
+    broadcast([](Screen& s){s.applyDefaultSettings();});
+}
+
 void Test::inverseDisplay() {
 
     std::vector<screen::Color> colors = {
-        {screen::ColorLimit::R_565_MAX, screen::ColorLimit::G_565_MAX, screen::ColorLimit::B_565_MAX},
-        {screen::ColorLimit::R_565_MAX, screen::ColorLimit::G_565_MAX, 0},
-        {screen::ColorLimit::R_565_MAX, 0, screen::ColorLimit::B_565_MAX},
-        {0, screen::ColorLimit::G_565_MAX, screen::ColorLimit::B_565_MAX},
-        {screen::ColorLimit::R_565_MAX, 0, 0},
-        {0, screen::ColorLimit::G_565_MAX, 0},
-        {0, 0, screen::ColorLimit::B_565_MAX},
-        {screen::ColorLimit::R_565_MAX, screen::ColorLimit::G_565_MAX, screen::ColorLimit::B_565_MAX}
+        screen::StandardColor::White,
+        screen::StandardColor::Red,
+        screen::StandardColor::Green,
+        screen::StandardColor::Blue,
+        screen::StandardColor::Yellow,
+        screen::StandardColor::Violet,
+        screen::StandardColor::Cyan,
+        screen::StandardColor::White,
     };
 
     std::vector<std::string> phrases = {
@@ -470,14 +532,14 @@ void Test::inverseDisplay() {
 void Test::remap() {
 
     std::vector<screen::Color> colors = {
-        {screen::ColorLimit::R_565_MAX, screen::ColorLimit::G_565_MAX, screen::ColorLimit::B_565_MAX},
-        {screen::ColorLimit::R_565_MAX, screen::ColorLimit::G_565_MAX, 0},
-        {screen::ColorLimit::R_565_MAX, 0, screen::ColorLimit::B_565_MAX},
-        {0, screen::ColorLimit::G_565_MAX, screen::ColorLimit::B_565_MAX},
-        {screen::ColorLimit::R_565_MAX, 0, 0},
-        {0, screen::ColorLimit::G_565_MAX, 0},
-        {0, 0, screen::ColorLimit::B_565_MAX},
-        {screen::ColorLimit::R_565_MAX, screen::ColorLimit::G_565_MAX, screen::ColorLimit::B_565_MAX}
+        screen::StandardColor::White,
+        screen::StandardColor::Red,
+        screen::StandardColor::Green,
+        screen::StandardColor::Blue,
+        screen::StandardColor::Yellow,
+        screen::StandardColor::Violet,
+        screen::StandardColor::Cyan,
+        screen::StandardColor::White,
     };
 
     std::string phrase;
@@ -543,7 +605,7 @@ void Test::remap() {
 
 void Test::screenOrientation() {
 
-    screen::Color color = {screen::ColorLimit::R_565_MAX, screen::ColorLimit::G_565_MAX, screen::ColorLimit::B_565_MAX};
+    screen::Color color = screen::StandardColor::White;
 
     std::vector<std::string> phrases(3);
 

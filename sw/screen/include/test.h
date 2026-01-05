@@ -28,6 +28,7 @@ class Test {
         void image();
         void symbol();
         void string();
+        void standardColors();
         void inverseDisplay();
         void remap();
         void screenOrientation();

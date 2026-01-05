@@ -93,6 +93,36 @@ namespace screen {
         constexpr uint8_t B_565_MAX = 31; // 5 bits
     };
 
+    namespace StandardColor {
+
+        constexpr Color White = {screen::ColorLimit::R_565_MAX, screen::ColorLimit::G_565_MAX, screen::ColorLimit::B_565_MAX};
+
+        constexpr Color Red   = {screen::ColorLimit::R_565_MAX, 0, 0};
+        constexpr Color Green = {0, screen::ColorLimit::G_565_MAX, 0};
+        constexpr Color Blue  = {0, 0, screen::ColorLimit::B_565_MAX};
+
+        constexpr Color Yellow = {screen::ColorLimit::R_565_MAX, screen::ColorLimit::G_565_MAX, 0};
+        constexpr Color Violet = {screen::ColorLimit::R_565_MAX, 0, screen::ColorLimit::B_565_MAX};
+        constexpr Color Cyan   = {0, screen::ColorLimit::G_565_MAX, screen::ColorLimit::B_565_MAX};
+
+        constexpr Color Grey       = {screen::ColorLimit::R_565_MAX / 2, screen::ColorLimit::G_565_MAX / 2, screen::ColorLimit::B_565_MAX / 2};
+
+        constexpr Color Orange  = {screen::ColorLimit::R_565_MAX, screen::ColorLimit::G_565_MAX / 2, 0};
+        constexpr Color Lime    = {screen::ColorLimit::R_565_MAX / 2, screen::ColorLimit::G_565_MAX, 0};
+        constexpr Color Olive   = {screen::ColorLimit::R_565_MAX / 2, screen::ColorLimit::G_565_MAX / 2, 0};
+
+        constexpr Color Pink       = {screen::ColorLimit::R_565_MAX, 0, screen::ColorLimit::B_565_MAX / 2};
+        constexpr Color Purple     = {screen::ColorLimit::R_565_MAX / 2, 0, screen::ColorLimit::B_565_MAX};
+        constexpr Color DarkViolet = {screen::ColorLimit::R_565_MAX / 2, 0, screen::ColorLimit::B_565_MAX / 2};
+
+        constexpr Color LightGreen = {0, screen::ColorLimit::G_565_MAX, screen::ColorLimit::B_565_MAX / 2};
+        constexpr Color SkyBlue    = {0, screen::ColorLimit::G_565_MAX / 2, screen::ColorLimit::B_565_MAX};
+        constexpr Color Teal       = {0, screen::ColorLimit::G_565_MAX / 2, screen::ColorLimit::B_565_MAX / 2};
+
+        constexpr Color Black = {0, 0, 0};
+    }
+
+
     enum class ApplyMode {
 
         Current,
