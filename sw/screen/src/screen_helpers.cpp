@@ -2,16 +2,16 @@
 #include <cstring>  // string
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include "stb_image/stb_image.h"
 
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
-#include "stb_image_resize2.h"
+#include "stb_image/stb_image_resize2.h"
 
 #include "screen_constants.h"
 #include "screen_registers.h"
 #include "screen.h"
 
-#include "font8x8_basic.h"
+#include "font/font8x8_basic.h"
 
 std::vector<screen::Color> Screen::importImageAsBitmap(const std::string &path){
 
