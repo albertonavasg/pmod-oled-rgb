@@ -109,7 +109,7 @@ void Screen::drawImage(const std::string &path) {
 
 void Screen::setTextCursor(uint8_t x, uint8_t y) {
 
-    if (m_orientation == screen::Orientation::Horizontal || m_orientation == screen::Orientation::HorizontalReverse) {
+    if (m_orientation == screen::Orientation::Horizontal_0 || m_orientation == screen::Orientation::Horizontal_180) {
         if (x > screen::TextGeometry::TextColumns - 1) {
             m_textCursor.x = screen::TextGeometry::TextColumns - 1;
         } else {
@@ -142,7 +142,7 @@ screen::TextCursor Screen::getTextCursor() {
 
 void Screen::incrementTextCursor() {
 
-    if (m_orientation == screen::Orientation::Horizontal || m_orientation == screen::Orientation::HorizontalReverse) {
+    if (m_orientation == screen::Orientation::Horizontal_0 || m_orientation == screen::Orientation::Horizontal_180) {
         if (m_textCursor.x < screen::TextGeometry::TextColumns - 1) {
             m_textCursor.x++;
         } else if (m_textCursor.y < screen::TextGeometry::TextRows - 1) {
@@ -170,7 +170,7 @@ void Screen::drawSymbol(const uint8_t symbol, screen::Color color) {
 
     auto bitmap = importSymbolAsBitmap(symbol, color);
 
-    if (m_orientation == screen::Orientation::Horizontal || m_orientation == screen::Orientation::HorizontalReverse) {
+    if (m_orientation == screen::Orientation::Horizontal_0 || m_orientation == screen::Orientation::Horizontal_180) {
         drawBitmap(
             m_textCursor.x * screen::FontWidth,
             m_textCursor.y * screen::FontHeight,

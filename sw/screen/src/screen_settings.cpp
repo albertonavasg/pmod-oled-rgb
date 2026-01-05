@@ -24,7 +24,7 @@ void Screen::applyDefaultSettings() {
     m_enableFill = false;
     m_reverseCopy = false;
     m_textCursor = screen::defaultTextCursor;
-    m_orientation = screen::Orientation::Horizontal;
+    m_orientation = screen::defaultOrientation;
 }
 
 void Screen::setColumnRowAddr(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2) {
@@ -118,22 +118,22 @@ void Screen::setScreenOrientation(const screen::Orientation orientation) {
     m_orientation = orientation;
 
     switch (m_orientation) {
-        case screen::Orientation::Horizontal:
+        case screen::Orientation::Horizontal_0:
             setAddressIncrement(screen::RemapColorDepth::AddressIncrement::Horizontal);
             setColumnRemap(screen::RemapColorDepth::ColumnRemap::Remap);
             setScanDirection(screen::RemapColorDepth::ScanDirection::COMNto0);
             break;
-        case screen::Orientation::Vertical:
+        case screen::Orientation::Vertical_90:
             setAddressIncrement(screen::RemapColorDepth::AddressIncrement::Vertical);
             setColumnRemap(screen::RemapColorDepth::ColumnRemap::Remap);
             setScanDirection(screen::RemapColorDepth::ScanDirection::COM0toN);
             break;
-        case screen::Orientation::HorizontalReverse:
+        case screen::Orientation::Horizontal_180:
             setAddressIncrement(screen::RemapColorDepth::AddressIncrement::Horizontal);
             setColumnRemap(screen::RemapColorDepth::ColumnRemap::Normal);
             setScanDirection(screen::RemapColorDepth::ScanDirection::COM0toN);
             break;
-        case screen::Orientation::VerticalReverse:
+        case screen::Orientation::Vertical_270:
             setAddressIncrement(screen::RemapColorDepth::AddressIncrement::Vertical);
             setColumnRemap(screen::RemapColorDepth::ColumnRemap::Normal);
             setScanDirection(screen::RemapColorDepth::ScanDirection::COMNto0);

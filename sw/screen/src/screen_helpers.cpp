@@ -25,7 +25,7 @@ std::vector<screen::Color> Screen::importImageAsBitmap(const std::string &path){
         return {};  // Empty vector
     }
     // Check aspect ratio
-    if (m_orientation == screen::Orientation::Horizontal || m_orientation == screen::Orientation::HorizontalReverse){
+    if (m_orientation == screen::Orientation::Horizontal_0 || m_orientation == screen::Orientation::Horizontal_180){
         if ((inputWidth * screen::Geometry::Rows) != (inputHeight * screen::Geometry::Columns)) {
             std::cerr << "Wrong aspect ratio of horizontal image " << path.c_str() << std::endl;
             return {};

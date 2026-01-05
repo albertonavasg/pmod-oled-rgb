@@ -14,13 +14,13 @@ namespace screen {
 
     enum class Orientation : uint8_t {
 
-        Horizontal,
-        Vertical,
-        HorizontalReverse,
-        VerticalReverse
+        Horizontal_0,
+        Vertical_90,
+        Horizontal_180,
+        Vertical_270
     };
 
-    constexpr Orientation defaultOrientation = Orientation::Horizontal;
+    constexpr Orientation defaultOrientation = Orientation::Horizontal_0;
 
     enum class PowerState : uint8_t {
 

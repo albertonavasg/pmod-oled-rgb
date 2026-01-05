@@ -545,7 +545,7 @@ void Test::screenOrientation() {
 
     screen::Color color = {screen::ColorLimit::R_565_MAX, screen::ColorLimit::G_565_MAX, screen::ColorLimit::B_565_MAX};
 
-    std::string phrase;
+    std::vector<std::string> phrases(3);
 
     const std::string imagePathHorizontal = "/home/petalinux/images/horizontal.jpg";
     const std::string imagePathVertical = "/home/petalinux/images/vertical.jpg";
@@ -553,10 +553,10 @@ void Test::screenOrientation() {
     broadcast([](Screen& s){s.setSpiDelay(1ns);});
 
     // Horizontal orientation
-    phrase = "Horizontal";
-    broadcast([](Screen& s){s.setScreenOrientation(screen::Orientation::Horizontal);});
-    for (size_t i = 0; i < screen::TextGeometry::TextRows; i++) {
-        broadcast([&](Screen& s){s.setTextCursor(0, i); s.drawString(phrase, color);});
+    phrases = {" Horizontal ", "Orientation ", "   0 deg    "};
+    broadcast([](Screen& s){s.setScreenOrientation(screen::Orientation::Horizontal_0);});
+    for (size_t i = 0; i < phrases.size(); i++) {
+        broadcast([&](Screen& s){s.setTextCursor(0, i + screen::TextGeometry::TextRows / 2 - phrases.size() / 2); s.drawString(phrases[i], color);});
     }
     std::this_thread::sleep_for(1s);
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
@@ -565,10 +565,10 @@ void Test::screenOrientation() {
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
 
     // Vertical orientation
-    phrase = "Vertical";
-    broadcast([](Screen& s){s.setScreenOrientation(screen::Orientation::Vertical);});
-    for (size_t i = 0; i < screen::TextGeometry::TextColumns; i++) {
-        broadcast([&](Screen& s){s.setTextCursor(0, i); s.drawString(phrase, color);});
+    phrases = {"Vertical", "Orientat", " 90 deg "};
+    broadcast([](Screen& s){s.setScreenOrientation(screen::Orientation::Vertical_90);});
+    for (size_t i = 0; i < phrases.size(); i++) {
+        broadcast([&](Screen& s){s.setTextCursor(0, i + screen::TextGeometry::TextColumns / 2 - phrases.size() / 2); s.drawString(phrases[i], color);});
     }
     std::this_thread::sleep_for(1s);
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
@@ -577,10 +577,10 @@ void Test::screenOrientation() {
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
 
     // Horizontal reverse orientation
-    phrase = "Horiz rev";
-    broadcast([](Screen& s){s.setScreenOrientation(screen::Orientation::HorizontalReverse);});
-    for (size_t i = 0; i < screen::TextGeometry::TextRows; i++) {
-        broadcast([&](Screen& s){s.setTextCursor(0, i); s.drawString(phrase, color);});
+    phrases = {" Horizontal ", "Orientation ", "  180 deg   "};
+    broadcast([](Screen& s){s.setScreenOrientation(screen::Orientation::Horizontal_180);});
+    for (size_t i = 0; i < phrases.size(); i++) {
+        broadcast([&](Screen& s){s.setTextCursor(0, i + screen::TextGeometry::TextRows / 2 - phrases.size() / 2); s.drawString(phrases[i], color);});
     }
     std::this_thread::sleep_for(1s);
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
@@ -589,10 +589,10 @@ void Test::screenOrientation() {
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
 
     // Vertical reverse orientation
-    phrase = "Vert rev";
-    broadcast([](Screen& s){s.setScreenOrientation(screen::Orientation::VerticalReverse);});
-    for (size_t i = 0; i < screen::TextGeometry::TextColumns; i++) {
-        broadcast([&](Screen& s){s.setTextCursor(0, i); s.drawString(phrase, color);});
+    phrases = {"Vertical", "Orientat", "270 deg "};
+    broadcast([](Screen& s){s.setScreenOrientation(screen::Orientation::Vertical_270);});
+    for (size_t i = 0; i < phrases.size(); i++) {
+        broadcast([&](Screen& s){s.setTextCursor(0, i + screen::TextGeometry::TextColumns / 2 - phrases.size() / 2); s.drawString(phrases[i], color);});
     }
     std::this_thread::sleep_for(1s);
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
