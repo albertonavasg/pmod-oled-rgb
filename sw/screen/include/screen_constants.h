@@ -5,23 +5,6 @@
 
 namespace screen {
 
-    namespace Geometry {
-
-        constexpr uint8_t Rows    = 64;
-        constexpr uint8_t Columns = 96;
-        constexpr uint16_t Pixels  = static_cast<uint16_t>(Rows) * static_cast<uint16_t>(Columns);
-    }
-
-    enum class Orientation : uint8_t {
-
-        Horizontal_0,
-        Vertical_90,
-        Horizontal_180,
-        Vertical_270
-    };
-
-    constexpr Orientation defaultOrientation = Orientation::Horizontal_0;
-
     enum class PowerState : uint8_t {
 
         Off = 0b00,
@@ -79,6 +62,42 @@ namespace screen {
         ActivateScroll        = 0x2F,
     };
 
+    namespace Geometry {
+
+        constexpr uint8_t Rows    = 64;
+        constexpr uint8_t Columns = 96;
+        constexpr uint16_t Pixels  = static_cast<uint16_t>(Rows) * static_cast<uint16_t>(Columns);
+    }
+
+    enum class Orientation : uint8_t {
+
+        Horizontal_0,
+        Vertical_90,
+        Horizontal_180,
+        Vertical_270
+    };
+
+    constexpr Orientation defaultOrientation = Orientation::Horizontal_0;
+
+    constexpr uint8_t FontHeight = 8;
+    constexpr uint8_t FontWidth = 8;
+    constexpr uint16_t FontPixels = static_cast<uint16_t>(FontHeight) * static_cast<uint16_t>(FontWidth);
+
+    namespace TextGeometry {
+
+        constexpr uint8_t TextRows    = Geometry::Rows / FontHeight;
+        constexpr uint8_t TextColumns = Geometry::Columns / FontWidth;
+        constexpr uint16_t TextPixels = static_cast<uint16_t>(TextRows) * static_cast<uint16_t>(TextColumns);
+    }
+
+    struct TextCursor {
+
+        uint8_t x;
+        uint8_t y;
+    };
+
+    constexpr TextCursor defaultTextCursor = {0, 0};
+
     struct Color {
 
         uint8_t r;
@@ -105,11 +124,11 @@ namespace screen {
         constexpr Color Violet = {screen::ColorLimit::R_565_MAX, 0, screen::ColorLimit::B_565_MAX};
         constexpr Color Cyan   = {0, screen::ColorLimit::G_565_MAX, screen::ColorLimit::B_565_MAX};
 
-        constexpr Color Grey       = {screen::ColorLimit::R_565_MAX / 2, screen::ColorLimit::G_565_MAX / 2, screen::ColorLimit::B_565_MAX / 2};
+        constexpr Color Grey = {screen::ColorLimit::R_565_MAX / 2, screen::ColorLimit::G_565_MAX / 2, screen::ColorLimit::B_565_MAX / 2};
 
-        constexpr Color Orange  = {screen::ColorLimit::R_565_MAX, screen::ColorLimit::G_565_MAX / 2, 0};
-        constexpr Color Lime    = {screen::ColorLimit::R_565_MAX / 2, screen::ColorLimit::G_565_MAX, 0};
-        constexpr Color Olive   = {screen::ColorLimit::R_565_MAX / 2, screen::ColorLimit::G_565_MAX / 2, 0};
+        constexpr Color Orange = {screen::ColorLimit::R_565_MAX, screen::ColorLimit::G_565_MAX / 2, 0};
+        constexpr Color Lime   = {screen::ColorLimit::R_565_MAX / 2, screen::ColorLimit::G_565_MAX, 0};
+        constexpr Color Olive  = {screen::ColorLimit::R_565_MAX / 2, screen::ColorLimit::G_565_MAX / 2, 0};
 
         constexpr Color Pink       = {screen::ColorLimit::R_565_MAX, 0, screen::ColorLimit::B_565_MAX / 2};
         constexpr Color Purple     = {screen::ColorLimit::R_565_MAX / 2, 0, screen::ColorLimit::B_565_MAX};
@@ -121,7 +140,6 @@ namespace screen {
 
         constexpr Color Black = {0, 0, 0};
     }
-
 
     enum class ApplyMode {
 
@@ -139,44 +157,25 @@ namespace screen {
 
     constexpr ColumnRowAddr defaultColumnRowAddr = {0, 0, screen::Geometry::Columns - 1, screen::Geometry::Rows - 1};
 
-    constexpr uint8_t FontHeight = 8;
-    constexpr uint8_t FontWidth = 8;
-    constexpr uint16_t FontPixels = static_cast<uint16_t>(FontHeight) * static_cast<uint16_t>(FontWidth);
-
-    namespace TextGeometry {
-
-        constexpr uint8_t TextRows    = Geometry::Rows / FontHeight;
-        constexpr uint8_t TextColumns = Geometry::Columns / FontWidth;
-        constexpr uint16_t TextPixels = static_cast<uint16_t>(TextRows) * static_cast<uint16_t>(TextColumns);
-    }
-
-    struct TextCursor {
-
-        uint8_t x;
-        uint8_t y;
-    };
-
-    constexpr TextCursor defaultTextCursor = {0, 0};
-
     namespace RemapColorDepth {
 
         // Bit positions
         constexpr uint8_t AddressIncrement_Pos = 0;
         constexpr uint8_t ColumnRemap_Pos      = 1;
         constexpr uint8_t ColorOrder_Pos       = 2;
-        constexpr uint8_t COMSwap_Pos           = 3;
+        constexpr uint8_t COMSwap_Pos          = 3;
         constexpr uint8_t ScanDirection_Pos    = 4;
-        constexpr uint8_t COMSplit_Pos          = 5;
-        constexpr uint8_t ColorDepth_Pos        = 6;
+        constexpr uint8_t COMSplit_Pos         = 5;
+        constexpr uint8_t ColorDepth_Pos       = 6;
 
         // Masks (shifted)
         constexpr uint8_t AddressIncrement_Msk = 1u << AddressIncrement_Pos;
         constexpr uint8_t ColumnRemap_Msk      = 1u << ColumnRemap_Pos;
         constexpr uint8_t ColorOrder_Msk       = 1u << ColorOrder_Pos;
-        constexpr uint8_t COMSwap_Msk           = 1u << COMSwap_Pos;
+        constexpr uint8_t COMSwap_Msk          = 1u << COMSwap_Pos;
         constexpr uint8_t ScanDirection_Msk    = 1u << ScanDirection_Pos;
-        constexpr uint8_t COMSplit_Msk          = 1u << COMSplit_Pos;
-        constexpr uint8_t ColorDepth_Msk        = 0b11u << ColorDepth_Pos;
+        constexpr uint8_t COMSplit_Msk         = 1u << COMSplit_Pos;
+        constexpr uint8_t ColorDepth_Msk       = 0b11u << ColorDepth_Pos;
 
         // Raw values (NOT shifted)
         enum class AddressIncrement : uint8_t { Horizontal = 0, Vertical = 1 };
