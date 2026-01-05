@@ -21,8 +21,7 @@ void Screen::applyDefaultSettings() {
     setSpiDelay(0ns);
     applyColumnRowAddr(screen::ApplyMode::Default);
     applyRemapColorDepth(screen::ApplyMode::Default);
-    m_enableFill = false;
-    m_reverseCopy = false;
+    enableFill(false, false);
     m_textCursor = screen::defaultTextCursor;
     m_orientation = screen::defaultOrientation;
 }

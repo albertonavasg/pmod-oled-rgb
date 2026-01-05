@@ -326,18 +326,30 @@ void Test::copy() {
     std::uniform_int_distribution<uint8_t> dist63(0, 63);
 
     screen::Color cLine = {dist31(gen), dist63(gen), dist31(gen)};
-    screen::Color cFill = {0, 0, 0}; //Fill not enabled
+    screen::Color cFill = {dist31(gen), dist63(gen), dist31(gen)};
     uint8_t x1 = 15;
     uint8_t y1 = 5;
     uint8_t x2 = 35;
     uint8_t y2 = 25;
+
+    // Rectangles without fill, to show the overlap when copying
+    broadcast([=](Screen& s){s.enableFill(false, false);});
     broadcast([=](Screen& s){s.drawRectangle(x1, y1, x2, y2, cLine, cFill);}, 500ms);
 
     broadcast([=](Screen& s){s.copyWindow(x1, y1, x2, y2, x1 + 5, y1 + 5);}, 500ms);
     broadcast([=](Screen& s){s.copyWindow(x1, y1, x2 + 5, y2 + 5, x1, y1 + 30);}, 500ms);
     broadcast([=](Screen& s){s.copyWindow(x1, y1, x2 + 5, y2 + 35, x1 + 40, y1);}, 1s);
-
     broadcast([](Screen& s){s.clearScreen();}, 200ms);
+
+    // Rectangles with fill, to show reverseCopy of colors
+    broadcast([=](Screen& s){s.enableFill(true, true);});
+    broadcast([=](Screen& s){s.drawRectangle(x1, y1, x2, y2, cLine, cFill);}, 500ms);
+
+    broadcast([=](Screen& s){s.copyWindow(x1, y1, x2, y2, x1 + 5, y1 + 5);}, 500ms);
+    broadcast([=](Screen& s){s.copyWindow(x1, y1, x2 + 5, y2 + 5, x1, y1 + 30);}, 500ms);
+    broadcast([=](Screen& s){s.copyWindow(x1, y1, x2 + 5, y2 + 35, x1 + 40, y1);}, 1s);
+    broadcast([](Screen& s){s.clearScreen();}, 200ms);
+
     broadcast([](Screen& s){s.applyDefaultSettings();});
 }
 
