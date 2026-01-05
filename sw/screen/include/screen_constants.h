@@ -196,6 +196,10 @@ namespace screen {
         (static_cast<uint8_t>(RemapColorDepth::ScanDirection::COMNto0)       << RemapColorDepth::ScanDirection_Pos)    |
         (static_cast<uint8_t>(RemapColorDepth::COMSplit::Enable)             << RemapColorDepth::COMSplit_Pos)         |
         (static_cast<uint8_t>(RemapColorDepth::ColorDepth::Color65k)         << RemapColorDepth::ColorDepth_Pos);
+
+    constexpr bool defaultFillRectangle = false;
+
+    constexpr bool defaultReverseCopy = false;
 }
 
 #endif // SCREEN_CONSTANTS_H

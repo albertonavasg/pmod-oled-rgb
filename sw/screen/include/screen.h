@@ -34,7 +34,8 @@ class Screen {
         void incrementTextCursor();
         void drawSymbol(const uint8_t symbol, screen::Color color);
         void drawString(const std::string &phrase, screen::Color color);
-        void enableFill(bool fillRectangle, bool reverseCopy);
+        void enableFillRectangle(bool fillRectangle);
+        void enableReverseCopy(bool reverseCopy);
         void setupScrolling(uint8_t horizontalScrollOffset, uint8_t startRow, uint8_t rowsNumber, uint8_t verticalScrollOffset, uint8_t timeInterval);
         void enableScrolling(bool value);
 
@@ -71,8 +72,8 @@ class Screen {
         std::chrono::nanoseconds m_spiDelay{0};
         screen::ColumnRowAddr m_columnRowAddr = screen::defaultColumnRowAddr;
         uint8_t m_remapColorDepthCfg = screen::defaultRemapColorDepth;
-        bool m_enableFill = false;
-        bool m_reverseCopy = false;
+        bool m_fillRectangle = screen::defaultFillRectangle;
+        bool m_reverseCopy = screen::defaultReverseCopy;
         screen::TextCursor m_textCursor = screen::defaultTextCursor;
         screen::Orientation m_orientation = screen::defaultOrientation;
 
