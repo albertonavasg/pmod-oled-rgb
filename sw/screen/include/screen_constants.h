@@ -85,9 +85,9 @@ namespace screen {
 
     namespace TextGeometry {
 
-        constexpr uint8_t TextRows    = Geometry::Rows / FontHeight;
+        constexpr uint8_t TextRows = Geometry::Rows / FontHeight;
         constexpr uint8_t TextColumns = Geometry::Columns / FontWidth;
-        constexpr uint16_t TextPixels = static_cast<uint16_t>(TextRows) * static_cast<uint16_t>(TextColumns);
+        constexpr uint16_t TextChars = static_cast<uint16_t>(TextRows) * static_cast<uint16_t>(TextColumns);
     }
 
     struct TextCursor {

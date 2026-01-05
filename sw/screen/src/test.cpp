@@ -387,17 +387,18 @@ void Test::symbol() {
 
     broadcast([](Screen &s){s.setSpiDelay(1ns);});
 
-    for (size_t i = 0; i < screen::TextGeometry::TextPixels; i++) {
-        broadcast([=](Screen &s){s.drawSymbol(i, color); s.incrementTextCursor();});
-    }
-    std::this_thread::sleep_for(5s);
+    size_t totalSymbols = 256;
+    size_t maxSymbols = screen::TextGeometry::TextChars;
 
-    broadcast([](Screen &s){s.clearScreen();}, 200ms);
-
-    for (size_t i = 97; i < 128; i++) {
-        broadcast([=](Screen &s){s.drawSymbol(i, color); s.incrementTextCursor();});
+    for (size_t i = 0; i < totalSymbols; i += maxSymbols) {
+        size_t end = std::min(i + maxSymbols, totalSymbols);
+        for (size_t j = i; j < end; j++) {
+            broadcast([=](Screen &s){s.drawSymbol(j, color); s.incrementTextCursor();});
+        }
+        std::this_thread::sleep_for(5s);
+        broadcast([](Screen &s){s.clearScreen();}, 200ms);
+        broadcast([](Screen &s){s.setTextCursor(0, 0);});
     }
-    std::this_thread::sleep_for(5s);
 
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
     broadcast([](Screen &s){s.applyDefaultSettings();});

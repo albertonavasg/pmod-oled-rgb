@@ -12,6 +12,8 @@
 #include "screen.h"
 
 #include "font/font8x8_basic.h"
+#include "font/font8x8_control.h"
+#include "font/font8x8_ext_latin.h"
 
 std::vector<screen::Color> Screen::importImageAsBitmap(const std::string &path){
 
@@ -87,10 +89,24 @@ std::vector<screen::Color> Screen::importSymbolAsBitmap(const uint8_t symbol, sc
 
     for (size_t i = 0; i < screen::FontHeight; i++) {
         for (size_t j = 0; j < screen::FontWidth; j++) {
-            if (font8x8_basic[symbol][i] >> j & 1) {
-                bitmap[screen::FontWidth * i + j] = color;
-            } else {
-                bitmap[screen::FontWidth * i + j] = {0, 0, 0};
+            if (symbol < 128) {
+                if (font8x8_basic[symbol][i] >> j & 1) {
+                    bitmap[screen::FontWidth * i + j] = color;
+                } else {
+                    bitmap[screen::FontWidth * i + j] = {0, 0, 0};
+                }
+            } else if (symbol < 160) {
+                if (font8x8_control[symbol - 128][i] >> j & 1) {
+                    bitmap[screen::FontWidth * i + j] = color;
+                } else {
+                    bitmap[screen::FontWidth * i + j] = {0, 0, 0};
+                }
+            } else if (symbol < 256) {
+                if (font8x8_ext_latin[symbol - 160][i] >> j & 1) {
+                    bitmap[screen::FontWidth * i + j] = color;
+                } else {
+                    bitmap[screen::FontWidth * i + j] = {0, 0, 0};
+                }
             }
         }
     }
