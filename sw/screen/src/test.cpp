@@ -628,7 +628,7 @@ void Test::screenOrientation() {
     broadcast([](Screen &s){s.setSpiDelay(1ns);});
 
     // Horizontal orientation
-    phrases = {" Horizontal ", "Orientation ", "   0 deg    "};
+    phrases = {" Horizontal ", "Orientation ", "     0º     "};
     broadcast([](Screen &s){s.setScreenOrientation(screen::Orientation::Horizontal_0);});
     for (size_t i = 0; i < phrases.size(); i++) {
         broadcast([&](Screen &s){s.setTextCursor(0, i + screen::TextGeometry::TextRows / 2 - phrases.size() / 2); s.drawString(phrases[i], color);});
@@ -640,7 +640,7 @@ void Test::screenOrientation() {
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
 
     // Vertical orientation
-    phrases = {"Vertical", "Orientat", " 90 deg "};
+    phrases = {"Vertical", "Orientat", "  90º   "};
     broadcast([](Screen &s){s.setScreenOrientation(screen::Orientation::Vertical_90);});
     for (size_t i = 0; i < phrases.size(); i++) {
         broadcast([&](Screen &s){s.setTextCursor(0, i + screen::TextGeometry::TextColumns / 2 - phrases.size() / 2); s.drawString(phrases[i], color);});
@@ -652,7 +652,7 @@ void Test::screenOrientation() {
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
 
     // Horizontal reverse orientation
-    phrases = {" Horizontal ", "Orientation ", "  180 deg   "};
+    phrases = {" Horizontal ", "Orientation ", "    180º    "};
     broadcast([](Screen &s){s.setScreenOrientation(screen::Orientation::Horizontal_180);});
     for (size_t i = 0; i < phrases.size(); i++) {
         broadcast([&](Screen &s){s.setTextCursor(0, i + screen::TextGeometry::TextRows / 2 - phrases.size() / 2); s.drawString(phrases[i], color);});
@@ -664,7 +664,7 @@ void Test::screenOrientation() {
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
 
     // Vertical reverse orientation
-    phrases = {"Vertical", "Orientat", "270 deg "};
+    phrases = {"Vertical", "Orientat", "  270º  "};
     broadcast([](Screen &s){s.setScreenOrientation(screen::Orientation::Vertical_270);});
     for (size_t i = 0; i < phrases.size(); i++) {
         broadcast([&](Screen &s){s.setTextCursor(0, i + screen::TextGeometry::TextColumns / 2 - phrases.size() / 2); s.drawString(phrases[i], color);});

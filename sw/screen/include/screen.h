@@ -111,6 +111,7 @@ class Screen {
         // Helpers
         std::vector<screen::Color> importImageAsBitmap(const std::string &path);
         std::vector<screen::Color> importSymbolAsBitmap(const uint8_t symbol, screen::Color color);
+        uint32_t utf8_decode(const uint8_t *s, size_t *len);
 };
 
 #endif // SCREEN_H
