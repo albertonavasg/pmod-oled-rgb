@@ -89,20 +89,20 @@ std::vector<screen::Color> Screen::importSymbolAsBitmap(const uint8_t symbol, sc
 
     for (size_t i = 0; i < screen::FontHeight; i++) {
         for (size_t j = 0; j < screen::FontWidth; j++) {
-            if (symbol < 128) {
-                if (font8x8_basic[symbol][i] >> j & 1) {
+            if (symbol < screen::Font::BasicSize) {
+                if (font8x8_basic[symbol - screen::Font::BasicOffset][i] >> j & 1) {
                     bitmap[screen::FontWidth * i + j] = color;
                 } else {
                     bitmap[screen::FontWidth * i + j] = {0, 0, 0};
                 }
-            } else if (symbol < 160) {
-                if (font8x8_control[symbol - 128][i] >> j & 1) {
+            } else if (symbol < screen::Font::BasicSize + screen::Font::ControlSize) {
+                if (font8x8_control[symbol - screen::Font::ControlOffset][i] >> j & 1) {
                     bitmap[screen::FontWidth * i + j] = color;
                 } else {
                     bitmap[screen::FontWidth * i + j] = {0, 0, 0};
                 }
-            } else if (symbol < 256) {
-                if (font8x8_ext_latin[symbol - 160][i] >> j & 1) {
+            } else {
+                if (font8x8_ext_latin[symbol - screen::Font::ExtLatinOffset][i] >> j & 1) {
                     bitmap[screen::FontWidth * i + j] = color;
                 } else {
                     bitmap[screen::FontWidth * i + j] = {0, 0, 0};
@@ -118,16 +118,19 @@ uint32_t Screen::utf8_decode(const uint8_t *s, size_t *len) {
 
     uint32_t codepoint;
 
+    // First byte is 0XXX_XXXX
     if (s[0] < 0x80) {
         *len = 1;
         return s[0];
     }
+    // First byte is 110X_XXXX
     if ((s[0] & 0xE0) == 0xC0) {
         *len = 2;
          codepoint = ((s[0] & 0x1F) << 6) |
              (s[1] & 0x3F);
         return codepoint;
     }
+    // First byte is 1110_XXXX
     if ((s[0] & 0xF0) == 0xE0) {
         *len = 3;
          codepoint = ((s[0] & 0x0F) << 12) |
@@ -135,6 +138,7 @@ uint32_t Screen::utf8_decode(const uint8_t *s, size_t *len) {
              (s[2] & 0x3F);
         return codepoint;
     }
+    // First byte is 1111_0XXX
     if ((s[0] & 0xF8) == 0xF0) {
         *len = 4;
          codepoint = ((s[0] & 0x07) << 18) |
@@ -145,5 +149,5 @@ uint32_t Screen::utf8_decode(const uint8_t *s, size_t *len) {
     }
 
     *len = 1;
-    return 0xFFFD; // replacement char
+    return 0xFFFD; // Replacement char
 }

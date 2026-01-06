@@ -198,10 +198,10 @@ void Screen::drawString(const std::string &phrase, screen::Color color) {
         uint32_t codepoint = utf8_decode((const uint8_t*)&phrase[i], &len);
 
         // Only pass codepoints 0–255 to drawSymbol
-        if (codepoint <= 0xFF) {
+        if (codepoint < screen::Font::TotalSize) {
             drawSymbol(static_cast<uint8_t>(codepoint), color);
         } else {
-            // unsupported character → fallback to '?'
+            // Unsupported character → fallback to '?'
             drawSymbol('?', color);
         }
 

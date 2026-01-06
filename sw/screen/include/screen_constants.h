@@ -98,6 +98,19 @@ namespace screen {
 
     constexpr TextCursor defaultTextCursor = {0, 0};
 
+    namespace Font {
+
+        constexpr uint8_t  BasicSize = 128;
+        constexpr uint8_t  ControlSize = 32;
+        constexpr uint8_t  ExtLatinSize = 96;
+
+        constexpr uint16_t TotalSize = 256;
+
+        constexpr uint8_t  BasicOffset = 0;
+        constexpr uint8_t  ControlOffset = BasicSize;
+        constexpr uint8_t  ExtLatinOffset = ControlOffset + ControlSize;
+    }
+
     struct Color {
 
         uint8_t r;
