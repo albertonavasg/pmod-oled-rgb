@@ -15,11 +15,11 @@ class Screen {
     friend class Test;
 
     public:
-        // Constructor and Destructor
+        //// Constructor and Destructor
         explicit Screen(const std::string &uio_device);
         ~Screen();
 
-        // Utilities
+        //// Utilities
         void sendPixel(const screen::Color color);
         void sendMultiPixel(const std::vector<screen::Color> &colors);
         void clearWindow(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2);
@@ -34,12 +34,10 @@ class Screen {
         void incrementTextCursor();
         void drawSymbol(const uint8_t symbol, screen::Color color);
         void drawString(const std::string &phrase, screen::Color color);
-        void enableFillRectangle(bool fillRectangle);
-        void enableReverseCopy(bool reverseCopy);
         void setupScrolling(uint8_t horizontalScrollOffset, uint8_t startRow, uint8_t rowsNumber, uint8_t verticalScrollOffset, uint8_t timeInterval);
         void enableScrolling(bool value);
 
-        // Settings
+        //// Settings
         // Default settings
         void applyDefaultSettings();
         // SPI delay
@@ -59,6 +57,9 @@ class Screen {
         void setColorDepth(screen::RemapColorDepth::ColorDepth depth);
         void applyRemapColorDepth(screen::ApplyMode mode = screen::ApplyMode::Current);
         uint8_t getRemapColorDepth();
+        // Fill Rectangle and Reverse Copy
+        void enableFillRectangle(bool fillRectangle);
+        void enableReverseCopy(bool reverseCopy);
         // Screen orientation
         void setScreenOrientation(const screen::Orientation orientation);
         screen::Orientation getScreenOrientation();
@@ -68,21 +69,20 @@ class Screen {
         volatile uint32_t *m_reg = nullptr;
         static constexpr uint64_t MAP_SIZE = 0x10000;
 
-        // Settings
         std::chrono::nanoseconds m_spiDelay{0};
         screen::ColumnRowAddr m_columnRowAddr = screen::defaultColumnRowAddr;
         uint8_t m_remapColorDepthCfg = screen::defaultRemapColorDepth;
         bool m_fillRectangle = screen::defaultFillRectangle;
         bool m_reverseCopy = screen::defaultReverseCopy;
-        screen::TextCursor m_textCursor = screen::defaultTextCursor;
         screen::Orientation m_orientation = screen::defaultOrientation;
+        screen::TextCursor m_textCursor = screen::defaultTextCursor;
 
         // Helper for byte manipulation
         static constexpr void setField(uint8_t &reg, uint8_t mask, uint8_t pos, uint8_t value) {
             reg = (reg & ~mask) | ((value << pos) & mask);
         }
 
-        // Base
+        //// Base
         // Register access
         void writeRegister(size_t reg, uint32_t value);
         uint32_t readRegister(size_t reg) const;
@@ -108,7 +108,7 @@ class Screen {
         void sendData(const uint8_t data);
         void sendMultiData(const uint8_t *data, size_t length);
 
-        // Helpers
+        //// Helpers
         std::vector<screen::Color> importImageAsBitmap(const std::string &path);
         std::vector<screen::Color> importSymbolAsBitmap(const uint8_t symbol, screen::Color color);
         uint32_t utf8_decode(const uint8_t *s, size_t *len);

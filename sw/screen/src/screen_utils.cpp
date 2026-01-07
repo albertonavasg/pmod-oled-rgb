@@ -210,20 +210,6 @@ void Screen::drawString(const std::string &phrase, screen::Color color) {
     }
 }
 
-void Screen::enableFillRectangle(bool fillRectangle) {
-
-    m_fillRectangle = fillRectangle;
-    uint8_t param = static_cast<uint8_t>(m_fillRectangle) | (static_cast<uint8_t>(m_reverseCopy) << 4);
-    sendCommand(screen::Command::FillEnable, param);
-}
-
-void Screen::enableReverseCopy(bool reverseCopy) {
-
-    m_reverseCopy = reverseCopy;
-    uint8_t param = static_cast<uint8_t>(m_fillRectangle) | (static_cast<uint8_t>(m_reverseCopy) << 4);
-    sendCommand(screen::Command::FillEnable, param);
-}
-
 void Screen::setupScrolling(uint8_t horizontalScrollOffset, uint8_t startRow, uint8_t rowsNumber, uint8_t verticalScrollOffset, uint8_t timeInterval) {
 
     uint8_t params[5] = {horizontalScrollOffset, startRow, rowsNumber, verticalScrollOffset, timeInterval};
