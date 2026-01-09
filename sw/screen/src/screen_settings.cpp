@@ -6,27 +6,6 @@
 
 using namespace std::chrono_literals;
 
-void Screen::setSpiDelay(std::chrono::nanoseconds delay) {
-
-    m_spiDelay = delay;
-}
-
-std::chrono::nanoseconds Screen::getSpiDelay() {
-
-    return m_spiDelay;
-}
-
-void Screen::applyDefaultSettings() {
-
-    setSpiDelay(0ns);
-    applyColumnRowAddr(screen::ApplyMode::Default);
-    applyRemapColorDepth(screen::ApplyMode::Default);
-    enableFillRectangle(screen::defaultFillRectangle);
-    enableReverseCopy(screen::defaultReverseCopy);
-    m_orientation = screen::defaultOrientation;
-    m_textCursor = screen::defaultTextCursor;
-}
-
 void Screen::setColumnRowAddr(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2) {
 
     screen::ColumnRowAddr cr = {c1, r1, c2, r2};
@@ -116,55 +95,4 @@ void Screen::applyRemapColorDepth(screen::ApplyMode mode) {
 uint8_t Screen::getRemapColorDepth() {
 
     return m_remapColorDepthCfg;
-}
-
-void Screen::enableFillRectangle(bool fillRectangle) {
-
-    m_fillRectangle = fillRectangle;
-    uint8_t param = static_cast<uint8_t>(m_fillRectangle) | (static_cast<uint8_t>(m_reverseCopy) << 4);
-    sendCommand(screen::Command::FillEnable, param);
-}
-
-void Screen::enableReverseCopy(bool reverseCopy) {
-
-    m_reverseCopy = reverseCopy;
-    uint8_t param = static_cast<uint8_t>(m_fillRectangle) | (static_cast<uint8_t>(m_reverseCopy) << 4);
-    sendCommand(screen::Command::FillEnable, param);
-}
-
-void Screen::setScreenOrientation(const screen::Orientation orientation) {
-
-    m_orientation = orientation;
-
-    switch (m_orientation) {
-        case screen::Orientation::Horizontal_0:
-            setAddressIncrement(screen::RemapColorDepth::AddressIncrement::Horizontal);
-            setColumnRemap(screen::RemapColorDepth::ColumnRemap::Remap);
-            setScanDirection(screen::RemapColorDepth::ScanDirection::COMNto0);
-            break;
-        case screen::Orientation::Vertical_90:
-            setAddressIncrement(screen::RemapColorDepth::AddressIncrement::Vertical);
-            setColumnRemap(screen::RemapColorDepth::ColumnRemap::Remap);
-            setScanDirection(screen::RemapColorDepth::ScanDirection::COM0toN);
-            break;
-        case screen::Orientation::Horizontal_180:
-            setAddressIncrement(screen::RemapColorDepth::AddressIncrement::Horizontal);
-            setColumnRemap(screen::RemapColorDepth::ColumnRemap::Normal);
-            setScanDirection(screen::RemapColorDepth::ScanDirection::COM0toN);
-            break;
-        case screen::Orientation::Vertical_270:
-            setAddressIncrement(screen::RemapColorDepth::AddressIncrement::Vertical);
-            setColumnRemap(screen::RemapColorDepth::ColumnRemap::Normal);
-            setScanDirection(screen::RemapColorDepth::ScanDirection::COMNto0);
-            break;
-        default:
-            break;
-    }
-
-    applyRemapColorDepth();
-}
-
-screen::Orientation Screen::getScreenOrientation() {
-
-    return m_orientation;
 }

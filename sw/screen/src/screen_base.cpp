@@ -1,58 +1,11 @@
 #include <iostream>   // cout, endl
-#include <cstdint>    // uint32_t
-#include <stdexcept>  // runtime_error
-#include <cstring>    // strerror
-#include <cerrno>     // errno
 #include <chrono>     // time
 #include <thread>     // sleep_for
 #include <span>       // span
-#include <fcntl.h>    // open
-#include <unistd.h>   // close
-#include <sys/mman.h> // mmap, munmap
 
 #include "screen_constants.h"
 #include "screen_registers.h"
 #include "screen.h"
-
-Screen::Screen(const std::string &uio_device) {
-
-    const std::string path = "/dev/" + uio_device;
-
-    m_fd = open(path.c_str(), O_RDWR | O_SYNC);
-    if (m_fd < 0) {
-        throw std::runtime_error("Failed to open " + path + ": " + std::strerror(errno));
-    }
-
-    m_reg = reinterpret_cast<volatile uint32_t *>(mmap(nullptr, MAP_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, m_fd, 0));
-
-    if (m_reg == MAP_FAILED) {
-        close(m_fd);
-        m_fd = -1;
-        throw std::runtime_error("mmap failed for " + path + ": " + std::strerror(errno));
-    }
-
-    writePowerState(true);
-
-    while (readPowerState() != screen::PowerState::On) {
-        // Wait
-    }
-}
-
-Screen::~Screen() {
-
-    writePowerState(false);
-    while (readPowerState() != screen::PowerState::Off) {
-        // Wait
-    }
-
-    if (m_reg && m_reg != MAP_FAILED) {
-        munmap((void*)m_reg, MAP_SIZE);
-    }
-
-    if (m_fd >= 0) {
-        close(m_fd);
-    }
-}
 
 void Screen::writeRegister(size_t reg, uint32_t value) {
 
