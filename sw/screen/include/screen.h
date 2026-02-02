@@ -32,21 +32,22 @@ class Screen {
 
         void drawImage(const std::string &path);
 
-        void setTextCursor(uint8_t x, uint8_t y);
-        screen::TextCursor getTextCursor();
-        void incrementTextCursor();
-
         void drawSymbol(const uint8_t symbol, screen::Color color);
         void drawString(const std::string &phrase, screen::Color color);
 
         void setupScrolling(uint8_t horizontalScrollOffset, uint8_t startRow, uint8_t rowsNumber, uint8_t verticalScrollOffset, uint8_t timeInterval);
         void enableScrolling(bool value);
 
+        //// Settings related public methods
+        void setTextCursor(uint8_t x, uint8_t y);
+        screen::TextCursor getTextCursor() const;
+        void incrementTextCursor();
+
         void setSpiDelay(std::chrono::nanoseconds delay);
-        std::chrono::nanoseconds getSpiDelay();
+        std::chrono::nanoseconds getSpiDelay() const;
 
         void setScreenOrientation(const screen::Orientation orientation);
-        screen::Orientation getScreenOrientation();
+        screen::Orientation getScreenOrientation() const;
 
         void enableFillRectangle(bool fillRectangle);
         void enableReverseCopy(bool reverseCopy);
@@ -105,7 +106,7 @@ class Screen {
         //// Settings
         void setColumnRowAddr(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2);
         void applyColumnRowAddr(screen::ApplyMode mode = screen::ApplyMode::Current);
-        screen::ColumnRowAddr getColumnRowAddr();
+        screen::ColumnRowAddr getColumnRowAddr() const;
 
         void setAddressIncrement(screen::RemapColorDepth::AddressIncrement inc);
         void setColumnRemap(screen::RemapColorDepth::ColumnRemap col);
@@ -115,7 +116,7 @@ class Screen {
         void setCOMSplit(screen::RemapColorDepth::COMSplit split);
         void setColorDepth(screen::RemapColorDepth::ColorDepth depth);
         void applyRemapColorDepth(screen::ApplyMode mode = screen::ApplyMode::Current);
-        uint8_t getRemapColorDepth();
+        uint8_t getRemapColorDepth() const;
 
         //// Helpers
         std::vector<screen::Color> importImageAsBitmap(const std::string &path);

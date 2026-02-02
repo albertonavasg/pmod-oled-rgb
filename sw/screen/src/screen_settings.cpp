@@ -23,7 +23,7 @@ void Screen::applyColumnRowAddr(screen::ApplyMode mode) {
     sendCommand(screen::Command::RowAddress, row_params, 2);
 }
 
-screen::ColumnRowAddr Screen::getColumnRowAddr() {
+screen::ColumnRowAddr Screen::getColumnRowAddr() const {
 
     return m_columnRowAddr;
 }
@@ -92,7 +92,7 @@ void Screen::applyRemapColorDepth(screen::ApplyMode mode) {
     sendCommand(screen::Command::RemapColorDepth, m_remapColorDepthCfg);
 }
 
-uint8_t Screen::getRemapColorDepth() {
+uint8_t Screen::getRemapColorDepth() const {
 
     return m_remapColorDepthCfg;
 }

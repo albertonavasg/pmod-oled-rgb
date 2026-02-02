@@ -116,65 +116,6 @@ void Screen::drawImage(const std::string &path) {
     drawBitmap(0, 0, screen::Geometry::Columns - 1 , screen::Geometry::Rows - 1, bitmap);
 }
 
-void Screen::setTextCursor(uint8_t x, uint8_t y) {
-
-    if (m_orientation == screen::Orientation::Horizontal_0 || m_orientation == screen::Orientation::Horizontal_180) {
-        if (x > screen::TextGeometry::TextColumns - 1) {
-            m_textCursor.x = screen::TextGeometry::TextColumns - 1;
-        } else {
-            m_textCursor.x = x;
-        }
-        if (y > screen::TextGeometry::TextRows - 1) {
-            m_textCursor.y = screen::TextGeometry::TextRows - 1;
-        } else {
-            m_textCursor.y = y;
-        }
-    } else {
-        if (x > screen::TextGeometry::TextRows - 1) {
-            m_textCursor.x = screen::TextGeometry::TextRows - 1;
-        } else {
-            m_textCursor.x = x;
-        }
-        if (y > screen::TextGeometry::TextColumns - 1) {
-            m_textCursor.y = screen::TextGeometry::TextColumns - 1;
-        } else {
-            m_textCursor.y = y;
-        }
-    }
-
-}
-
-screen::TextCursor Screen::getTextCursor() {
-
-    return m_textCursor;
-}
-
-void Screen::incrementTextCursor() {
-
-    if (m_orientation == screen::Orientation::Horizontal_0 || m_orientation == screen::Orientation::Horizontal_180) {
-        if (m_textCursor.x < screen::TextGeometry::TextColumns - 1) {
-            m_textCursor.x++;
-        } else if (m_textCursor.y < screen::TextGeometry::TextRows - 1) {
-            m_textCursor.x = 0;
-            m_textCursor.y++;
-        } else {
-            m_textCursor.x = 0;
-            m_textCursor.y = 0;
-        }
-    } else {
-        if (m_textCursor.x < screen::TextGeometry::TextRows - 1) {
-            m_textCursor.x++;
-        } else if (m_textCursor.y < screen::TextGeometry::TextColumns - 1) {
-            m_textCursor.x = 0;
-            m_textCursor.y++;
-        } else {
-            m_textCursor.x = 0;
-            m_textCursor.y = 0;
-        }
-    }
-
-}
-
 void Screen::drawSymbol(const uint8_t symbol, screen::Color color) {
 
     auto bitmap = importSymbolAsBitmap(symbol, color);
@@ -230,12 +171,71 @@ void Screen::enableScrolling(bool value) {
     sendCommand(value ? screen::Command::ActivateScroll : screen::Command::DeactivateScroll);
 }
 
+void Screen::setTextCursor(uint8_t x, uint8_t y) {
+
+    if (m_orientation == screen::Orientation::Horizontal_0 || m_orientation == screen::Orientation::Horizontal_180) {
+        if (x > screen::TextGeometry::TextColumns - 1) {
+            m_textCursor.x = screen::TextGeometry::TextColumns - 1;
+        } else {
+            m_textCursor.x = x;
+        }
+        if (y > screen::TextGeometry::TextRows - 1) {
+            m_textCursor.y = screen::TextGeometry::TextRows - 1;
+        } else {
+            m_textCursor.y = y;
+        }
+    } else {
+        if (x > screen::TextGeometry::TextRows - 1) {
+            m_textCursor.x = screen::TextGeometry::TextRows - 1;
+        } else {
+            m_textCursor.x = x;
+        }
+        if (y > screen::TextGeometry::TextColumns - 1) {
+            m_textCursor.y = screen::TextGeometry::TextColumns - 1;
+        } else {
+            m_textCursor.y = y;
+        }
+    }
+
+}
+
+screen::TextCursor Screen::getTextCursor() const {
+
+    return m_textCursor;
+}
+
+void Screen::incrementTextCursor() {
+
+    if (m_orientation == screen::Orientation::Horizontal_0 || m_orientation == screen::Orientation::Horizontal_180) {
+        if (m_textCursor.x < screen::TextGeometry::TextColumns - 1) {
+            m_textCursor.x++;
+        } else if (m_textCursor.y < screen::TextGeometry::TextRows - 1) {
+            m_textCursor.x = 0;
+            m_textCursor.y++;
+        } else {
+            m_textCursor.x = 0;
+            m_textCursor.y = 0;
+        }
+    } else {
+        if (m_textCursor.x < screen::TextGeometry::TextRows - 1) {
+            m_textCursor.x++;
+        } else if (m_textCursor.y < screen::TextGeometry::TextColumns - 1) {
+            m_textCursor.x = 0;
+            m_textCursor.y++;
+        } else {
+            m_textCursor.x = 0;
+            m_textCursor.y = 0;
+        }
+    }
+
+}
+
 void Screen::setSpiDelay(std::chrono::nanoseconds delay) {
 
     m_spiDelay = delay;
 }
 
-std::chrono::nanoseconds Screen::getSpiDelay() {
+std::chrono::nanoseconds Screen::getSpiDelay() const {
 
     return m_spiDelay;
 }
@@ -272,7 +272,7 @@ void Screen::setScreenOrientation(const screen::Orientation orientation) {
     applyRemapColorDepth();
 }
 
-screen::Orientation Screen::getScreenOrientation() {
+screen::Orientation Screen::getScreenOrientation() const {
 
     return m_orientation;
 }
@@ -294,10 +294,11 @@ void Screen::enableReverseCopy(bool reverseCopy) {
 void Screen::applyDefaultSettings() {
 
     setSpiDelay(0ns);
-    applyColumnRowAddr(screen::ApplyMode::Default);
-    applyRemapColorDepth(screen::ApplyMode::Default);
     enableFillRectangle(screen::defaultFillRectangle);
     enableReverseCopy(screen::defaultReverseCopy);
     m_orientation = screen::defaultOrientation;
     m_textCursor = screen::defaultTextCursor;
+
+    applyColumnRowAddr(screen::ApplyMode::Default);
+    applyRemapColorDepth(screen::ApplyMode::Default);
 }
