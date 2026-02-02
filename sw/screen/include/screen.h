@@ -119,6 +119,7 @@ class Screen {
         uint8_t getRemapColorDepth() const;
 
         //// Helpers
+        bool waitForPowerState(screen::PowerState target, std::chrono::milliseconds timeout);
         std::vector<screen::Color> importImageAsBitmap(const std::string &path);
         std::vector<screen::Color> importSymbolAsBitmap(const uint8_t symbol, screen::Color color);
         uint32_t utf8_decode(const uint8_t *s, size_t *len);

@@ -1,5 +1,7 @@
 #include <iostream> // cout
 #include <cstring>  // string
+#include <chrono>   // time
+#include <thread>   // sleep_for
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image/stb_image.h"
@@ -7,13 +9,30 @@
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
 #include "stb_image/stb_image_resize2.h"
 
+#include "font/font8x8_basic.h"
+#include "font/font8x8_control.h"
+#include "font/font8x8_ext_latin.h"
+
 #include "screen_constants.h"
 #include "screen_registers.h"
 #include "screen.h"
 
-#include "font/font8x8_basic.h"
-#include "font/font8x8_control.h"
-#include "font/font8x8_ext_latin.h"
+bool Screen::waitForPowerState(screen::PowerState target, std::chrono::milliseconds timeout) {
+
+    const auto start = std::chrono::steady_clock::now();
+
+    while (true) {
+        if (readPowerState() == target) {
+            return true;
+        }
+
+        if (std::chrono::steady_clock::now() - start >= timeout) {
+            return false;
+        }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    }
+}
 
 std::vector<screen::Color> Screen::importImageAsBitmap(const std::string &path){
 

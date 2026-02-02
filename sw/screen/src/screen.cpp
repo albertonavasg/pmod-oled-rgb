@@ -4,6 +4,7 @@
 #include <cerrno>     // errno
 #include <stdexcept>  // runtime_error
 #include <chrono>     // time
+#include <thread>     // sleep_for
 #include <fcntl.h>    // open
 #include <unistd.h>   // close
 #include <sys/mman.h> // mmap, munmap
@@ -34,19 +35,20 @@ Screen::Screen(const std::string &uio_device) {
 
     writePowerState(true);
 
-    while (readPowerState() != screen::PowerState::On) {
-        // Wait
+    if (!waitForPowerState(screen::PowerState::On, std::chrono::seconds(1))) {
+        munmap((void*)m_reg, MAP_SIZE);
+        close(m_fd);
+        m_fd = -1;
+        m_reg = nullptr;
+        throw std::runtime_error("Screen did not power ON within timeout");
     }
 }
 
 Screen::~Screen() {
 
-    writePowerState(false);
-    while (readPowerState() != screen::PowerState::Off) {
-        // Wait
-    }
-
     if (m_reg && m_reg != MAP_FAILED) {
+        writePowerState(false);
+        waitForPowerState(screen::PowerState::Off, std::chrono::seconds(1));
         munmap((void*)m_reg, MAP_SIZE);
     }
 
@@ -54,7 +56,6 @@ Screen::~Screen() {
         close(m_fd);
     }
 }
-
 
 void Screen::clearWindow(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2) {
 
