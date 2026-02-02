@@ -4,11 +4,11 @@
 #include "screen_constants.h"
 #include "screen_registers.h"
 #include "screen.h"
-#include "test.h"
+#include "service.h"
 
 int main() {
 
-    std::cout << "Screen test application running." << std::endl;
+    std::cout << "Screen service application running." << std::endl;
 
     std::unique_ptr<Screen> screenA;
     std::unique_ptr<Screen> screenB;
@@ -22,24 +22,8 @@ int main() {
     }
 
     std::vector<std::reference_wrapper<Screen>> screens = {*screenA, *screenB};
-    Test test(screens);
 
-    test.display();
-    test.randomPattern();
-    test.colorDepth();
-    test.addressIncrement();
-    test.bitmap();
-    test.scrolling();
-    test.line();
-    test.rectangle();
-    test.copy();
-    test.image();
-    test.symbol();
-    test.string();
-    test.standardColors();
-    test.inverseDisplay();
-    test.remap();
-    test.screenOrientation();
+    Service service(screens);
 
     return 0;
 }
