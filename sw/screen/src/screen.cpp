@@ -293,7 +293,7 @@ void Screen::enableReverseCopy(bool reverseCopy) {
 
 void Screen::applyDefaultSettings() {
 
-    setSpiDelay(0ns);
+    setSpiDelay(screen::defaultSpiDelay);
     enableFillRectangle(screen::defaultFillRectangle);
     enableReverseCopy(screen::defaultReverseCopy);
     m_orientation = screen::defaultOrientation;

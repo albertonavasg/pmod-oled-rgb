@@ -38,7 +38,7 @@ class Screen {
         void setupScrolling(uint8_t horizontalScrollOffset, uint8_t startRow, uint8_t rowsNumber, uint8_t verticalScrollOffset, uint8_t timeInterval);
         void enableScrolling(bool value);
 
-        //// Settings related public methods
+        //// Public settings
         void setTextCursor(uint8_t x, uint8_t y);
         screen::TextCursor getTextCursor() const;
         void incrementTextCursor();
@@ -60,7 +60,7 @@ class Screen {
         static constexpr uint64_t MAP_SIZE = 0x10000;
 
         screen::TextCursor m_textCursor = screen::defaultTextCursor;
-        std::chrono::nanoseconds m_spiDelay{0};
+        std::chrono::nanoseconds m_spiDelay = screen::defaultSpiDelay;
         screen::Orientation m_orientation = screen::defaultOrientation;
         bool m_fillRectangle = screen::defaultFillRectangle;
         bool m_reverseCopy = screen::defaultReverseCopy;
@@ -103,7 +103,7 @@ class Screen {
         void sendPixel(const screen::Color color);
         void sendMultiPixel(const std::vector<screen::Color> &colors);
 
-        //// Settings
+        ////  Internal settings
         void setColumnRowAddr(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2);
         void applyColumnRowAddr(screen::ApplyMode mode = screen::ApplyMode::Current);
         screen::ColumnRowAddr getColumnRowAddr() const;

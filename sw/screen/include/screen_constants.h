@@ -1,7 +1,10 @@
 #ifndef SCREEN_CONSTANTS_H
 #define SCREEN_CONSTANTS_H
 
-#include <cstdint>
+#include <cstdint> // uint
+#include <chrono>  // time
+
+using namespace std::chrono_literals;
 
 namespace screen {
 
@@ -61,6 +64,8 @@ namespace screen {
         DeactivateScroll      = 0x2E,
         ActivateScroll        = 0x2F,
     };
+
+    constexpr std::chrono::nanoseconds defaultSpiDelay = 0ns;
 
     namespace Geometry {
 
