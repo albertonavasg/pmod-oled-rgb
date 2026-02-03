@@ -47,11 +47,11 @@ Service::Service(const std::string &configFile) {
 
         const auto& textCursor = s.at("textCursor");
 
-        screen.setTextCursor        (static_cast<uint8_t>(textCursor[0].get<int>()), static_cast<uint8_t>(textCursor[1].get<int>()) );
-        screen.setSpiDelay          (std::chrono::nanoseconds(s.at("spiDelay").get<int>()));
-        screen.setScreenOrientation (parseOrientation(s.at("orientation").get<std::string>()));
-        screen.enableFillRectangle  (s.at("fillRectangle").get<bool>());
-        screen.enableReverseCopy    (s.at("reverseCopy").get<bool>());
+        screen.setTextCursor          (static_cast<uint8_t>(textCursor[0].get<int>()), static_cast<uint8_t>(textCursor[1].get<int>()) );
+        screen.setSpiDelay            (std::chrono::nanoseconds(s.at("spiDelay").get<int>()));
+        screen.setScreenOrientation   (parseOrientation(s.at("orientation").get<std::string>()));
+        screen.setFillRectangleEnable (s.at("fillRectangle").get<bool>());
+        screen.setReverseCopyEnable   (s.at("reverseCopy").get<bool>());
     }
 }
 

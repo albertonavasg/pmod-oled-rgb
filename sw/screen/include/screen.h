@@ -49,8 +49,8 @@ class Screen {
         void setScreenOrientation(const screen::Orientation orientation);
         screen::Orientation getScreenOrientation() const;
 
-        void enableFillRectangle(bool fillRectangle);
-        void enableReverseCopy(bool reverseCopy);
+        void setFillRectangleEnable(bool fillRectangle);
+        void setReverseCopyEnable(bool reverseCopy);
 
         void applyDefaultSettings();
 

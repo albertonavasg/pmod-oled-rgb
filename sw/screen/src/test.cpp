@@ -283,7 +283,7 @@ void Test::rectangle() {
     std::this_thread::sleep_for(1s);
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
 
-    broadcast([](Screen &s){s.enableFillRectangle(true);});
+    broadcast([](Screen &s){s.setFillRectangleEnable(true);});
     // Random colors and coordinates for rectangles with fill
     for (size_t i = 0; i < 20; i++) {
         screen::Color c1 = {dist31(gen), dist63(gen), dist31(gen)};
@@ -341,8 +341,8 @@ void Test::copy() {
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
 
     // Rectangles with fill, to show reverseCopy of colors
-    broadcast([=](Screen &s){s.enableFillRectangle(true);});
-    broadcast([=](Screen &s){s.enableReverseCopy(true);});
+    broadcast([=](Screen &s){s.setFillRectangleEnable(true);});
+    broadcast([=](Screen &s){s.setReverseCopyEnable(true);});
     broadcast([=](Screen &s){s.drawRectangle(x1, y1, x2, y2, cLine, cFill);}, 500ms);
 
     broadcast([=](Screen &s){s.copyWindow(x1, y1, x2, y2, x1 + 5, y1 + 5);}, 500ms);

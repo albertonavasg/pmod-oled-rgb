@@ -1,7 +1,8 @@
 #ifndef SERVICE_H
 #define SERVICE_H
 
-#include <vector>     // vector
+#include <vector>        // vector
+#include <unordered_map> // unordered_map
 
 #include "screen.h"
 

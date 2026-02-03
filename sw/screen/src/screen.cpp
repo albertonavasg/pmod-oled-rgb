@@ -278,14 +278,14 @@ screen::Orientation Screen::getScreenOrientation() const {
     return m_orientation;
 }
 
-void Screen::enableFillRectangle(bool fillRectangle) {
+void Screen::setFillRectangleEnable(bool fillRectangle) {
 
     m_fillRectangle = fillRectangle;
     uint8_t param = static_cast<uint8_t>(m_fillRectangle) | (static_cast<uint8_t>(m_reverseCopy) << 4);
     sendCommand(screen::Command::FillEnable, param);
 }
 
-void Screen::enableReverseCopy(bool reverseCopy) {
+void Screen::setReverseCopyEnable(bool reverseCopy) {
 
     m_reverseCopy = reverseCopy;
     uint8_t param = static_cast<uint8_t>(m_fillRectangle) | (static_cast<uint8_t>(m_reverseCopy) << 4);
@@ -295,8 +295,8 @@ void Screen::enableReverseCopy(bool reverseCopy) {
 void Screen::applyDefaultSettings() {
 
     setSpiDelay(screen::defaultSpiDelay);
-    enableFillRectangle(screen::defaultFillRectangle);
-    enableReverseCopy(screen::defaultReverseCopy);
+    setFillRectangleEnable(screen::defaultFillRectangle);
+    setReverseCopyEnable(screen::defaultReverseCopy);
     m_orientation = screen::defaultOrientation;
     m_textCursor = screen::defaultTextCursor;
 
