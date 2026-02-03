@@ -1,8 +1,9 @@
-#include <iostream> // cout, endl
-#include <vector>   // vector
-#include <thread>   // sleep_for
-#include <chrono>   // time
-#include <random>   // rand
+#include <iostream>   // cout, endl
+#include <vector>     // vector
+#include <thread>     // sleep_for
+#include <chrono>     // time
+#include <random>     // rand
+#include <functional> // reference_wrapper
 
 #include "screen_constants.h"
 #include "screen_registers.h"

@@ -2,6 +2,7 @@
 #include <fstream>    // ifstream
 #include <stdexcept>  // runtime_error
 #include <filesystem> // filesystem
+#include <functional> // reference_wrapper
 
 #include <nlohmann/json.hpp>
 
@@ -9,6 +10,7 @@
 #include "screen_registers.h"
 #include "screen.h"
 #include "service.h"
+#include "test.h"
 
 using json = nlohmann::json;
 
@@ -68,6 +70,22 @@ void Service::applyConfig(const std::string &configFile) {
 Screen& Service::screen(const std::string &id) {
 
     return m_screens.at(m_screenIndex.at(id));
+}
+
+void Service::runTests() {
+
+    // Create a vector of references to all screens
+    std::vector<std::reference_wrapper<Screen>> screenRefs;
+    for (Screen &s : m_screens) {
+        screenRefs.push_back(s);
+    }
+
+    // Create a Test object
+    Test tester(screenRefs);
+
+    std::cout << "Running tests..." << std::endl;
+    tester.full();
+    std::cout << "All tests completed." << std::endl;
 }
 
 json Service::loadJson(const std::string &path) const {

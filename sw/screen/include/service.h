@@ -21,6 +21,8 @@ class Service {
         // Get screen by Id
         Screen& screen(const std::string &id);
 
+        void runTests();
+
     private:
         std::vector<Screen> m_screens;
         std::unordered_map<std::string, size_t> m_screenIndex;
