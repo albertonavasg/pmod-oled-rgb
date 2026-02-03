@@ -16,6 +16,7 @@ class Test {
         explicit Test(const std::vector<std::reference_wrapper<Screen>> &screens);
 
         // Test routines
+        void full();
         void display();
         void randomPattern();
         void colorDepth();

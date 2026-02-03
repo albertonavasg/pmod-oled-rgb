@@ -24,22 +24,7 @@ int main() {
     std::vector<std::reference_wrapper<Screen>> screens = {*screenA, *screenB};
     Test test(screens);
 
-    test.display();
-    test.randomPattern();
-    test.colorDepth();
-    test.addressIncrement();
-    test.bitmap();
-    test.scrolling();
-    test.line();
-    test.rectangle();
-    test.copy();
-    test.image();
-    test.symbol();
-    test.string();
-    test.standardColors();
-    test.inverseDisplay();
-    test.remap();
-    test.screenOrientation();
+    test.full();
 
     return 0;
 }

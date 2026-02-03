@@ -16,6 +16,29 @@ Test::Test(const std::vector<std::reference_wrapper<Screen>> &screens) {
     m_screens = screens;
 }
 
+void Test::full() {
+
+    broadcast([](Screen &s){s.clearScreen();});
+    broadcast([](Screen &s){s.applyDefaultSettings();});
+
+    display();
+    randomPattern();
+    colorDepth();
+    addressIncrement();
+    bitmap();
+    scrolling();
+    line();
+    rectangle();
+    copy();
+    image();
+    symbol();
+    string();
+    standardColors();
+    inverseDisplay();
+    remap();
+    screenOrientation();
+}
+
 void Test::display() {
 
     broadcast([](Screen &s){s.sendCommand(screen::Command::EntireDisplayOn);}, 500ms);
@@ -24,6 +47,7 @@ void Test::display() {
     broadcast([](Screen &s){s.sendCommand(screen::Command::NormalDisplay);}, 500ms);
 
     broadcast([](Screen &s){s.clearScreen();});
+    broadcast([](Screen &s){s.applyDefaultSettings();});
 }
 
 void Test::randomPattern() {
