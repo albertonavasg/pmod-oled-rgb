@@ -1,8 +1,7 @@
 #ifndef SERVICE_H
 #define SERVICE_H
 
-#include <vector>      // vector
-#include <functional>  // reference_wrapper
+#include <vector>     // vector
 
 #include "screen.h"
 
@@ -10,10 +9,16 @@ class Service {
 
     public:
         // Constructor
-        explicit Service(const std::vector<std::reference_wrapper<Screen>> &screens);
+        explicit Service(const std::string &configFile);
+
+        // Get screen by Id
+        Screen& screen(const std::string& id);
 
     private:
-        std::vector<std::reference_wrapper<Screen>> m_screens;
+        std::vector<Screen> m_screens;
+        std::unordered_map<std::string, size_t> m_screenIndex;
+
+        static screen::Orientation parseOrientation(const std::string &s);
 };
 
 #endif // SERVICE_H

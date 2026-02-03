@@ -10,7 +10,10 @@ BUILD_DIR := build
 # Cross-compiler
 TOOLCHAIN_PATH := $(HOME)/tools/arm-gnu-toolchain-12.2.rel1-x86_64-arm-none-linux-gnueabihf/bin
 CXX := $(TOOLCHAIN_PATH)/arm-none-linux-gnueabihf-g++
-CXXFLAGS := -I$(INCLUDE_DIR) -Wall -O2 -std=c++20
+# Compiler flags
+CXXFLAGS := -I$(INCLUDE_DIR) -isystem $(INCLUDE_DIR)/nlohmann -Wall -O2 -std=c++20 -Wno-psabi
+# Linker flags
+LDFLAGS :=
 
 # Sources
 SRCS := $(wildcard $(SRC_DIR)/*.cpp)
@@ -41,7 +44,7 @@ $(BUILD_DIR)/%.o: $(APP_DIR)/%.cpp | $(BUILD_DIR)
 # Link apps
 $(BUILD_DIR)/%: $(OBJS) $(BUILD_DIR)/%.o
 	echo "Linking -> $@"
-	$(CXX) $(CXXFLAGS) $^ -o $@
+	$(CXX) $(OBJS) $(BUILD_DIR)/$*.o $(LDFLAGS) -o $@
 	echo "Built -> $@"
 
 # Make each app a phony target to force Make to expand pattern rules

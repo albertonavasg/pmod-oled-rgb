@@ -1,0 +1,28 @@
+{
+    "screens": [
+        {
+            "id": "A",
+            "uio": "uio0",
+            "textCursor": [
+                0,
+                0
+            ],
+            "spiDelay": 0,
+            "orientation": "Horizontal_180",
+            "fillRectangle": false,
+            "reverseCopy": false
+        },
+        {
+            "id": "B",
+            "uio": "uio1",
+            "textCursor": [
+                0,
+                0
+            ],
+            "spiDelay": 0,
+            "orientation": "Horizontal_180",
+            "fillRectangle": false,
+            "reverseCopy": false
+        }
+    ]
+}

@@ -1,29 +1,30 @@
 #include <iostream> // cout
 #include <memory>   // unique_ptr
+#include <chrono>   // time
+#include <thread>   // sleep_for
 
 #include "screen_constants.h"
 #include "screen_registers.h"
 #include "screen.h"
 #include "service.h"
 
+using namespace std::chrono_literals;
+
 int main() {
 
     std::cout << "Screen service application running." << std::endl;
 
-    std::unique_ptr<Screen> screenA;
-    std::unique_ptr<Screen> screenB;
+    Service service("/home/petalinux/config.json");
+    std::this_thread::sleep_for(500ms);
 
-    try {
-        screenA = std::make_unique<Screen>("uio0");
-        screenB = std::make_unique<Screen>("uio1");
-    } catch (const std::exception &e) {
-        std::cerr << "Error initializing screens: " << e.what() << std::endl;
-        return EXIT_FAILURE;
-    }
+    service.screen("A").drawString("Screen A", screen::StandardColor::White);
+    std::this_thread::sleep_for(500ms);
+    service.screen("B").drawString("Screen B", screen::StandardColor::White);
+    std::this_thread::sleep_for(500ms);
 
-    std::vector<std::reference_wrapper<Screen>> screens = {*screenA, *screenB};
-
-    Service service(screens);
+    service.screen("A").clearScreen();
+    service.screen("B").clearScreen();
+    std::this_thread::sleep_for(500ms);
 
     return 0;
 }
