@@ -17,21 +17,8 @@ int main() {
     Service service("/home/petalinux/config.json");
     std::this_thread::sleep_for(500ms);
 
-    service.screen("A").clearScreen();
-    service.screen("B").clearScreen();
-    std::this_thread::sleep_for(500ms);
-
-    service.screen("A").drawString("Screen A", screen::StandardColor::White);
-    std::this_thread::sleep_for(500ms);
-    service.screen("B").drawString("Screen B", screen::StandardColor::White);
-    std::this_thread::sleep_for(500ms);
-
-    service.screen("A").clearScreen();
-    service.screen("B").clearScreen();
-    std::this_thread::sleep_for(500ms);
-
-    service.runTests();
-    service.applyConfig("/home/petalinux/config.json");
+    service.run();
+    std::this_thread::sleep_for(1s);
 
     return 0;
 }

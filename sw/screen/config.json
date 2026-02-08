@@ -2,6 +2,7 @@
     "screens": [
         {
             "id": "A",
+            "mode": "DigitalClock",
             "uio": "uio0",
             "textCursor": [
                 0,
@@ -14,6 +15,7 @@
         },
         {
             "id": "B",
+            "mode": "Ip",
             "uio": "uio1",
             "textCursor": [
                 0,

@@ -22,12 +22,14 @@ Service::Service(const std::string &configFile) {
     const auto &screens = j.at("screens");
 
     m_screens.reserve(screens.size());
+    m_modes.reserve(screens.size());
 
     for (const auto &s : screens) {
         const std::string id  = s.at("id").get<std::string>();
         const std::string uio = s.at("uio").get<std::string>();
 
         m_screens.emplace_back(uio);
+        m_modes.emplace_back(parseScreenMode(s.at("mode").get<std::string>()));
         m_screenIndex[id] = m_screens.size() - 1;
     }
 
@@ -48,15 +50,19 @@ void Service::applyConfig(const std::string &configFile) {
 
     for (const auto &s : screens) {
 
+        // Find the screen by its ID
         const std::string id = s.at("id").get<std::string>();
 
-        auto it = m_screenIndex.find(id);
-        if (it == m_screenIndex.end()) {
+        auto iterator = m_screenIndex.find(id);
+        if (iterator == m_screenIndex.end()) {
             throw std::runtime_error("Unknown screen id in config: " + id);
         }
 
-        Screen &screen = m_screens[it->second];
+        const size_t index = iterator->second;
 
+        Screen &screen = m_screens[index];
+
+        // Apply the settings
         const auto &textCursor = s.at("textCursor");
 
         screen.setTextCursor(static_cast<uint8_t>(textCursor.at(0).get<int>()), static_cast<uint8_t>(textCursor.at(1).get<int>()));
@@ -88,6 +94,42 @@ void Service::runTests() {
     std::cout << "All tests completed." << std::endl;
 }
 
+void Service::run() {
+
+    for (size_t i = 0; i < m_screens.size(); i++) {
+        applyMode(i);
+    }
+}
+
+void Service::applyMode(size_t index) {
+
+    auto &screen = m_screens[index];
+    auto &state  = m_modes[index];
+
+    screen.clearScreen();
+
+    switch (state) {
+        case service::ScreenMode::None:
+            screen.drawString("None", screen::StandardColor::White);
+            break;
+        case service::ScreenMode::Ip:
+            screen.drawString("IP", screen::StandardColor::White);
+            break;
+
+        case service::ScreenMode::DigitalClock:
+            screen.drawString("DigitalClock", screen::StandardColor::White);
+            break;
+
+        case service::ScreenMode::AnalogClock:
+            screen.drawString("AnalogClock", screen::StandardColor::White);
+            break;
+
+        default:
+            screen.drawString("Unknwon", screen::StandardColor::White);
+            break;
+    }
+}
+
 json Service::loadJson(const std::string &path) const {
 
     // Check that file exists
@@ -107,7 +149,18 @@ json Service::loadJson(const std::string &path) const {
     return j;
 }
 
+service::ScreenMode Service::parseScreenMode(const std::string &s) {
+
+    if (s == "None")         return service::ScreenMode::None;
+    if (s == "Ip")           return service::ScreenMode::Ip;
+    if (s == "DigitalClock") return service::ScreenMode::DigitalClock;
+    if (s == "AnalogClock")  return service::ScreenMode::AnalogClock;
+
+    throw std::runtime_error("Invalid screen mode value: " + s);
+}
+
 screen::Orientation Service::parseOrientation(const std::string &s) {
+
     if (s == "Horizontal_0")   return screen::Orientation::Horizontal_0;
     if (s == "Vertical_90")    return screen::Orientation::Vertical_90;
     if (s == "Horizontal_180") return screen::Orientation::Horizontal_180;

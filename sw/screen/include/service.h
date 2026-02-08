@@ -6,6 +6,7 @@
 
 #include <nlohmann/json.hpp>
 
+#include "service_constants.h"
 #include "screen.h"
 
 using json = nlohmann::json;
@@ -23,11 +24,17 @@ class Service {
 
         void runTests();
 
+        void run();
+
     private:
         std::vector<Screen> m_screens;
+        std::vector<service::ScreenMode> m_modes;
         std::unordered_map<std::string, size_t> m_screenIndex;
 
+        void applyMode(size_t index);
+
         json loadJson(const std::string &path) const;
+        service::ScreenMode parseScreenMode(const std::string &s);
         static screen::Orientation parseOrientation(const std::string &s);
 };
 
