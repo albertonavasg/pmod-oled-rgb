@@ -31,7 +31,11 @@ class Service {
         std::vector<service::ScreenMode> m_modes;
         std::unordered_map<std::string, size_t> m_screenIndex;
 
-        void applyMode(size_t index);
+        void enterMode(size_t index);
+        void enterNoneMode(Screen &s);
+        void enterIpMode(Screen &s);
+        void enterDigitalClockMode(Screen &s);
+        void enterAnalogClockMode(Screen &s);
 
         json loadJson(const std::string &path) const;
         service::ScreenMode parseScreenMode(const std::string &s);

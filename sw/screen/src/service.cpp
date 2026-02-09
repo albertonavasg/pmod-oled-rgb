@@ -97,11 +97,11 @@ void Service::runTests() {
 void Service::run() {
 
     for (size_t i = 0; i < m_screens.size(); i++) {
-        applyMode(i);
+        enterMode(i);
     }
 }
 
-void Service::applyMode(size_t index) {
+void Service::enterMode(size_t index) {
 
     auto &screen = m_screens[index];
     auto &state  = m_modes[index];
@@ -110,24 +110,44 @@ void Service::applyMode(size_t index) {
 
     switch (state) {
         case service::ScreenMode::None:
-            screen.drawString("None", screen::StandardColor::White);
+            enterNoneMode(screen);
             break;
         case service::ScreenMode::Ip:
-            screen.drawString("IP", screen::StandardColor::White);
+            enterIpMode(screen);
             break;
 
         case service::ScreenMode::DigitalClock:
-            screen.drawString("DigitalClock", screen::StandardColor::White);
+            enterDigitalClockMode(screen);
             break;
 
         case service::ScreenMode::AnalogClock:
-            screen.drawString("AnalogClock", screen::StandardColor::White);
+            enterAnalogClockMode(screen);
             break;
 
         default:
-            screen.drawString("Unknwon", screen::StandardColor::White);
+            std::cout << "Unknown mode" << std::endl;
             break;
     }
+}
+
+void Service::enterNoneMode(Screen &s) {
+
+    s.drawString("None", screen::StandardColor::White);
+}
+
+void Service::enterIpMode(Screen &s) {
+
+    s.drawString("IP", screen::StandardColor::White);
+}
+
+void Service::enterDigitalClockMode(Screen &s) {
+
+    s.drawString("DigitalClock", screen::StandardColor::White);
+}
+
+void Service::enterAnalogClockMode(Screen &s) {
+
+    s.drawString("AnalogClock", screen::StandardColor::White);
 }
 
 json Service::loadJson(const std::string &path) const {
