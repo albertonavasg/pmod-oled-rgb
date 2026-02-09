@@ -3,6 +3,7 @@
 #include <stdexcept>    // runtime_error
 #include <filesystem>   // filesystem
 #include <functional>   // reference_wrapper
+#include <chrono>       // chrono
 #include <ctime>        // time, localtime
 #include <sstream>      // ostringstream
 #include <iomanip>      // put_time
@@ -333,7 +334,7 @@ bool Service::updateIpAndMask() {
         if (std::strcmp(ifa->ifa_name, "lo") == 0) continue; // Skip loopback
         if (!hasCarrier(ifa->ifa_name)) {
             carrier = false;
-            continue;            // Skip if no carrier
+            continue; // Skip if no carrier
         }
 
         char ipbuf[INET_ADDRSTRLEN];
