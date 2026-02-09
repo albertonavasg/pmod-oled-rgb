@@ -137,7 +137,7 @@ void Service::enterMode(size_t index) {
 
     switch (state) {
         case service::ScreenMode::None:
-            enterNoneMode(screen);
+            enterNoneMode(screen, index);
             break;
         case service::ScreenMode::Info:
             enterInfoMode(screen);
@@ -154,9 +154,17 @@ void Service::enterMode(size_t index) {
     }
 }
 
-void Service::enterNoneMode(Screen &s) {
+void Service::enterNoneMode(Screen &s, size_t index) {
 
-    s.drawString("None", screen::StandardColor::White);
+    std::string id;
+    for (auto &pair : m_screenIndex) {
+        if (pair.second == index) {
+            id = pair.first;
+            break;
+        }
+    }
+
+    s.drawString(("Screen " + id).c_str(), screen::StandardColor::White);
 }
 
 void Service::enterInfoMode(Screen &s) {
@@ -293,12 +301,12 @@ bool Service::updateDateAndTime() {
     std::time_t now = std::time(nullptr);
     std::tm *tm = std::localtime(&now);
 
-    // Format date
+    // Format date (Month Day Year)
     char buf[16];
     std::strftime(buf, sizeof(buf), "%b %-d %Y", tm);
     m_date = buf;
 
-    // Format time (hour + minute)
+    // Format time (Hour:Minute)
     std::strftime(buf, sizeof(buf), "%H:%M", tm);
     m_time = buf;
 

@@ -2,7 +2,7 @@
     "screens": [
         {
             "id": "A",
-            "mode": "DigitalClock",
+            "mode": "None",
             "uio": "uio0",
             "textCursor": [
                 0,

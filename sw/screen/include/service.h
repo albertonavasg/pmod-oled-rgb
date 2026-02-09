@@ -42,7 +42,7 @@ class Service {
         std::string m_mask = "";
 
         void enterMode(size_t index);
-        void enterNoneMode(Screen &s);
+        void enterNoneMode(Screen &s, size_t index);
         void enterInfoMode(Screen &s);
         void enterDigitalClockMode(Screen &s);
         void enterAnalogClockMode(Screen &s);
