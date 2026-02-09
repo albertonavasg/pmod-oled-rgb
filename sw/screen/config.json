@@ -15,7 +15,7 @@
         },
         {
             "id": "B",
-            "mode": "Ip",
+            "mode": "Info",
             "uio": "uio1",
             "textCursor": [
                 0,

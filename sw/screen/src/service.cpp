@@ -115,8 +115,8 @@ void Service::enterMode(size_t index) {
         case service::ScreenMode::None:
             enterNoneMode(screen);
             break;
-        case service::ScreenMode::Ip:
-            enterIpMode(screen);
+        case service::ScreenMode::Info:
+            enterInfoMode(screen);
             break;
 
         case service::ScreenMode::DigitalClock:
@@ -138,7 +138,7 @@ void Service::enterNoneMode(Screen &s) {
     s.drawString("None", screen::StandardColor::White);
 }
 
-void Service::enterIpMode(Screen &s) {
+void Service::enterInfoMode(Screen &s) {
 
     bool timeChanged = updateDateTime();
     if (timeChanged) {
@@ -181,7 +181,7 @@ json Service::loadJson(const std::string &path) const {
 service::ScreenMode Service::parseScreenMode(const std::string &s) {
 
     if (s == "None")         return service::ScreenMode::None;
-    if (s == "Ip")           return service::ScreenMode::Ip;
+    if (s == "Info")         return service::ScreenMode::Info;
     if (s == "DigitalClock") return service::ScreenMode::DigitalClock;
     if (s == "AnalogClock")  return service::ScreenMode::AnalogClock;
 

@@ -36,7 +36,7 @@ class Service {
 
         void enterMode(size_t index);
         void enterNoneMode(Screen &s);
-        void enterIpMode(Screen &s);
+        void enterInfoMode(Screen &s);
         void enterDigitalClockMode(Screen &s);
         void enterAnalogClockMode(Screen &s);
 

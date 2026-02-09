@@ -8,7 +8,7 @@ namespace service {
     enum class ScreenMode {
 
         None,
-        Ip,
+        Info,
         DigitalClock,
         AnalogClock
     };
