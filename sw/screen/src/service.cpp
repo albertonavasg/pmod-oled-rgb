@@ -43,6 +43,10 @@ Service::Service(const std::string &configFile) {
     applyConfig(configFile);
 }
 
+Service::~Service() {
+    stop();
+}
+
 void Service::applyConfig(const std::string &configFile) {
 
     // Load config file
@@ -107,13 +111,20 @@ void Service::run() {
         enterMode(i);
     }
 
-    std::this_thread::sleep_for(3s);
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
-    while (true) {
+    while (m_running) {
         for (size_t i = 0; i < m_screens.size(); i++) {
             updateMode(i);
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+}
+
+void Service::stop() {
+
+    if (!m_running.exchange(false, std::memory_order_relaxed)) {
+        return; // Already stopped
     }
 }
 
@@ -233,7 +244,6 @@ void Service::updateDigitalClockMode(Screen &s) {
 void Service::updateAnalogClockMode(Screen &s) {
 
 }
-
 
 json Service::loadJson(const std::string &path) const {
 

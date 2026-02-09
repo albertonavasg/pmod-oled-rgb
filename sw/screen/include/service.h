@@ -3,6 +3,7 @@
 
 #include <vector>        // vector
 #include <unordered_map> // unordered_map
+#include <atomic>        // atomic
 
 #include <nlohmann/json.hpp>
 
@@ -14,8 +15,9 @@ using json = nlohmann::json;
 class Service {
 
     public:
-        // Constructor
+        // Constructor and destructor
         explicit Service(const std::string &configFile);
+        ~Service();
 
         // Apply config from JSON
         void applyConfig(const std::string &configFile);
@@ -25,11 +27,14 @@ class Service {
         void runTests();
 
         void run();
+        void stop();
 
     private:
         std::vector<Screen> m_screens;
         std::vector<service::ScreenMode> m_modes;
         std::unordered_map<std::string, size_t> m_screenIndex;
+
+        std::atomic<bool> m_running{true};
 
         std::string m_date = "";
         std::string m_time = "";
