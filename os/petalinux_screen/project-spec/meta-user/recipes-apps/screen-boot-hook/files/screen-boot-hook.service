@@ -1,0 +1,10 @@
+[Unit]
+Description=Screen Boot Hook
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/screen-boot-hook.sh
+Restart=no
+
+[Install]
+WantedBy=multi-user.target

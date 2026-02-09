@@ -3832,14 +3832,15 @@ CONFIG_imagefeature-hwcodecs=y
 CONFIG_imagefeature-debug-tweaks=y
 # CONFIG_imagefeature-empty-root-password is not set
 # CONFIG_imagefeature-serial-autologin-root is not set
-# CONFIG_Init-manager-systemd is not set
-CONFIG_Init-manager-sysvinit=y
+CONFIG_Init-manager-systemd=y
+# CONFIG_Init-manager-sysvinit is not set
 
 #
 # user packages 
 #
 # CONFIG_gpio-demo is not set
 # CONFIG_peekpoke is not set
+CONFIG_screen-boot-hook=y
 
 #
 # PetaLinux RootFS Settings
