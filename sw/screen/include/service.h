@@ -42,6 +42,12 @@ class Service {
         void enterDigitalClockMode(Screen &s);
         void enterAnalogClockMode(Screen &s);
 
+        void updateMode(size_t index);
+        void updateNoneMode(Screen &s);
+        void updateInfoMode(Screen &s);
+        void updateDigitalClockMode(Screen &s);
+        void updateAnalogClockMode(Screen &s);
+
         // Helpers
         json loadJson(const std::string &path) const;
 
@@ -50,6 +56,7 @@ class Service {
 
         bool updateDateAndTime();
         bool updateIpAndMask();
+        bool hasCarrier(const char *iface);
 
 };
 

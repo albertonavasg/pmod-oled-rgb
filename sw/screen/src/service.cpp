@@ -106,6 +106,15 @@ void Service::run() {
     for (size_t i = 0; i < m_screens.size(); i++) {
         enterMode(i);
     }
+
+    std::this_thread::sleep_for(3s);
+
+    while (true) {
+        for (size_t i = 0; i < m_screens.size(); i++) {
+            updateMode(i);
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
 }
 
 void Service::enterMode(size_t index) {
@@ -122,15 +131,12 @@ void Service::enterMode(size_t index) {
         case service::ScreenMode::Info:
             enterInfoMode(screen);
             break;
-
         case service::ScreenMode::DigitalClock:
             enterDigitalClockMode(screen);
             break;
-
         case service::ScreenMode::AnalogClock:
             enterAnalogClockMode(screen);
             break;
-
         default:
             std::cout << "Unknown mode" << std::endl;
             break;
@@ -169,6 +175,65 @@ void Service::enterAnalogClockMode(Screen &s) {
 
     s.drawString("AnalogClock", screen::StandardColor::White);
 }
+
+void Service::updateMode(size_t index) {
+
+    auto &screen = m_screens[index];
+    auto &state  = m_modes[index];
+
+    switch (state) {
+        case service::ScreenMode::None:
+            updateNoneMode(screen);
+            break;
+        case service::ScreenMode::Info:
+            updateInfoMode(screen);
+            break;
+        case service::ScreenMode::DigitalClock:
+            updateDigitalClockMode(screen);
+            break;
+        case service::ScreenMode::AnalogClock:
+            updateAnalogClockMode(screen);
+            break;
+        default:
+            std::cout << "Unknown mode" << std::endl;
+            break;
+    }
+}
+
+void Service::updateNoneMode(Screen &s) {
+
+}
+
+void Service::updateInfoMode(Screen &s) {
+
+    bool timeChanged = updateDateAndTime();
+    if (timeChanged) {
+        s.clearWindow(0,0, 95, 31);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        s.setTextCursor(0, 0);
+        s.drawString(m_date, screen::StandardColor::White);
+        s.setTextCursor(0, 2);
+        s.drawString(m_time, screen::StandardColor::White);
+    }
+    bool ipChanged = updateIpAndMask();
+    if (ipChanged) {
+        s.clearWindow(0,32, 95, 63);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        s.setTextCursor(0, 4);
+        s.drawString(m_ip, screen::StandardColor::White);
+        s.setTextCursor(0, 6);
+        s.drawString(m_mask, screen::StandardColor::White);
+    }
+}
+
+void Service::updateDigitalClockMode(Screen &s) {
+
+}
+
+void Service::updateAnalogClockMode(Screen &s) {
+
+}
+
 
 json Service::loadJson(const std::string &path) const {
 
@@ -241,13 +306,16 @@ bool Service::updateIpAndMask() {
     }
 
     bool found = false;
+    bool carrier = true;
 
     for (struct ifaddrs *ifa = ifaddr; ifa != nullptr; ifa = ifa->ifa_next) {
         if (!ifa->ifa_addr) continue;
-        if (ifa->ifa_addr->sa_family != AF_INET) continue; // IPv4 only
-
-        // Skip loopback
-        if (std::strcmp(ifa->ifa_name, "lo") == 0) continue;
+        if (ifa->ifa_addr->sa_family != AF_INET) continue;   // IPv4 only
+        if (std::strcmp(ifa->ifa_name, "lo") == 0) continue; // Skip loopback
+        if (!hasCarrier(ifa->ifa_name)) {
+            carrier = false;
+            continue;            // Skip if no carrier
+        }
 
         char ipbuf[INET_ADDRSTRLEN];
         char maskbuf[INET_ADDRSTRLEN];
@@ -262,11 +330,28 @@ bool Service::updateIpAndMask() {
         m_mask = maskbuf;
 
         found = true;
-        break; // take the first valid interface
+        break; // Take the first valid interface
     }
 
     freeifaddrs(ifaddr);
 
-    // Return true only if values changed AND a valid interface was found
-    return found && (m_ip != oldIp || m_mask != oldMask);
+    if (!carrier) {
+        m_ip = "No carrier";
+        m_mask = "";
+    } else if (!found) {
+        m_ip = "No IP";
+        m_mask = "No mask";
+    }
+
+    // Return true if values changed
+    return (m_ip != oldIp || m_mask != oldMask);
+}
+
+bool Service::hasCarrier(const char *iface) {
+
+    std::string path = std::string("/sys/class/net/") + iface + "/carrier";
+    std::ifstream f(path);
+    int carrier = 0;
+    f >> carrier;
+    return carrier == 1;
 }

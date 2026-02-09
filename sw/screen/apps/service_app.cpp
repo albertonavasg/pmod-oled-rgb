@@ -18,7 +18,6 @@ int main() {
     std::this_thread::sleep_for(500ms);
 
     service.run();
-    std::this_thread::sleep_for(3s);
 
     return 0;
 }
