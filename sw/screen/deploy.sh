@@ -32,11 +32,9 @@ rsync -avz --delete \
     "$TARGET_USER@$TARGET_HOST:$TARGET_DIR/assets/"
 
 echo "=== Verifying on target ==="
-ssh "$TARGET_USER@$TARGET_HOST" << EOF
-set -e
-[ -x "$TARGET_DIR/bin/test_app" ]
-[ -x "$TARGET_DIR/bin/service_app" ]
-[ -f "$TARGET_DIR/assets/config.json" ]
-[ -d "$TARGET_DIR/assets/images" ]
-echo "Deployment OK"
-EOF
+ssh "$TARGET_USER@$TARGET_HOST" "set -e; \
+[ -x $TARGET_DIR/bin/test_app ] && \
+[ -x $TARGET_DIR/bin/service_app ] && \
+[ -f $TARGET_DIR/assets/config.json ] && \
+[ -d $TARGET_DIR/assets/images ] && \
+echo Deployment OK"
