@@ -5,6 +5,7 @@
 #include <random>     // rand
 #include <functional> // reference_wrapper
 
+#include "paths.h"
 #include "screen_constants.h"
 #include "screen_registers.h"
 #include "screen.h"
@@ -380,8 +381,8 @@ void Test::copy() {
 
 void Test::image() {
 
-    const std::string imagePath1 = "/home/petalinux/images/default1.jpg";
-    const std::string imagePath2 = "/home/petalinux/images/default2.jpg";
+    const std::string imagePath1 = AppPaths::IMAGES_DIR + "default1.jpg";
+    const std::string imagePath2 = AppPaths::IMAGES_DIR + "default2.jpg";
 
     broadcast([](Screen &s){s.setColorDepth(screen::RemapColorDepth::ColorDepth::Color256); s.applyRemapColorDepth();});
     broadcast([=](Screen &s){s.drawImage(imagePath1);}, 2s);
@@ -647,8 +648,8 @@ void Test::screenOrientation() {
 
     std::vector<std::string> phrases(3);
 
-    const std::string imagePathHorizontal = "/home/petalinux/images/horizontal.jpg";
-    const std::string imagePathVertical = "/home/petalinux/images/vertical.jpg";
+    const std::string imagePathHorizontal = AppPaths::IMAGES_DIR + "horizontal.jpg";
+    const std::string imagePathVertical = AppPaths::IMAGES_DIR + "vertical.jpg";
 
     broadcast([](Screen &s){s.setSpiDelay(1ns);});
 

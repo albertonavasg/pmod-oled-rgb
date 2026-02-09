@@ -4,6 +4,7 @@
 #include <thread>   // sleep_for
 #include <csignal>  // signal
 
+#include "paths.h"
 #include "screen_constants.h"
 #include "screen_registers.h"
 #include "screen.h"
@@ -22,7 +23,7 @@ int main() {
     std::signal(SIGINT,  signalHandler);
     std::signal(SIGTERM, signalHandler);
 
-    Service service("/opt/screen/assets/config.json");
+    Service service(AppPaths::CONFIG_PATH);
     g_service = &service;
 
     service.run();

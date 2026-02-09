@@ -13,6 +13,7 @@
 
 #include <nlohmann/json.hpp>
 
+#include "paths.h"
 #include "screen_constants.h"
 #include "screen_registers.h"
 #include "screen.h"
