@@ -3,6 +3,9 @@
 #include <stdexcept>  // runtime_error
 #include <filesystem> // filesystem
 #include <functional> // reference_wrapper
+#include <ctime>      // time, localtime
+#include <sstream>    // ostringstream
+#include <iomanip>    // put_time
 
 #include <nlohmann/json.hpp>
 
@@ -137,7 +140,11 @@ void Service::enterNoneMode(Screen &s) {
 
 void Service::enterIpMode(Screen &s) {
 
-    s.drawString("IP", screen::StandardColor::White);
+    updateDateTime();
+    s.setTextCursor(0, 0);
+    s.drawString(m_date, screen::StandardColor::White);
+    s.setTextCursor(0, 2);
+    s.drawString(m_time, screen::StandardColor::White);
 }
 
 void Service::enterDigitalClockMode(Screen &s) {
@@ -187,4 +194,20 @@ screen::Orientation Service::parseOrientation(const std::string &s) {
     if (s == "Vertical_270")   return screen::Orientation::Vertical_270;
 
     throw std::runtime_error("Invalid orientation value: " + s);
+}
+
+void Service::updateDateTime() {
+
+    // Get current system time
+    std::time_t now = std::time(nullptr);
+    std::tm *tm = std::localtime(&now);
+
+    // Format date
+    char buf[16];
+    std::strftime(buf, sizeof(buf), "%b %-d %Y", tm);
+    m_date = buf;
+
+    // Format time (hour + minute)
+    std::strftime(buf, sizeof(buf), "%H:%M", tm);
+    m_time = buf;
 }
