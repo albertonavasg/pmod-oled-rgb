@@ -314,19 +314,19 @@ CONFIG_mtd-utils=y
 #
 # tzdata 
 #
-# CONFIG_tzdata is not set
-# CONFIG_tzdata-asia is not set
-# CONFIG_tzdata-arctic is not set
-# CONFIG_tzdata-posix is not set
-# CONFIG_tzdata-africa is not set
-# CONFIG_tzdata-europe is not set
-# CONFIG_tzdata-americas is not set
-# CONFIG_tzdata-antarctica is not set
-# CONFIG_tzdata-atlantic is not set
-# CONFIG_tzdata-misc is not set
-# CONFIG_tzdata-right is not set
-# CONFIG_tzdata-pacific is not set
-# CONFIG_tzdata-australia is not set
+CONFIG_tzdata=y
+CONFIG_tzdata-asia=y
+CONFIG_tzdata-arctic=y
+CONFIG_tzdata-posix=y
+CONFIG_tzdata-africa=y
+CONFIG_tzdata-europe=y
+CONFIG_tzdata-americas=y
+CONFIG_tzdata-antarctica=y
+CONFIG_tzdata-atlantic=y
+CONFIG_tzdata-misc=y
+CONFIG_tzdata-right=y
+CONFIG_tzdata-pacific=y
+CONFIG_tzdata-australia=y
 
 #
 # update-rc.d 
