@@ -31,8 +31,8 @@ class Service {
         std::vector<service::ScreenMode> m_modes;
         std::unordered_map<std::string, size_t> m_screenIndex;
 
-        std::string m_date;
-        std::string m_time;
+        std::string m_date = "";
+        std::string m_time = "";
 
         void enterMode(size_t index);
         void enterNoneMode(Screen &s);
@@ -46,7 +46,7 @@ class Service {
         service::ScreenMode parseScreenMode(const std::string &s);
         static screen::Orientation parseOrientation(const std::string &s);
 
-        void updateDateTime();
+        bool updateDateTime();
 
 };
 

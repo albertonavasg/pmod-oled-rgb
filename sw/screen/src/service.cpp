@@ -140,11 +140,13 @@ void Service::enterNoneMode(Screen &s) {
 
 void Service::enterIpMode(Screen &s) {
 
-    updateDateTime();
-    s.setTextCursor(0, 0);
-    s.drawString(m_date, screen::StandardColor::White);
-    s.setTextCursor(0, 2);
-    s.drawString(m_time, screen::StandardColor::White);
+    bool timeChanged = updateDateTime();
+    if (timeChanged) {
+        s.setTextCursor(0, 0);
+        s.drawString(m_date, screen::StandardColor::White);
+        s.setTextCursor(0, 2);
+        s.drawString(m_time, screen::StandardColor::White);
+    }
 }
 
 void Service::enterDigitalClockMode(Screen &s) {
@@ -196,7 +198,10 @@ screen::Orientation Service::parseOrientation(const std::string &s) {
     throw std::runtime_error("Invalid orientation value: " + s);
 }
 
-void Service::updateDateTime() {
+bool Service::updateDateTime() {
+
+    std::string oldDate = m_date;
+    std::string oldTime = m_time;
 
     // Get current system time
     std::time_t now = std::time(nullptr);
@@ -210,4 +215,6 @@ void Service::updateDateTime() {
     // Format time (hour + minute)
     std::strftime(buf, sizeof(buf), "%H:%M", tm);
     m_time = buf;
+
+    return (m_date != oldDate || m_time != oldTime);
 }
