@@ -420,8 +420,14 @@ To compile any of them, use the `Makefile`:
     
 To directly compile and send it to the board:
 
-    $ ./compile_and_send.sh
+    $ ./deploy.sh
 
+This script also sends to the board the assets used by the programs.
+It is recommended to ssh into the board as `root` to skip the use of `sudo` when executing the programs.
+
+> [!TIP]  
+> The script `deploy.sh` sends the binaries to `pynqz2-screen:/opt/screen`.  
+> This means there has to be a host alias in `.ssh/config` with its IP and user (root).
 
 [comment]: (Links)
 [petalinux-2024.1]: https://docs.amd.com/r/2024.1-English/ug1144-petalinux-tools-reference-guide

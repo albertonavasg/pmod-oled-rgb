@@ -22,7 +22,7 @@ int main() {
     std::signal(SIGINT,  signalHandler);
     std::signal(SIGTERM, signalHandler);
 
-    Service service("/home/petalinux/config.json");
+    Service service("/opt/screen/assets/config.json");
     g_service = &service;
 
     service.run();
