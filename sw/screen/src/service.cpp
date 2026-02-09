@@ -1,11 +1,15 @@
-#include <iostream>   // cout, endl
-#include <fstream>    // ifstream
-#include <stdexcept>  // runtime_error
-#include <filesystem> // filesystem
-#include <functional> // reference_wrapper
-#include <ctime>      // time, localtime
-#include <sstream>    // ostringstream
-#include <iomanip>    // put_time
+#include <iostream>     // cout, endl
+#include <fstream>      // ifstream
+#include <stdexcept>    // runtime_error
+#include <filesystem>   // filesystem
+#include <functional>   // reference_wrapper
+#include <ctime>        // time, localtime
+#include <sstream>      // ostringstream
+#include <iomanip>      // put_time
+#include <ifaddrs.h>    // ifaddrs
+#include <arpa/inet.h>  // inet_ntop
+#include <netinet/in.h> // sockaddr_in
+#include <cstring>      // strcmp
 
 #include <nlohmann/json.hpp>
 
@@ -140,12 +144,19 @@ void Service::enterNoneMode(Screen &s) {
 
 void Service::enterInfoMode(Screen &s) {
 
-    bool timeChanged = updateDateTime();
+    bool timeChanged = updateDateAndTime();
     if (timeChanged) {
         s.setTextCursor(0, 0);
         s.drawString(m_date, screen::StandardColor::White);
         s.setTextCursor(0, 2);
         s.drawString(m_time, screen::StandardColor::White);
+    }
+    bool ipChanged = updateIpAndMask();
+    if (ipChanged) {
+        s.setTextCursor(0, 4);
+        s.drawString(m_ip, screen::StandardColor::White);
+        s.setTextCursor(0, 6);
+        s.drawString(m_mask, screen::StandardColor::White);
     }
 }
 
@@ -198,7 +209,7 @@ screen::Orientation Service::parseOrientation(const std::string &s) {
     throw std::runtime_error("Invalid orientation value: " + s);
 }
 
-bool Service::updateDateTime() {
+bool Service::updateDateAndTime() {
 
     std::string oldDate = m_date;
     std::string oldTime = m_time;
@@ -217,4 +228,45 @@ bool Service::updateDateTime() {
     m_time = buf;
 
     return (m_date != oldDate || m_time != oldTime);
+}
+
+bool Service::updateIpAndMask() {
+
+    std::string oldIp   = m_ip;
+    std::string oldMask = m_mask;
+
+    struct ifaddrs *ifaddr;
+    if (getifaddrs(&ifaddr) == -1) {
+        return false; // Error fetching interfaces
+    }
+
+    bool found = false;
+
+    for (struct ifaddrs *ifa = ifaddr; ifa != nullptr; ifa = ifa->ifa_next) {
+        if (!ifa->ifa_addr) continue;
+        if (ifa->ifa_addr->sa_family != AF_INET) continue; // IPv4 only
+
+        // Skip loopback
+        if (std::strcmp(ifa->ifa_name, "lo") == 0) continue;
+
+        char ipbuf[INET_ADDRSTRLEN];
+        char maskbuf[INET_ADDRSTRLEN];
+
+        auto *addr    = (struct sockaddr_in *)ifa->ifa_addr;
+        auto *netmask = (struct sockaddr_in *)ifa->ifa_netmask;
+
+        inet_ntop(AF_INET, &addr->sin_addr, ipbuf, sizeof(ipbuf));
+        inet_ntop(AF_INET, &netmask->sin_addr, maskbuf, sizeof(maskbuf));
+
+        m_ip   = ipbuf;
+        m_mask = maskbuf;
+
+        found = true;
+        break; // take the first valid interface
+    }
+
+    freeifaddrs(ifaddr);
+
+    // Return true only if values changed AND a valid interface was found
+    return found && (m_ip != oldIp || m_mask != oldMask);
 }

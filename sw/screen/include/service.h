@@ -33,6 +33,8 @@ class Service {
 
         std::string m_date = "";
         std::string m_time = "";
+        std::string m_ip   = "";
+        std::string m_mask = "";
 
         void enterMode(size_t index);
         void enterNoneMode(Screen &s);
@@ -46,7 +48,8 @@ class Service {
         service::ScreenMode parseScreenMode(const std::string &s);
         static screen::Orientation parseOrientation(const std::string &s);
 
-        bool updateDateTime();
+        bool updateDateAndTime();
+        bool updateIpAndMask();
 
 };
 
