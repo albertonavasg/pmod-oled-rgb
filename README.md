@@ -352,7 +352,11 @@ Custom details applied to Petalinux:
 - Added glibc to support C applications.
 - Added libstdc++ to support C++ applications.
 - UIO driver support.
-- Added ntp to rootfs to get correct time and date.
+- Added ntp to get correct time and date.
+- Added rsync to improve file sync.
+- Enable debug-tweaks to allow root SSH login (and disabled empty password)
+- Changed from sysvinit to systemd.
+- Added petalinux app to execute script at boot time that will launch `service_app`.
 
 ### Embedded SW
 
@@ -391,7 +395,7 @@ They can be compiled and sent to the PYNQ-Z2 board using the script:
 
 > [!TIP]  
 > The script `compile_and_send.sh` sends the binaries to `pynqz2-screen:/home/petalinux`.  
-> This means there has to be a host alias in `.ssh/config` with its IP and user (petalinux).
+> This means there has to be a host alias for `pynqz2-screen` in `.ssh/config` with its IP and user (petalinux).
 
 Connect to the board via SSH and execute them (with sudo privileges, in order to open the file descriptor for memory interfaces):
 
@@ -408,26 +412,44 @@ The final version of the software is in the `sw/screen` directory.
 
 For the moment, there are two main apps:
 
-- `test_app`. Instantiates screen A and screen B and tests all the features. Under development.
-- `screen_app`. Unused for the moment, final application.
+- `test_app`. Instantiates screen A and screen B and tests all the features.
+- `service_app`. Final application. Automatically launched at boot.
 
 To compile any of them, use the `Makefile`:
 
     $ make test_app
-    $ make screen_app
+    $ make service_app
     $ make all
     $ make
     
-To directly compile and send it to the board:
+To directly compile and send it to the board at `/opt/screen/`:
 
     $ ./deploy.sh
 
 This script also sends to the board the assets used by the programs.
 It is recommended to ssh into the board as `root` to skip the use of `sudo` when executing the programs.
 
+The deployed files look like this:
+
+```
+└── /opt/screen
+    ├── assets
+    │   ├── config.json
+    │   └── images
+    ├── bin
+    |   ├── service_app
+    |   └── test_app
+    └── scripts
+        └── run_service.sh
+```
+
+At boot, the script `/usr/bin/screen-boot-hook.sh` is launched, executing `/opt/screen/scripts/run_service.sh`, which executes `service_app`.
+
+This is fixed on the petalinux image. This way, the `service_app` is launched automnatically, but if any modification needs to be done to the done to `service_app` or `run_service.sh`, the petalinux image does not need to be modified and reuploaded.
+
 > [!TIP]  
 > The script `deploy.sh` sends the binaries to `pynqz2-screen:/opt/screen`.  
-> This means there has to be a host alias in `.ssh/config` with its IP and user (root).
+> This means there has to be a host alias for `pynqz2-screen` in `.ssh/config` with its IP and user (root).
 
 [comment]: (Links)
 [petalinux-2024.1]: https://docs.amd.com/r/2024.1-English/ug1144-petalinux-tools-reference-guide
