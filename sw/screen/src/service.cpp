@@ -9,6 +9,7 @@
 #include <iomanip>      // put_time
 #include <ifaddrs.h>    // ifaddrs
 #include <arpa/inet.h>  // inet_ntop
+#include <net/if.h>     // IFF_UP, IFF_LOOPBACK
 #include <netinet/in.h> // sockaddr_in
 #include <cstring>      // strcmp
 
@@ -322,20 +323,31 @@ bool Service::updateIpAndMask() {
 
     struct ifaddrs *ifaddr;
     if (getifaddrs(&ifaddr) == -1) {
-        return false; // Error fetching interfaces
+        return false; // Failed to read interface list
     }
 
-    bool found = false;
-    bool carrier = true;
+    bool ipFound      = false;
+    bool anyUp      = false;
+    bool anyCarrier = false;
 
     for (struct ifaddrs *ifa = ifaddr; ifa != nullptr; ifa = ifa->ifa_next) {
-        if (!ifa->ifa_addr) continue;
-        if (ifa->ifa_addr->sa_family != AF_INET) continue;   // IPv4 only
-        if (std::strcmp(ifa->ifa_name, "lo") == 0) continue; // Skip loopback
-        if (!hasCarrier(ifa->ifa_name)) {
-            carrier = false;
-            continue; // Skip if no carrier
-        }
+
+        if (!ifa->ifa_addr)
+            continue; // Ignore interface entry without address info
+        if (ifa->ifa_flags & IFF_LOOPBACK)
+            continue; // Ignore loopback
+        if (!(ifa->ifa_flags & IFF_UP))
+            continue; // Ignore interface DOWN
+
+        anyUp = true;
+
+        if (!hasCarrier(ifa->ifa_name))
+            continue; // Ignore interface with no carrier
+
+        anyCarrier = true;
+
+        if (ifa->ifa_addr->sa_family != AF_INET)
+            continue; // Ignore interface if not IPv4
 
         char ipbuf[INET_ADDRSTRLEN];
         char maskbuf[INET_ADDRSTRLEN];
@@ -349,21 +361,25 @@ bool Service::updateIpAndMask() {
         m_ip   = ipbuf;
         m_mask = maskbuf;
 
-        found = true;
-        break; // Take the first valid interface
+        ipFound  = true;
+
+        break; // Stop after first usable interface
     }
 
     freeifaddrs(ifaddr);
 
-    if (!carrier) {
-        m_ip = "No carrier";
+    if (!anyUp) {
+        m_ip   = "Interface down";
         m_mask = "";
-    } else if (!found) {
-        m_ip = "No IP";
+    } else if (!anyCarrier) {
+        m_ip   = "No carrier";
+        m_mask = "";
+    } else if (!ipFound) {
+        m_ip   = "No IP";
         m_mask = "No mask";
     }
 
-    // Return true if values changed
+    // Return true if visible state changed
     return (m_ip != oldIp || m_mask != oldMask);
 }
 
