@@ -42,7 +42,7 @@ void Screen::sendPixel(const screen::Color color) {
 
 void Screen::sendMultiPixel(const std::vector<screen::Color> &colors) {
 
-    for (const auto &c : colors) {
+    for (const screen::Color &c : colors) {
         sendPixel(c);
     }
 }

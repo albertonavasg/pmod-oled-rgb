@@ -62,7 +62,7 @@ void Test::randomPattern() {
     std::uniform_int_distribution<uint8_t> dist63(0, 63);
 
     // Random pixels
-    for (auto &c : colors) {
+    for (screen::Color &c : colors) {
         c = {dist31(gen), dist63(gen), dist31(gen)};
     }
     broadcast([&colors](Screen &s){s.sendMultiPixel(colors);}, 1s);

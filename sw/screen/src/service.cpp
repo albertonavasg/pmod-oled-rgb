@@ -29,12 +29,12 @@ Service::Service(const std::string &configFile) {
     // Load config file
     json j = loadJson(configFile);
 
-    const auto &screens = j.at("screens");
+    const json &screens = j.at("screens");
 
     m_screens.reserve(screens.size());
     m_modes.reserve(screens.size());
 
-    for (const auto &s : screens) {
+    for (const json &s : screens) {
         const std::string id  = s.at("id").get<std::string>();
         const std::string uio = s.at("uio").get<std::string>();
 
@@ -60,14 +60,14 @@ void Service::applyConfig(const std::string &configFile) {
         throw std::runtime_error("Config file missing 'screens' array");
     }
 
-    const auto &screens = j.at("screens");
+    const json &screens = j.at("screens");
 
-    for (const auto &s : screens) {
+    for (const json &s : screens) {
 
         // Find the screen by its ID
         const std::string id = s.at("id").get<std::string>();
 
-        auto iterator = m_screenIndex.find(id);
+        std::unordered_map<std::string, std::size_t>::iterator iterator = m_screenIndex.find(id);
         if (iterator == m_screenIndex.end()) {
             throw std::runtime_error("Unknown screen id in config: " + id);
         }
@@ -77,7 +77,7 @@ void Service::applyConfig(const std::string &configFile) {
         Screen &screen = m_screens[index];
 
         // Apply the settings
-        const auto &textCursor = s.at("textCursor");
+        const json &textCursor = s.at("textCursor");
 
         screen.setFontId(parseFontId(s.at("fontId").get<std::string>()));
         screen.setTextCursor(static_cast<uint8_t>(textCursor.at(0).get<int>()), static_cast<uint8_t>(textCursor.at(1).get<int>()));
@@ -134,12 +134,12 @@ void Service::stop() {
 
 void Service::enterMode(size_t index) {
 
-    auto &screen = m_screens[index];
-    auto &state  = m_modes[index];
+    Screen &screen = m_screens[index];
+    service::ScreenMode &mode  = m_modes[index];
 
     screen.clearScreen();
 
-    switch (state) {
+    switch (mode) {
         case service::ScreenMode::None:
             enterNoneMode(screen, index);
             break;
@@ -161,7 +161,7 @@ void Service::enterMode(size_t index) {
 void Service::enterNoneMode(Screen &s, size_t index) {
 
     std::string id;
-    for (auto &pair : m_screenIndex) {
+    for (std::pair<const std::string, std::size_t> &pair : m_screenIndex) {
         if (pair.second == index) {
             id = pair.first;
             break;
@@ -203,10 +203,10 @@ void Service::enterAnalogClockMode(Screen &s) {
 
 void Service::updateMode(size_t index) {
 
-    auto &screen = m_screens[index];
-    auto &state  = m_modes[index];
+    Screen &screen = m_screens[index];
+    service::ScreenMode &mode  = m_modes[index];
 
-    switch (state) {
+    switch (mode) {
         case service::ScreenMode::None:
             updateNoneMode(screen);
             break;
@@ -324,6 +324,7 @@ bool Service::updateDateAndTime() {
     std::strftime(buf, sizeof(buf), "%H:%M", tm);
     m_time = buf;
 
+    // Return true if visible state changed
     return (m_date != oldDate || m_time != oldTime);
 }
 
@@ -363,8 +364,8 @@ bool Service::updateIpAndMask() {
         char ipbuf[INET_ADDRSTRLEN];
         char maskbuf[INET_ADDRSTRLEN];
 
-        auto *addr    = (struct sockaddr_in *)ifa->ifa_addr;
-        auto *netmask = (struct sockaddr_in *)ifa->ifa_netmask;
+        struct sockaddr_in *addr    = (struct sockaddr_in *)ifa->ifa_addr;
+        struct sockaddr_in *netmask = (struct sockaddr_in *)ifa->ifa_netmask;
 
         inet_ntop(AF_INET, &addr->sin_addr, ipbuf, sizeof(ipbuf));
         inet_ntop(AF_INET, &netmask->sin_addr, maskbuf, sizeof(maskbuf));

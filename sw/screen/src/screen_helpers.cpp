@@ -17,7 +17,7 @@
 
 bool Screen::waitForPowerState(screen::PowerState target, std::chrono::milliseconds timeout) {
 
-    const auto start = std::chrono::steady_clock::now();
+    const std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
 
     while (true) {
         if (readPowerState() == target) {

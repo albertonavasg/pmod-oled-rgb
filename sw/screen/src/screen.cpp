@@ -110,7 +110,7 @@ void Screen::copyWindow(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, uint8_t 
 
 void Screen::drawImage(const std::string &path) {
 
-    auto bitmap = importImageAsBitmap(path);
+    std::vector<screen::Color> bitmap = importImageAsBitmap(path);
 
     if (bitmap.empty() || bitmap.size() != screen::Geometry::Pixels) {
         return;
@@ -121,7 +121,7 @@ void Screen::drawImage(const std::string &path) {
 
 void Screen::drawSymbol(const uint8_t symbol, screen::Color color) {
 
-    auto bitmap = importSymbolAsBitmap(symbol, color);
+    std::vector<screen::Color> bitmap = importSymbolAsBitmap(symbol, color);
 
     if (m_orientation == screen::Orientation::Horizontal_0 || m_orientation == screen::Orientation::Horizontal_180) {
         drawBitmap(
