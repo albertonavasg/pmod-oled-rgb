@@ -413,8 +413,10 @@ void Test::symbol() {
 
     broadcast([](Screen &s){s.setSpiDelay(1ns);});
 
+    broadcast([](Screen &s){s.setFontId(screen::FontId::Font8x8);});
+
     size_t totalSymbols = 256;
-    size_t maxSymbols = screen::TextGeometry::TextChars;
+    size_t maxSymbols = 96;
 
     for (size_t i = 0; i < totalSymbols; i += maxSymbols) {
         size_t end = std::min(i + maxSymbols, totalSymbols);
@@ -427,6 +429,23 @@ void Test::symbol() {
     }
 
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
+
+    broadcast([](Screen &s){s.setFontId(screen::FontId::Font6x8);});
+
+    maxSymbols = 128;
+
+    for (size_t i = 0; i < totalSymbols; i += maxSymbols) {
+        size_t end = std::min(i + maxSymbols, totalSymbols);
+        for (size_t j = i; j < end; j++) {
+            broadcast([=](Screen &s){s.drawSymbol(j, color); s.incrementTextCursor();});
+        }
+        std::this_thread::sleep_for(5s);
+        broadcast([](Screen &s){s.clearScreen();}, 200ms);
+        broadcast([](Screen &s){s.setTextCursor(0, 0);});
+    }
+
+    broadcast([](Screen &s){s.clearScreen();}, 200ms);
+
     broadcast([](Screen &s){s.applyDefaultSettings();});
 }
 
@@ -447,12 +466,26 @@ void Test::string() {
 
     broadcast([](Screen &s){s.setSpiDelay(1ns);});
 
+    broadcast([](Screen &s){s.setFontId(screen::FontId::Font8x8);});
+
     for (size_t i = 0; i < colors.size(); i++) {
+        broadcast([&](Screen &s){s.setTextCursor(0,i);});
         broadcast([&](Screen &s){s.drawString(phrase, colors[i]);});
     }
     std::this_thread::sleep_for(2s);
 
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
+
+    broadcast([](Screen &s){s.setFontId(screen::FontId::Font6x8);});
+
+    for (size_t i = 0; i < colors.size(); i++) {
+        broadcast([&](Screen &s){s.setTextCursor(0,i);});
+        broadcast([&](Screen &s){s.drawString(phrase, colors[i]);});
+    }
+    std::this_thread::sleep_for(2s);
+
+    broadcast([](Screen &s){s.clearScreen();}, 200ms);
+
     broadcast([](Screen &s){s.applyDefaultSettings();});
 }
 
@@ -511,7 +544,7 @@ void Test::standardColors() {
     };
 
     size_t totalColors = colors.size();
-    size_t rows = screen::TextGeometry::TextRows;
+    size_t rows = 8;
 
     for (size_t i = 0; i < totalColors; i += rows) {
         size_t end = std::min(i + rows, totalColors);
@@ -657,7 +690,7 @@ void Test::screenOrientation() {
     phrases = {" Horizontal ", "Orientation ", "     0º     "};
     broadcast([](Screen &s){s.setScreenOrientation(screen::Orientation::Horizontal_0);});
     for (size_t i = 0; i < phrases.size(); i++) {
-        broadcast([&](Screen &s){s.setTextCursor(0, i + screen::TextGeometry::TextRows / 2 - phrases.size() / 2); s.drawString(phrases[i], color);});
+        broadcast([&](Screen &s){s.setTextCursor(0, i + 8 / 2 - phrases.size() / 2); s.drawString(phrases[i], color);});
     }
     std::this_thread::sleep_for(1s);
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
@@ -669,7 +702,7 @@ void Test::screenOrientation() {
     phrases = {"Vertical", "Orientat", "  90º   "};
     broadcast([](Screen &s){s.setScreenOrientation(screen::Orientation::Vertical_90);});
     for (size_t i = 0; i < phrases.size(); i++) {
-        broadcast([&](Screen &s){s.setTextCursor(0, i + screen::TextGeometry::TextColumns / 2 - phrases.size() / 2); s.drawString(phrases[i], color);});
+        broadcast([&](Screen &s){s.setTextCursor(0, i + 12 / 2 - phrases.size() / 2); s.drawString(phrases[i], color);});
     }
     std::this_thread::sleep_for(1s);
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
@@ -681,7 +714,7 @@ void Test::screenOrientation() {
     phrases = {" Horizontal ", "Orientation ", "    180º    "};
     broadcast([](Screen &s){s.setScreenOrientation(screen::Orientation::Horizontal_180);});
     for (size_t i = 0; i < phrases.size(); i++) {
-        broadcast([&](Screen &s){s.setTextCursor(0, i + screen::TextGeometry::TextRows / 2 - phrases.size() / 2); s.drawString(phrases[i], color);});
+        broadcast([&](Screen &s){s.setTextCursor(0, i + 8 / 2 - phrases.size() / 2); s.drawString(phrases[i], color);});
     }
     std::this_thread::sleep_for(1s);
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
@@ -693,7 +726,7 @@ void Test::screenOrientation() {
     phrases = {"Vertical", "Orientat", "  270º  "};
     broadcast([](Screen &s){s.setScreenOrientation(screen::Orientation::Vertical_270);});
     for (size_t i = 0; i < phrases.size(); i++) {
-        broadcast([&](Screen &s){s.setTextCursor(0, i + screen::TextGeometry::TextColumns / 2 - phrases.size() / 2); s.drawString(phrases[i], color);});
+        broadcast([&](Screen &s){s.setTextCursor(0, i + 12 / 2 - phrases.size() / 2); s.drawString(phrases[i], color);});
     }
     std::this_thread::sleep_for(1s);
     broadcast([](Screen &s){s.clearScreen();}, 200ms);

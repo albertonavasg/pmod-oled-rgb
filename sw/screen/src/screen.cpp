@@ -10,6 +10,8 @@
 #include <sys/mman.h> // mmap, munmap
 #include <vector>     // vector
 
+#include "fonts.h"
+
 #include "screen_constants.h"
 #include "screen_registers.h"
 #include "screen.h"
@@ -123,22 +125,21 @@ void Screen::drawSymbol(const uint8_t symbol, screen::Color color) {
 
     if (m_orientation == screen::Orientation::Horizontal_0 || m_orientation == screen::Orientation::Horizontal_180) {
         drawBitmap(
-            m_textCursor.x * screen::FontWidth,
-            m_textCursor.y * screen::FontHeight,
-            ((m_textCursor.x + 1) * screen::FontWidth) - 1,
-            ((m_textCursor.y + 1) * screen::FontHeight)- 1,
+            m_textCursor.x * m_fontWidth,
+            m_textCursor.y * m_fontHeight,
+            ((m_textCursor.x + 1) * m_fontWidth) - 1,
+            ((m_textCursor.y + 1) * m_fontHeight)- 1,
             bitmap
         );
     } else {
         drawBitmap(
-            m_textCursor.y * screen::FontWidth,
-            m_textCursor.x * screen::FontHeight,
-            ((m_textCursor.y + 1) * screen::FontWidth) - 1,
-            ((m_textCursor.x + 1) * screen::FontHeight)- 1,
+            m_textCursor.y * m_fontWidth,
+            m_textCursor.x * m_fontHeight,
+            ((m_textCursor.y + 1) * m_fontWidth) - 1,
+            ((m_textCursor.x + 1) * m_fontHeight)- 1,
             bitmap
         );
     }
-
 }
 
 void Screen::drawString(const std::string &phrase, screen::Color color) {
@@ -172,32 +173,46 @@ void Screen::enableScrolling(bool value) {
     sendCommand(value ? screen::Command::ActivateScroll : screen::Command::DeactivateScroll);
 }
 
+void Screen::setFontId(screen::FontId id) {
+
+    m_fontId = id;
+
+    switch (m_fontId) {
+        case screen::FontId::Font6x8:
+            m_fontBasic   = &font6x8_basic[0][0];
+            m_fontControl = &font6x8_control[0][0];
+            m_fontExtLatin = &font6x8_ext_latin[0][0];
+            m_fontWidth = 6;
+            m_fontHeight = 8;
+            break;
+        case screen::FontId::Font8x8:
+            m_fontBasic   = &font8x8_basic[0][0];
+            m_fontControl = &font8x8_control[0][0];
+            m_fontExtLatin = &font8x8_ext_latin[0][0];
+            m_fontWidth = 8;
+            m_fontHeight = 8;
+            break;
+    }
+}
+
+screen::FontId Screen::getFontId() {
+
+    return m_fontId;
+}
+
 void Screen::setTextCursor(uint8_t x, uint8_t y) {
 
-    if (m_orientation == screen::Orientation::Horizontal_0 || m_orientation == screen::Orientation::Horizontal_180) {
-        if (x > screen::TextGeometry::TextColumns - 1) {
-            m_textCursor.x = screen::TextGeometry::TextColumns - 1;
-        } else {
-            m_textCursor.x = x;
-        }
-        if (y > screen::TextGeometry::TextRows - 1) {
-            m_textCursor.y = screen::TextGeometry::TextRows - 1;
-        } else {
-            m_textCursor.y = y;
-        }
+    if (x >= textColumns()) {
+        m_textCursor.x = textColumns() - 1;
     } else {
-        if (x > screen::TextGeometry::TextRows - 1) {
-            m_textCursor.x = screen::TextGeometry::TextRows - 1;
-        } else {
-            m_textCursor.x = x;
-        }
-        if (y > screen::TextGeometry::TextColumns - 1) {
-            m_textCursor.y = screen::TextGeometry::TextColumns - 1;
-        } else {
-            m_textCursor.y = y;
-        }
+        m_textCursor.x = x;
     }
 
+    if (y >= textRows()) {
+        m_textCursor.y = textRows() - 1;
+    } else {
+        m_textCursor.y = y;
+    }
 }
 
 screen::TextCursor Screen::getTextCursor() const {
@@ -207,28 +222,15 @@ screen::TextCursor Screen::getTextCursor() const {
 
 void Screen::incrementTextCursor() {
 
-    if (m_orientation == screen::Orientation::Horizontal_0 || m_orientation == screen::Orientation::Horizontal_180) {
-        if (m_textCursor.x < screen::TextGeometry::TextColumns - 1) {
-            m_textCursor.x++;
-        } else if (m_textCursor.y < screen::TextGeometry::TextRows - 1) {
-            m_textCursor.x = 0;
-            m_textCursor.y++;
-        } else {
-            m_textCursor.x = 0;
-            m_textCursor.y = 0;
-        }
+    if (m_textCursor.x < textColumns() - 1) {
+        m_textCursor.x++;
+    } else if (m_textCursor.y < textRows() - 1) {
+        m_textCursor.x = 0;
+        m_textCursor.y++;
     } else {
-        if (m_textCursor.x < screen::TextGeometry::TextRows - 1) {
-            m_textCursor.x++;
-        } else if (m_textCursor.y < screen::TextGeometry::TextColumns - 1) {
-            m_textCursor.x = 0;
-            m_textCursor.y++;
-        } else {
-            m_textCursor.x = 0;
-            m_textCursor.y = 0;
-        }
+        m_textCursor.x = 0;
+        m_textCursor.y = 0;
     }
-
 }
 
 void Screen::setSpiDelay(std::chrono::nanoseconds delay) {
@@ -294,6 +296,7 @@ void Screen::setReverseCopyEnable(bool reverseCopy) {
 
 void Screen::applyDefaultSettings() {
 
+    setFontId(screen::defaultFontId);
     setSpiDelay(screen::defaultSpiDelay);
     setFillRectangleEnable(screen::defaultFillRectangle);
     setReverseCopyEnable(screen::defaultReverseCopy);

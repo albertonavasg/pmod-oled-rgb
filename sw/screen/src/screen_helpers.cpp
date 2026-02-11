@@ -9,9 +9,7 @@
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
 #include "stb_image/stb_image_resize2.h"
 
-#include "font/font8x8_basic.h"
-#include "font/font8x8_control.h"
-#include "font/font8x8_ext_latin.h"
+#include "fonts.h"
 
 #include "screen_constants.h"
 #include "screen_registers.h"
@@ -31,6 +29,24 @@ bool Screen::waitForPowerState(screen::PowerState target, std::chrono::milliseco
         }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    }
+}
+
+uint8_t Screen::textColumns() const {
+
+    if (m_orientation == screen::Orientation::Horizontal_0 || m_orientation == screen::Orientation::Horizontal_180) {
+        return screen::Geometry::Columns / m_fontWidth;
+    } else {
+        return screen::Geometry::Rows / m_fontWidth;
+    }
+}
+
+uint8_t Screen::textRows() const {
+
+    if (m_orientation == screen::Orientation::Horizontal_0 || m_orientation == screen::Orientation::Horizontal_180) {
+        return screen::Geometry::Rows / m_fontHeight;
+    } else {
+        return screen::Geometry::Columns / m_fontHeight;
     }
 }
 
@@ -104,28 +120,31 @@ std::vector<screen::Color> Screen::importImageAsBitmap(const std::string &path){
 
 std::vector<screen::Color> Screen::importSymbolAsBitmap(const uint8_t symbol, screen::Color color) {
 
-    std::vector<screen::Color> bitmap(screen::FontPixels);
+    // Reserve bitmap vector
+    std::vector<screen::Color> bitmap(m_fontWidth * m_fontHeight);
 
-    for (size_t i = 0; i < screen::FontHeight; i++) {
-        for (size_t j = 0; j < screen::FontWidth; j++) {
-            if (symbol < screen::Font::BasicSize) {
-                if (font8x8_basic[symbol - screen::Font::BasicOffset][i] >> j & 1) {
-                    bitmap[screen::FontWidth * i + j] = color;
-                } else {
-                    bitmap[screen::FontWidth * i + j] = {0, 0, 0};
-                }
-            } else if (symbol < screen::Font::BasicSize + screen::Font::ControlSize) {
-                if (font8x8_control[symbol - screen::Font::ControlOffset][i] >> j & 1) {
-                    bitmap[screen::FontWidth * i + j] = color;
-                } else {
-                    bitmap[screen::FontWidth * i + j] = {0, 0, 0};
-                }
+    // Determine which font array and internal index to use
+    const uint8_t *fontArray = nullptr;
+    uint8_t symbolIndex = symbol;
+
+    if (symbol < screen::Font::BasicSize) {
+        fontArray = m_fontBasic;
+        symbolIndex -= screen::Font::BasicOffset;
+    } else if (symbol < screen::Font::BasicSize + screen::Font::ControlSize) {
+        fontArray = m_fontControl;
+        symbolIndex -= screen::Font::ControlOffset;
+    } else {
+        fontArray = m_fontExtLatin;
+        symbolIndex -= screen::Font::ExtLatinOffset;
+    }
+
+    // Fill bitmap
+    for (size_t i = 0; i < m_fontHeight; i++) {
+        for (size_t j = 0; j < m_fontWidth; j++) {
+            if (fontArray[symbolIndex * m_fontHeight + i] & (1 << j)) {
+                bitmap[i * m_fontWidth + j] = color;
             } else {
-                if (font8x8_ext_latin[symbol - screen::Font::ExtLatinOffset][i] >> j & 1) {
-                    bitmap[screen::FontWidth * i + j] = color;
-                } else {
-                    bitmap[screen::FontWidth * i + j] = {0, 0, 0};
-                }
+                bitmap[i * m_fontWidth + j] = screen::StandardColor::Black;
             }
         }
     }

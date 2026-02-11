@@ -17,6 +17,11 @@ Project for **Design of Embedded Systems**, a subject from my Master's Degree in
     - [Vivado project: screen](#vivado-project-screen)
     - [Packaging the IP](#packaging-the-ip)
     - [Vivado project: axi_screen](#vivado-project-axi_screen)
+    - [Embedded OS: Petalinux](#embedded-os-petalinux)
+    - [Embedded SW](#embedded-sw)
+        - [Basic test](#basic-test)
+        - [Screen](#screen)
+        - [External resources used](#external-resources-used)
 
 ***
 
@@ -451,6 +456,13 @@ This is fixed on the petalinux image. This way, the `service_app` is launched au
 > The script `deploy.sh` sends the binaries to `pynqz2-screen:/opt/screen`.  
 > This means there has to be a host alias for `pynqz2-screen` in `.ssh/config` with its IP and user (root).
 
+#### External resources used
+
+- `stb_image` library from [nothings/stb][stb_repo]
+- `json` library from [nlohmann/json][json_repo]
+- `8x8 font` from [dhepper/font8x8][font_repo]
+- `6x8 font` derived from `8x8 font`
+
 [comment]: (Links)
 [petalinux-2024.1]: https://docs.amd.com/r/2024.1-English/ug1144-petalinux-tools-reference-guide
 [pmod-oled-rgb]: https://digilent.com/reference/pmod/pmodoledrgb/start
@@ -458,3 +470,6 @@ This is fixed on the petalinux image. This way, the `service_app` is launched au
 [open-cores]: https://opencores.org/
 [pmod-oled-rgb-reference-manual]: https://digilent.com/reference/pmod/pmodoledrgb/reference-manual
 [arm-toolchain]: https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads
+[stb_repo]: https://github.com/nothings/stb
+[json_repo]: https://github.com/nlohmann/json
+[font_repo]: https://github.com/dhepper/font8x8

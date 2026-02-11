@@ -84,16 +84,13 @@ namespace screen {
 
     constexpr Orientation defaultOrientation = Orientation::Horizontal_0;
 
-    constexpr uint8_t FontHeight = 8;
-    constexpr uint8_t FontWidth = 8;
-    constexpr uint16_t FontPixels = static_cast<uint16_t>(FontHeight) * static_cast<uint16_t>(FontWidth);
+    enum class FontId : uint8_t {
 
-    namespace TextGeometry {
+        Font6x8,
+        Font8x8
+    };
 
-        constexpr uint8_t TextRows = Geometry::Rows / FontHeight;
-        constexpr uint8_t TextColumns = Geometry::Columns / FontWidth;
-        constexpr uint16_t TextChars = static_cast<uint16_t>(TextRows) * static_cast<uint16_t>(TextColumns);
-    }
+    constexpr FontId defaultFontId = FontId::Font8x8;
 
     struct TextCursor {
 
