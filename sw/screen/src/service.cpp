@@ -79,6 +79,7 @@ void Service::applyConfig(const std::string &configFile) {
         // Apply the settings
         const auto &textCursor = s.at("textCursor");
 
+        screen.setFontId(parseFontId(s.at("fontId").get<std::string>()));
         screen.setTextCursor(static_cast<uint8_t>(textCursor.at(0).get<int>()), static_cast<uint8_t>(textCursor.at(1).get<int>()));
         screen.setSpiDelay(std::chrono::nanoseconds(s.at("spiDelay").get<int>()));
         screen.setScreenOrientation(parseOrientation(s.at("orientation").get<std::string>()));
@@ -171,6 +172,8 @@ void Service::enterNoneMode(Screen &s, size_t index) {
 }
 
 void Service::enterInfoMode(Screen &s) {
+
+    s.setFontId(screen::FontId::Font6x8);
 
     bool timeChanged = updateDateAndTime();
     if (timeChanged) {
@@ -275,6 +278,14 @@ json Service::loadJson(const std::string &path) const {
     return j;
 }
 
+screen::FontId Service::parseFontId(const std::string &s) {
+
+    if (s == "Font6x8") return screen::FontId::Font6x8;
+    if (s == "Font8x8") return screen::FontId::Font8x8;
+
+    throw std::runtime_error("Invalid Font ID value: " + s);
+}
+
 service::ScreenMode Service::parseScreenMode(const std::string &s) {
 
     if (s == "None")         return service::ScreenMode::None;
@@ -282,7 +293,7 @@ service::ScreenMode Service::parseScreenMode(const std::string &s) {
     if (s == "DigitalClock") return service::ScreenMode::DigitalClock;
     if (s == "AnalogClock")  return service::ScreenMode::AnalogClock;
 
-    throw std::runtime_error("Invalid screen mode value: " + s);
+    throw std::runtime_error("Invalid Screen Mode value: " + s);
 }
 
 screen::Orientation Service::parseOrientation(const std::string &s) {
@@ -292,7 +303,7 @@ screen::Orientation Service::parseOrientation(const std::string &s) {
     if (s == "Horizontal_180") return screen::Orientation::Horizontal_180;
     if (s == "Vertical_270")   return screen::Orientation::Vertical_270;
 
-    throw std::runtime_error("Invalid orientation value: " + s);
+    throw std::runtime_error("Invalid Orientation value: " + s);
 }
 
 bool Service::updateDateAndTime() {
