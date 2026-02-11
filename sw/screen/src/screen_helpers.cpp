@@ -32,24 +32,6 @@ bool Screen::waitForPowerState(screen::PowerState target, std::chrono::milliseco
     }
 }
 
-uint8_t Screen::textColumns() const {
-
-    if (m_orientation == screen::Orientation::Horizontal_0 || m_orientation == screen::Orientation::Horizontal_180) {
-        return screen::Geometry::Columns / m_fontWidth;
-    } else {
-        return screen::Geometry::Rows / m_fontWidth;
-    }
-}
-
-uint8_t Screen::textRows() const {
-
-    if (m_orientation == screen::Orientation::Horizontal_0 || m_orientation == screen::Orientation::Horizontal_180) {
-        return screen::Geometry::Rows / m_fontHeight;
-    } else {
-        return screen::Geometry::Columns / m_fontHeight;
-    }
-}
-
 std::vector<screen::Color> Screen::importImageAsBitmap(const std::string &path){
 
     int inputWidth, inputHeight, channels, outputWidth, outputHeight;

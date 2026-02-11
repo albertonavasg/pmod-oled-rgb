@@ -200,16 +200,34 @@ screen::FontId Screen::getFontId() {
     return m_fontId;
 }
 
+uint8_t Screen::maxTextColumns() const {
+
+    if (m_orientation == screen::Orientation::Horizontal_0 || m_orientation == screen::Orientation::Horizontal_180) {
+        return screen::Geometry::Columns / m_fontWidth;
+    } else {
+        return screen::Geometry::Rows / m_fontWidth;
+    }
+}
+
+uint8_t Screen::maxTextRows() const {
+
+    if (m_orientation == screen::Orientation::Horizontal_0 || m_orientation == screen::Orientation::Horizontal_180) {
+        return screen::Geometry::Rows / m_fontHeight;
+    } else {
+        return screen::Geometry::Columns / m_fontHeight;
+    }
+}
+
 void Screen::setTextCursor(uint8_t x, uint8_t y) {
 
-    if (x >= textColumns()) {
-        m_textCursor.x = textColumns() - 1;
+    if (x >= maxTextColumns()) {
+        m_textCursor.x = maxTextColumns() - 1;
     } else {
         m_textCursor.x = x;
     }
 
-    if (y >= textRows()) {
-        m_textCursor.y = textRows() - 1;
+    if (y >= maxTextRows()) {
+        m_textCursor.y = maxTextRows() - 1;
     } else {
         m_textCursor.y = y;
     }
@@ -222,9 +240,9 @@ screen::TextCursor Screen::getTextCursor() const {
 
 void Screen::incrementTextCursor() {
 
-    if (m_textCursor.x < textColumns() - 1) {
+    if (m_textCursor.x < maxTextColumns() - 1) {
         m_textCursor.x++;
-    } else if (m_textCursor.y < textRows() - 1) {
+    } else if (m_textCursor.y < maxTextRows() - 1) {
         m_textCursor.x = 0;
         m_textCursor.y++;
     } else {

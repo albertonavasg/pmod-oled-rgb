@@ -44,6 +44,9 @@ class Screen {
         void setFontId(screen::FontId id);
         screen::FontId getFontId();
 
+        uint8_t maxTextColumns() const;
+        uint8_t maxTextRows() const;
+
         void setTextCursor(uint8_t x, uint8_t y);
         screen::TextCursor getTextCursor() const;
         void incrementTextCursor();
@@ -132,8 +135,6 @@ class Screen {
 
         //// Helpers
         bool waitForPowerState(screen::PowerState target, std::chrono::milliseconds timeout);
-        uint8_t textColumns() const;
-        uint8_t textRows() const;
         std::vector<screen::Color> importImageAsBitmap(const std::string &path);
         std::vector<screen::Color> importSymbolAsBitmap(const uint8_t symbol, screen::Color color);
         uint32_t utf8_decode(const uint8_t *s, size_t *len);
