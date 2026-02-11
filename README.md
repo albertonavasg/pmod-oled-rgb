@@ -461,7 +461,7 @@ This is fixed on the petalinux image. This way, the `service_app` is launched au
 - `stb_image` library from [nothings/stb][stb_repo]
 - `json` library from [nlohmann/json][json_repo]
 - `8x8 font` from [dhepper/font8x8][font_repo]
-- `6x8 font` derived from `8x8 font`
+- `6x8 font` derived from `8x8 font` using a python script and some manual adjustments
 
 [comment]: (Links)
 [petalinux-2024.1]: https://docs.amd.com/r/2024.1-English/ug1144-petalinux-tools-reference-guide
