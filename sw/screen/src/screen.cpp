@@ -91,7 +91,12 @@ bool Screen::drawBitmap(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, const st
     return true;
 }
 
-void Screen::drawLine(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, const screen::Color color) {
+bool Screen::drawLine(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, const screen::Color color) {
+
+    // Check geometry
+    if (c1 > c2 || r1 > r2 || c2 > screen::Geometry::Columns || r2 > screen::Geometry::Rows) {
+        return false;
+    }
 
     uint8_t params[7] = {
         c1, r1, c2, r2,
@@ -99,7 +104,9 @@ void Screen::drawLine(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, const scre
         color.g,
         static_cast<uint8_t>(color.b << 1)
     };
-    sendCommand(screen::Command::DrawLine, params, 10);
+    sendCommand(screen::Command::DrawLine, params, 7);
+
+    return true;
 }
 
 void Screen::drawRectangle(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, const screen::Color colorLine, const screen::Color colorFill) {

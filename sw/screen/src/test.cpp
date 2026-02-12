@@ -245,6 +245,13 @@ void Test::line() {
     std::uniform_int_distribution<uint8_t> dist63(0, 63);
     std::uniform_int_distribution<uint8_t> dist95(0, 95);
 
+    // Three horizontal lines to check color order
+    broadcast([=](Screen &s){s.drawLine(10, 10, 90, 10, screen::StandardColor::Red);}, 200ms);
+    broadcast([=](Screen &s){s.drawLine(10, 30, 90, 30, screen::StandardColor::Green);}, 200ms);
+    broadcast([=](Screen &s){s.drawLine(10, 50, 90, 50, screen::StandardColor::Blue);}, 200ms);
+    std::this_thread::sleep_for(1s);
+    broadcast([](Screen &s){s.clearScreen();}, 200ms);
+
     // Random colors and coordinates for horizontal lines
     for (size_t i = 0; i < 20; i++) {
         screen::Color c = {dist31(gen), dist63(gen), dist31(gen)};
@@ -272,10 +279,14 @@ void Test::line() {
     // Random colors and coordinates for lines
     for (size_t i = 0; i < 20; i++) {
         screen::Color c = {dist31(gen), dist63(gen), dist31(gen)};
-        uint8_t x1 = dist95(gen);
-        uint8_t y1 = dist63(gen);
-        uint8_t x2 = dist95(gen);
-        uint8_t y2 = dist63(gen);
+        uint8_t rx1 = dist95(gen);
+        uint8_t ry1 = dist63(gen);
+        uint8_t rx2 = dist95(gen);
+        uint8_t ry2 = dist63(gen);
+        uint8_t x1 = std::min(rx1, rx2);
+        uint8_t x2 = std::max(rx1, rx2);
+        uint8_t y1 = std::min(ry1, ry2);
+        uint8_t y2 = std::max(ry1, ry2);
         broadcast([=](Screen &s){s.drawLine(x1, y1, x2, y2, c);}, 200ms);
     }
     std::this_thread::sleep_for(1s);
