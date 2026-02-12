@@ -20,7 +20,7 @@ Test::Test(const std::vector<std::reference_wrapper<Screen>> &screens) {
 
 void Test::full() {
 
-    broadcast([](Screen &s){s.clearScreen();}, 100ms);
+    broadcast([](Screen &s){s.clearScreen();}, 200ms);
     broadcast([](Screen &s){s.applyDefaultSettings();}, 100ms);
 
     display();
@@ -40,7 +40,7 @@ void Test::full() {
     remap();
     screenOrientation();
 
-    broadcast([](Screen &s){s.clearScreen();}, 100ms);
+    broadcast([](Screen &s){s.clearScreen();}, 200ms);
     broadcast([](Screen &s){s.applyDefaultSettings();}, 100ms);
 }
 
@@ -249,9 +249,9 @@ void Test::line() {
     std::uniform_int_distribution<uint8_t> dist95(0, 95);
 
     // Three horizontal lines to check color order
-    broadcast([=](Screen &s){s.drawLine(10, 10, 90, 10, screen::StandardColor::Red);}, 200ms);
-    broadcast([=](Screen &s){s.drawLine(10, 30, 90, 30, screen::StandardColor::Green);}, 200ms);
-    broadcast([=](Screen &s){s.drawLine(10, 50, 90, 50, screen::StandardColor::Blue);}, 200ms);
+    broadcast([](Screen &s){s.drawLine(10, 10, 90, 10, screen::StandardColor::Red);}, 200ms);
+    broadcast([](Screen &s){s.drawLine(10, 30, 90, 30, screen::StandardColor::Green);}, 200ms);
+    broadcast([](Screen &s){s.drawLine(10, 50, 90, 50, screen::StandardColor::Blue);}, 200ms);
     std::this_thread::sleep_for(1s);
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
 
@@ -306,7 +306,16 @@ void Test::rectangle() {
     std::uniform_int_distribution<uint8_t> dist63(0, 63);
     std::uniform_int_distribution<uint8_t> dist95(0, 95);
 
+    // Three rectangles withn no fill to check color order
+    broadcast([](Screen &s){s.setFillRectangleEnable(false);});
+    broadcast([](Screen &s){s.drawRectangle(5, 5, 30, 60, screen::StandardColor::Red, screen::StandardColor::Black);}, 200ms);
+    broadcast([](Screen &s){s.drawRectangle(35, 5, 60, 60, screen::StandardColor::Green, screen::StandardColor::Black);}, 200ms);
+    broadcast([](Screen &s){s.drawRectangle(65, 5, 90, 60, screen::StandardColor::Blue, screen::StandardColor::Black);}, 200ms);
+    std::this_thread::sleep_for(1s);
+    broadcast([](Screen &s){s.clearScreen();}, 200ms);
+
     // Random colors and coordinates for rectangles with no fill
+    broadcast([](Screen &s){s.setFillRectangleEnable(false);});
     for (size_t i = 0; i < 20; i++) {
         screen::Color c1 = {dist31(gen), dist63(gen), dist31(gen)};
         screen::Color c2 = {0, 0, 0};
@@ -323,8 +332,8 @@ void Test::rectangle() {
     std::this_thread::sleep_for(1s);
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
 
-    broadcast([](Screen &s){s.setFillRectangleEnable(true);});
     // Random colors and coordinates for rectangles with fill
+    broadcast([](Screen &s){s.setFillRectangleEnable(true);});
     for (size_t i = 0; i < 20; i++) {
         screen::Color c1 = {dist31(gen), dist63(gen), dist31(gen)};
         screen::Color c2 = {dist31(gen), dist63(gen), dist31(gen)};
@@ -342,6 +351,7 @@ void Test::rectangle() {
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
 
     // Rectangles with fill that grow from a corner
+    broadcast([](Screen &s){s.setFillRectangleEnable(true);});
     for (size_t i = 0; i < screen::Geometry::Rows; i++) {
         screen::Color c1 = {dist31(gen), dist63(gen), dist31(gen)};
         screen::Color c2 = {dist31(gen), dist63(gen), dist31(gen)};
@@ -354,7 +364,6 @@ void Test::rectangle() {
     std::this_thread::sleep_for(1s);
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
 
-    broadcast([](Screen &s){s.clearScreen();}, 200ms);
     broadcast([](Screen &s){s.applyDefaultSettings();}, 100ms);
 }
 

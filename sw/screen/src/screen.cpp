@@ -73,7 +73,7 @@ void Screen::clearScreen() {
 bool Screen::drawBitmap(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, const std::vector<screen::Color> &colors) {
 
     // Check geometry
-    if (c1 > c2 || r1 > r2 || c2 > screen::Geometry::Columns || r2 > screen::Geometry::Rows) {
+    if (c1 > c2 || r1 > r2 || c2 >= screen::Geometry::Columns || r2 >= screen::Geometry::Rows) {
         return false;
     }
 
@@ -94,7 +94,7 @@ bool Screen::drawBitmap(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, const st
 bool Screen::drawLine(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, const screen::Color color) {
 
     // Check geometry
-    if (c1 > c2 || r1 > r2 || c2 > screen::Geometry::Columns || r2 > screen::Geometry::Rows) {
+    if (c1 > c2 || r1 > r2 || c2 >= screen::Geometry::Columns || r2 >= screen::Geometry::Rows) {
         return false;
     }
 
@@ -109,7 +109,12 @@ bool Screen::drawLine(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, const scre
     return true;
 }
 
-void Screen::drawRectangle(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, const screen::Color colorLine, const screen::Color colorFill) {
+bool Screen::drawRectangle(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, const screen::Color colorLine, const screen::Color colorFill) {
+
+    // Check geometry
+    if (c1 > c2 || r1 > r2 || c2 >= screen::Geometry::Columns || r2 >= screen::Geometry::Rows) {
+        return false;
+    }
 
     uint8_t params[10] = {
         c1, r1, c2, r2,
@@ -121,6 +126,8 @@ void Screen::drawRectangle(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, const
         static_cast<uint8_t>(colorFill.b << 1)
     };
     sendCommand(screen::Command::DrawRectangle, params, 10);
+
+    return true;
 }
 
 void Screen::copyWindow(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, uint8_t c3, uint8_t r3) {
