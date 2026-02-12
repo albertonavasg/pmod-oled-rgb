@@ -22,7 +22,7 @@ class Screen {
         ~Screen();
 
         //// Public methods
-        void clearWindow(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2);
+        bool clearWindow(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2);
         void clearScreen();
 
         bool drawBitmap(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, const std::vector<screen::Color> &colors);

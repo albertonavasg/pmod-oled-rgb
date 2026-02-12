@@ -59,10 +59,17 @@ Screen::~Screen() {
     }
 }
 
-void Screen::clearWindow(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2) {
+bool Screen::clearWindow(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2) {
+
+    // Check geometry
+    if (c1 > c2 || r1 > r2 || c2 >= screen::Geometry::Columns || r2 >= screen::Geometry::Rows) {
+        return false;
+    }
 
     uint8_t params[4] = {c1, r1, c2, r2};
     sendCommand(screen::Command::ClearWindow, params, 4);
+
+    return true;
 }
 
 void Screen::clearScreen() {
