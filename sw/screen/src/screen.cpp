@@ -137,10 +137,22 @@ bool Screen::drawRectangle(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, const
     return true;
 }
 
-void Screen::copyWindow(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, uint8_t c3, uint8_t r3) {
+bool Screen::copyWindow(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, uint8_t c3, uint8_t r3) {
+
+    // Check geometry
+    // Valid starting window
+    if (c1 > c2 || r1 > r2 || c2 >= screen::Geometry::Columns || r2 >= screen::Geometry::Rows) {
+        return false;
+    }
+    // Valid end window
+    if (c3 >= screen::Geometry::Columns || r3 >= screen::Geometry::Rows || c3 + (c2 - c1 + 1) >= screen::Geometry::Columns || r3 + (r2 - r1 + 1) >= screen::Geometry::Rows) {
+        return false;
+    }
 
     uint8_t params[6] = {c1, r1, c2, r2, c3, r3};
     sendCommand(screen::Command::Copy, params, 6);
+
+    return true;
 }
 
 void Screen::drawImage(const std::string &path) {
