@@ -37,7 +37,7 @@ class Screen {
         void drawSymbol(const uint8_t symbol, screen::Color color);
         void drawString(const std::string &phrase, screen::Color color);
 
-        void setupScrolling(uint8_t horizontalScrollOffset, uint8_t startRow, uint8_t rowsNumber, uint8_t verticalScrollOffset, uint8_t timeInterval);
+        bool setupScrolling(uint8_t horizontalScrollOffset, uint8_t startRow, uint8_t rowsNumber, uint8_t verticalScrollOffset, uint8_t timeInterval);
         void enableScrolling(bool value);
 
         //// Public settings

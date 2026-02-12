@@ -211,10 +211,25 @@ void Screen::drawString(const std::string &phrase, screen::Color color) {
     }
 }
 
-void Screen::setupScrolling(uint8_t horizontalScrollOffset, uint8_t startRow, uint8_t rowsNumber, uint8_t verticalScrollOffset, uint8_t timeInterval) {
+bool Screen::setupScrolling(uint8_t horizontalScrollOffset, uint8_t startRow, uint8_t rowsNumber, uint8_t verticalScrollOffset, uint8_t timeInterval) {
+
+    // Valid scroll offset
+    if (horizontalScrollOffset >= screen::Geometry::Columns || verticalScrollOffset >= screen::Geometry::Rows ) {
+        return false;
+    }
+    // Valid horizontal rows scrolled
+    if (startRow >= screen::Geometry::Rows || startRow + rowsNumber > screen::Geometry::Rows) {
+        return false;
+    }
+    // Valid time interval
+    if (timeInterval >= 0b11) {
+        return false;
+    }
 
     uint8_t params[5] = {horizontalScrollOffset, startRow, rowsNumber, verticalScrollOffset, timeInterval};
     sendCommand(screen::Command::ContinuousScrolling, params, 5);
+
+    return true;
 }
 
 void Screen::enableScrolling(bool value) {
