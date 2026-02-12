@@ -20,8 +20,8 @@ Test::Test(const std::vector<std::reference_wrapper<Screen>> &screens) {
 
 void Test::full() {
 
-    broadcast([](Screen &s){s.clearScreen();});
-    broadcast([](Screen &s){s.applyDefaultSettings();});
+    broadcast([](Screen &s){s.clearScreen();}, 100ms);
+    broadcast([](Screen &s){s.applyDefaultSettings();}, 100ms);
 
     display();
     randomPattern();
@@ -39,6 +39,9 @@ void Test::full() {
     inverseDisplay();
     remap();
     screenOrientation();
+
+    broadcast([](Screen &s){s.clearScreen();}, 100ms);
+    broadcast([](Screen &s){s.applyDefaultSettings();}, 100ms);
 }
 
 void Test::display() {
@@ -48,8 +51,8 @@ void Test::display() {
     broadcast([](Screen &s){s.sendCommand(screen::Command::EntireDisplayOn);}, 500ms);
     broadcast([](Screen &s){s.sendCommand(screen::Command::NormalDisplay);}, 500ms);
 
-    broadcast([](Screen &s){s.clearScreen();});
-    broadcast([](Screen &s){s.applyDefaultSettings();});
+    broadcast([](Screen &s){s.clearScreen();}, 200ms);
+    broadcast([](Screen &s){s.applyDefaultSettings();}, 100ms);
 }
 
 void Test::randomPattern() {
@@ -68,7 +71,7 @@ void Test::randomPattern() {
     broadcast([&colors](Screen &s){s.sendMultiPixel(colors);}, 1s);
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
 
-    broadcast([](Screen &s){s.applyDefaultSettings();});
+    broadcast([](Screen &s){s.applyDefaultSettings();}, 100ms);
 }
 
 void Test::colorDepth() {
@@ -98,7 +101,7 @@ void Test::colorDepth() {
     broadcast([&colors](Screen &s){s.sendMultiPixel(colors);}, 1s);
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
 
-    broadcast([](Screen &s){s.applyDefaultSettings();});
+    broadcast([](Screen &s){s.applyDefaultSettings();}, 100ms);
 }
 
 void Test::addressIncrement() {
@@ -137,7 +140,7 @@ void Test::addressIncrement() {
     broadcast([&colors](Screen &s){s.sendMultiPixel(colors);}, 1s);
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
 
-    broadcast([](Screen &s){s.applyDefaultSettings();});
+    broadcast([](Screen &s){s.applyDefaultSettings();}, 100ms);
 }
 
 void Test::bitmap() {
@@ -168,7 +171,7 @@ void Test::bitmap() {
     broadcast([&colors, c1, r1, c2, r2](Screen &s){s.drawBitmap(c1, r1, c2, r2, colors);}, 1s);
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
 
-    broadcast([](Screen &s){s.applyDefaultSettings();});
+    broadcast([](Screen &s){s.applyDefaultSettings();}, 100ms);
 }
 
 void Test::scrolling() {
@@ -234,7 +237,7 @@ void Test::scrolling() {
     broadcast([&colors](Screen &s){s.enableScrolling(false);}, 200ms);
 
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
-    broadcast([](Screen &s){s.applyDefaultSettings();});
+    broadcast([](Screen &s){s.applyDefaultSettings();}, 100ms);
 }
 
 void Test::line() {
@@ -292,7 +295,7 @@ void Test::line() {
     std::this_thread::sleep_for(1s);
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
 
-    broadcast([](Screen &s){s.applyDefaultSettings();});
+    broadcast([](Screen &s){s.applyDefaultSettings();}, 100ms);
 }
 
 void Test::rectangle() {
@@ -352,7 +355,7 @@ void Test::rectangle() {
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
 
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
-    broadcast([](Screen &s){s.applyDefaultSettings();});
+    broadcast([](Screen &s){s.applyDefaultSettings();}, 100ms);
 }
 
 void Test::copy() {
@@ -387,7 +390,7 @@ void Test::copy() {
     broadcast([=](Screen &s){s.copyWindow(x1, y1, x2 + 5, y2 + 35, x1 + 40, y1);}, 1s);
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
 
-    broadcast([](Screen &s){s.applyDefaultSettings();});
+    broadcast([](Screen &s){s.applyDefaultSettings();}, 100ms);
 }
 
 void Test::image() {
@@ -415,7 +418,7 @@ void Test::image() {
     broadcast([=](Screen &s){s.drawImage(imagePath2);}, 2s);
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
 
-    broadcast([](Screen &s){s.applyDefaultSettings();});
+    broadcast([](Screen &s){s.applyDefaultSettings();}, 100ms);
 }
 
 void Test::symbol() {
@@ -458,7 +461,7 @@ void Test::symbol() {
 
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
 
-    broadcast([](Screen &s){s.applyDefaultSettings();});
+    broadcast([](Screen &s){s.applyDefaultSettings();}, 100ms);
 }
 
 void Test::string() {
@@ -498,7 +501,7 @@ void Test::string() {
 
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
 
-    broadcast([](Screen &s){s.applyDefaultSettings();});
+    broadcast([](Screen &s){s.applyDefaultSettings();}, 100ms);
 }
 
 void Test::standardColors() {
@@ -568,7 +571,7 @@ void Test::standardColors() {
     }
 
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
-    broadcast([](Screen &s){s.applyDefaultSettings();});
+    broadcast([](Screen &s){s.applyDefaultSettings();}, 100ms);
 }
 
 void Test::inverseDisplay() {
@@ -610,7 +613,7 @@ void Test::inverseDisplay() {
 
 
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
-    broadcast([](Screen &s){s.applyDefaultSettings();});
+    broadcast([](Screen &s){s.applyDefaultSettings();}, 100ms);
 }
 
 void Test::remap() {
@@ -684,7 +687,7 @@ void Test::remap() {
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
 
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
-    broadcast([](Screen &s){s.applyDefaultSettings();});
+    broadcast([](Screen &s){s.applyDefaultSettings();}, 100ms);
 }
 
 void Test::screenOrientation() {
@@ -746,5 +749,5 @@ void Test::screenOrientation() {
     broadcast([=](Screen &s){s.drawImage(imagePathVertical);}, 1s);
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
 
-    broadcast([](Screen &s){s.applyDefaultSettings();});
+    broadcast([](Screen &s){s.applyDefaultSettings();}, 100ms);
 }
