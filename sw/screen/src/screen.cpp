@@ -70,11 +70,25 @@ void Screen::clearScreen() {
     clearWindow(0, 0, screen::Geometry::Columns - 1, screen::Geometry::Rows - 1);
 }
 
-void Screen::drawBitmap(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, const std::vector<screen::Color> &colors) {
+bool Screen::drawBitmap(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, const std::vector<screen::Color> &colors) {
+
+    // Check geometry
+    if (c1 > c2 || r1 > r2 || c2 > screen::Geometry::Columns || r2 > screen::Geometry::Rows) {
+        return false;
+    }
+
+    uint16_t expectedSize = static_cast<uint16_t> (c2 - c1 + 1) * static_cast<uint16_t> (r2 - r1 + 1);
+
+    // Check size
+    if (expectedSize != colors.size()) {
+        return false;
+    }
 
     setColumnRowAddr(c1, r1, c2, r2);
     applyColumnRowAddr();
     sendMultiPixel(colors);
+
+    return true;
 }
 
 void Screen::drawLine(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, const screen::Color color) {
