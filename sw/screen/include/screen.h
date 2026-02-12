@@ -32,7 +32,7 @@ class Screen {
 
         bool copyWindow(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, uint8_t c3, uint8_t r3);
 
-        void drawImage(const std::string &path);
+        bool drawImage(const std::string &path);
 
         void drawSymbol(const uint8_t symbol, screen::Color color);
         void drawString(const std::string &phrase, screen::Color color);

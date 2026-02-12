@@ -41,7 +41,7 @@ std::vector<screen::Color> Screen::importImageAsBitmap(const std::string &path){
     // Check valid imported image
     if (!img) {
         std::cerr << "Error importing the image: " << path.c_str() << std::endl;
-        return {};  // Empty vector
+        return {};
     }
     // Check aspect ratio
     if (m_orientation == screen::Orientation::Horizontal_0 || m_orientation == screen::Orientation::Horizontal_180){

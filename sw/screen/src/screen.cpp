@@ -155,15 +155,17 @@ bool Screen::copyWindow(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, uint8_t 
     return true;
 }
 
-void Screen::drawImage(const std::string &path) {
+bool Screen::drawImage(const std::string &path) {
 
     std::vector<screen::Color> bitmap = importImageAsBitmap(path);
 
     if (bitmap.empty() || bitmap.size() != screen::Geometry::Pixels) {
-        return;
+        return false;
     }
 
     drawBitmap(0, 0, screen::Geometry::Columns - 1 , screen::Geometry::Rows - 1, bitmap);
+
+    return true;
 }
 
 void Screen::drawSymbol(const uint8_t symbol, screen::Color color) {
