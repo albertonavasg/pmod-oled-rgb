@@ -4,11 +4,6 @@
             "id": "A",
             "mode": "None",
             "uio": "uio0",
-            "fontId": "Font8x8",
-            "textCursor": [
-                0,
-                0
-            ],
             "spiDelay": 0,
             "orientation": "Horizontal_180",
             "fillRectangle": false,
@@ -18,11 +13,6 @@
             "id": "B",
             "mode": "Info",
             "uio": "uio1",
-            "fontId": "Font6x8",
-            "textCursor": [
-                0,
-                0
-            ],
             "spiDelay": 0,
             "orientation": "Horizontal_180",
             "fillRectangle": false,

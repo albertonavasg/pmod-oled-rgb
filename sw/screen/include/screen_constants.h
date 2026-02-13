@@ -84,34 +84,18 @@ namespace screen {
 
     constexpr Orientation defaultOrientation = Orientation::Horizontal_0;
 
-    enum class FontId : uint8_t {
-
-        Font6x8,
-        Font8x8
+    struct Font {
+        uint8_t width;
+        uint8_t height;
+        const uint8_t *bitmap;
     };
 
-    constexpr FontId defaultFontId = FontId::Font8x8;
+    extern const uint8_t font6x8[256*8];
+    extern const uint8_t font8x8[256*8];
 
-    struct TextCursor {
+    extern const Font Font6x8;
+    extern const Font Font8x8;
 
-        uint8_t x;
-        uint8_t y;
-    };
-
-    constexpr TextCursor defaultTextCursor = {0, 0};
-
-    namespace Font {
-
-        constexpr uint8_t  BasicSize = 128;
-        constexpr uint8_t  ControlSize = 32;
-        constexpr uint8_t  ExtLatinSize = 96;
-
-        constexpr uint16_t TotalSize = 256;
-
-        constexpr uint8_t  BasicOffset = 0;
-        constexpr uint8_t  ControlOffset = BasicSize;
-        constexpr uint8_t  ExtLatinOffset = ControlOffset + ControlSize;
-    }
 
     struct Color {
 

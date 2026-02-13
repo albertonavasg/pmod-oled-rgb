@@ -56,7 +56,6 @@ class Service {
         // Helpers
         json loadJson(const std::string &path) const;
 
-        screen::FontId parseFontId(const std::string &s);
         service::ScreenMode parseScreenMode(const std::string &s);
         static screen::Orientation parseOrientation(const std::string &s);
 

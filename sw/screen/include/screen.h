@@ -7,8 +7,6 @@
 #include <vector>  // vector
 #include <chrono>  // time
 
-#include "fonts.h"
-
 #include "screen_constants.h"
 #include "screen_registers.h"
 
@@ -34,23 +32,13 @@ class Screen {
 
         bool drawImage(const std::string &path);
 
-        void drawSymbol(const uint8_t symbol, screen::Color color);
-        void drawString(const std::string &phrase, screen::Color color);
+        bool drawSymbol(const uint8_t symbol, uint8_t x, uint8_t y, const screen::Font &font, screen::Color color);
+        bool drawString(const std::string &phrase, uint8_t x, uint8_t y, const screen::Font &font, screen::Color color);
 
         bool setupScrolling(uint8_t horizontalScrollOffset, uint8_t startRow, uint8_t rowsNumber, uint8_t verticalScrollOffset, uint8_t timeInterval);
         void enableScrolling(bool value);
 
         //// Public settings
-        void setFontId(screen::FontId id);
-        screen::FontId getFontId();
-
-        uint8_t maxTextColumns() const;
-        uint8_t maxTextRows() const;
-
-        void setTextCursor(uint8_t x, uint8_t y);
-        screen::TextCursor getTextCursor() const;
-        void incrementTextCursor();
-
         void setSpiDelay(std::chrono::nanoseconds delay);
         std::chrono::nanoseconds getSpiDelay() const;
 
@@ -67,8 +55,6 @@ class Screen {
         volatile uint32_t *m_reg = nullptr;
         static constexpr uint64_t MAP_SIZE = 0x10000;
 
-        screen::FontId m_fontId = screen::defaultFontId;
-        screen::TextCursor m_textCursor = screen::defaultTextCursor;
         std::chrono::nanoseconds m_spiDelay = screen::defaultSpiDelay;
         screen::Orientation m_orientation = screen::defaultOrientation;
         bool m_fillRectangle = screen::defaultFillRectangle;
@@ -76,12 +62,6 @@ class Screen {
 
         screen::ColumnRowAddr m_columnRowAddr = screen::defaultColumnRowAddr;
         uint8_t m_remapColorDepthCfg = screen::defaultRemapColorDepth;
-
-        uint8_t m_fontWidth = 8;
-        uint8_t m_fontHeight = 8;
-        const uint8_t* m_fontBasic  = &font8x8_basic[0][0];
-        const uint8_t* m_fontControl = &font8x8_control[0][0];
-        const uint8_t* m_fontExtLatin = &font8x8_ext_latin[0][0];
 
         // Helper for byte manipulation
         static constexpr void setField(uint8_t &reg, uint8_t mask, uint8_t pos, uint8_t value) {
@@ -136,7 +116,7 @@ class Screen {
         //// Helpers
         bool waitForPowerState(screen::PowerState target, std::chrono::milliseconds timeout);
         std::vector<screen::Color> importImageAsBitmap(const std::string &path);
-        std::vector<screen::Color> importSymbolAsBitmap(const uint8_t symbol, screen::Color color);
+        std::vector<screen::Color> importSymbolAsBitmap(const uint8_t symbol, const screen::Font &font, screen::Color color);
         uint32_t utf8_decode(const uint8_t *s, size_t *len);
 };
 

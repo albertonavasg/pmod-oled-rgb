@@ -100,34 +100,20 @@ std::vector<screen::Color> Screen::importImageAsBitmap(const std::string &path){
     return bitmap;
 }
 
-std::vector<screen::Color> Screen::importSymbolAsBitmap(const uint8_t symbol, screen::Color color) {
+std::vector<screen::Color> Screen::importSymbolAsBitmap(const uint8_t symbol, const screen::Font &font, screen::Color color) {
 
     // Reserve bitmap vector
-    std::vector<screen::Color> bitmap(m_fontWidth * m_fontHeight);
+    std::vector<screen::Color> bitmap(font.height * font.width);
 
-    // Determine which font array and internal index to use
-    const uint8_t *fontArray = nullptr;
-    uint8_t symbolIndex = symbol;
-
-    if (symbol < screen::Font::BasicSize) {
-        fontArray = m_fontBasic;
-        symbolIndex -= screen::Font::BasicOffset;
-    } else if (symbol < screen::Font::BasicSize + screen::Font::ControlSize) {
-        fontArray = m_fontControl;
-        symbolIndex -= screen::Font::ControlOffset;
-    } else {
-        fontArray = m_fontExtLatin;
-        symbolIndex -= screen::Font::ExtLatinOffset;
-    }
+    // Import the glyph
+    const uint8_t *glyph = &font.bitmap[symbol * font.height];
 
     // Fill bitmap
-    for (size_t i = 0; i < m_fontHeight; i++) {
-        for (size_t j = 0; j < m_fontWidth; j++) {
-            if (fontArray[symbolIndex * m_fontHeight + i] & (1 << j)) {
-                bitmap[i * m_fontWidth + j] = color;
-            } else {
-                bitmap[i * m_fontWidth + j] = screen::StandardColor::Black;
-            }
+    for (size_t row = 0; row < font.height; row++) {
+        uint8_t rowData = glyph[row];
+        for (size_t col = 0; col < font.width; col++) {
+            bool pixelOn = rowData & (1 << col);
+            bitmap[row * font.width + col] = pixelOn ? color : screen::StandardColor::Black;
         }
     }
 

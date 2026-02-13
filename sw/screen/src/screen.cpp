@@ -10,8 +10,6 @@
 #include <sys/mman.h> // mmap, munmap
 #include <vector>     // vector
 
-#include "fonts.h"
-
 #include "screen_constants.h"
 #include "screen_registers.h"
 #include "screen.h"
@@ -84,7 +82,7 @@ bool Screen::drawBitmap(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, const st
         return false;
     }
 
-    uint16_t expectedSize = static_cast<uint16_t> (c2 - c1 + 1) * static_cast<uint16_t> (r2 - r1 + 1);
+    size_t expectedSize = (c2 - c1 + 1) * (r2 - r1 + 1);
 
     // Check size
     if (expectedSize != colors.size()) {
@@ -168,47 +166,46 @@ bool Screen::drawImage(const std::string &path) {
     return true;
 }
 
-void Screen::drawSymbol(const uint8_t symbol, screen::Color color) {
+bool Screen::drawSymbol(const uint8_t symbol, uint8_t x, uint8_t y, const screen::Font &font, screen::Color color) {
 
-    std::vector<screen::Color> bitmap = importSymbolAsBitmap(symbol, color);
+    std::vector<screen::Color> bitmap = importSymbolAsBitmap(symbol, font, color);
 
-    if (m_orientation == screen::Orientation::Horizontal_0 || m_orientation == screen::Orientation::Horizontal_180) {
-        drawBitmap(
-            m_textCursor.x * m_fontWidth,
-            m_textCursor.y * m_fontHeight,
-            ((m_textCursor.x + 1) * m_fontWidth) - 1,
-            ((m_textCursor.y + 1) * m_fontHeight)- 1,
-            bitmap
-        );
-    } else {
-        drawBitmap(
-            m_textCursor.y * m_fontWidth,
-            m_textCursor.x * m_fontHeight,
-            ((m_textCursor.y + 1) * m_fontWidth) - 1,
-            ((m_textCursor.x + 1) * m_fontHeight)- 1,
-            bitmap
-        );
-    }
+    return drawBitmap(x, y, x + font.width - 1, y + font.height - 1, bitmap);
 }
 
-void Screen::drawString(const std::string &phrase, screen::Color color) {
+bool Screen::drawString(const std::string &phrase, uint8_t x, uint8_t y, const screen::Font &font, screen::Color color) {
 
     size_t i = 0;
+    bool valid = true;
+
+    uint8_t pixelCol = 0;
+    uint8_t pixelRow = 0;
+    uint8_t incrCol = 0;
+    uint8_t incrRow = 0;
+
+    if (m_orientation == screen::Orientation::Horizontal_0 || m_orientation == screen::Orientation::Horizontal_180) {
+        pixelCol = x;
+        pixelRow = y;
+        incrCol = font.width;
+        incrRow = 0;
+    } else {
+        pixelCol = y;
+        pixelRow = x;
+        incrCol = 0;
+        incrRow = font.width;
+    }
+
     while (i < phrase.size()) {
         size_t len = 0;
         uint32_t codepoint = utf8_decode((const uint8_t*)&phrase[i], &len);
-
-        // Only pass codepoints 0–255 to drawSymbol
-        if (codepoint < screen::Font::TotalSize) {
-            drawSymbol(static_cast<uint8_t>(codepoint), color);
-        } else {
-            // Unsupported character → fallback to '?'
-            drawSymbol('?', color);
-        }
-
+        uint8_t glyph = (codepoint < 256) ? static_cast<uint8_t>(codepoint) : '?';
+        valid &= drawSymbol(glyph, pixelCol , pixelRow, font, color);
+        pixelCol += incrCol;
+        pixelRow += incrRow;
         i += len;
-        incrementTextCursor();
     }
+
+    return valid;
 }
 
 bool Screen::setupScrolling(uint8_t horizontalScrollOffset, uint8_t startRow, uint8_t rowsNumber, uint8_t verticalScrollOffset, uint8_t timeInterval) {
@@ -235,84 +232,6 @@ bool Screen::setupScrolling(uint8_t horizontalScrollOffset, uint8_t startRow, ui
 void Screen::enableScrolling(bool value) {
 
     sendCommand(value ? screen::Command::ActivateScroll : screen::Command::DeactivateScroll);
-}
-
-void Screen::setFontId(screen::FontId id) {
-
-    m_fontId = id;
-
-    switch (m_fontId) {
-        case screen::FontId::Font6x8:
-            m_fontBasic   = &font6x8_basic[0][0];
-            m_fontControl = &font6x8_control[0][0];
-            m_fontExtLatin = &font6x8_ext_latin[0][0];
-            m_fontWidth = 6;
-            m_fontHeight = 8;
-            break;
-        case screen::FontId::Font8x8:
-            m_fontBasic   = &font8x8_basic[0][0];
-            m_fontControl = &font8x8_control[0][0];
-            m_fontExtLatin = &font8x8_ext_latin[0][0];
-            m_fontWidth = 8;
-            m_fontHeight = 8;
-            break;
-    }
-}
-
-screen::FontId Screen::getFontId() {
-
-    return m_fontId;
-}
-
-uint8_t Screen::maxTextColumns() const {
-
-    if (m_orientation == screen::Orientation::Horizontal_0 || m_orientation == screen::Orientation::Horizontal_180) {
-        return screen::Geometry::Columns / m_fontWidth;
-    } else {
-        return screen::Geometry::Rows / m_fontWidth;
-    }
-}
-
-uint8_t Screen::maxTextRows() const {
-
-    if (m_orientation == screen::Orientation::Horizontal_0 || m_orientation == screen::Orientation::Horizontal_180) {
-        return screen::Geometry::Rows / m_fontHeight;
-    } else {
-        return screen::Geometry::Columns / m_fontHeight;
-    }
-}
-
-void Screen::setTextCursor(uint8_t x, uint8_t y) {
-
-    if (x >= maxTextColumns()) {
-        m_textCursor.x = maxTextColumns() - 1;
-    } else {
-        m_textCursor.x = x;
-    }
-
-    if (y >= maxTextRows()) {
-        m_textCursor.y = maxTextRows() - 1;
-    } else {
-        m_textCursor.y = y;
-    }
-}
-
-screen::TextCursor Screen::getTextCursor() const {
-
-    return m_textCursor;
-}
-
-void Screen::incrementTextCursor() {
-
-    if (m_textCursor.x < maxTextColumns() - 1) {
-        m_textCursor.x++;
-    } else if (m_textCursor.y < maxTextRows() - 1) {
-        m_textCursor.x = 0;
-        m_textCursor.y++;
-    } else {
-        m_textCursor.x = 0;
-        m_textCursor.y = 0;
-    }
 }
 
 void Screen::setSpiDelay(std::chrono::nanoseconds delay) {
@@ -378,12 +297,10 @@ void Screen::setReverseCopyEnable(bool reverseCopy) {
 
 void Screen::applyDefaultSettings() {
 
-    setFontId(screen::defaultFontId);
     setSpiDelay(screen::defaultSpiDelay);
     setFillRectangleEnable(screen::defaultFillRectangle);
     setReverseCopyEnable(screen::defaultReverseCopy);
     m_orientation = screen::defaultOrientation;
-    m_textCursor = screen::defaultTextCursor;
 
     applyColumnRowAddr(screen::ApplyMode::Default);
     applyRemapColorDepth(screen::ApplyMode::Default);

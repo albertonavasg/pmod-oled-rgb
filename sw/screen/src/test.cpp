@@ -23,21 +23,21 @@ void Test::full() {
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
     broadcast([](Screen &s){s.applyDefaultSettings();}, 100ms);
 
-    display();
-    randomPattern();
-    colorDepth();
-    addressIncrement();
-    bitmap();
-    scrolling();
-    line();
-    rectangle();
-    copy();
-    image();
-    symbol();
-    string();
-    standardColors();
-    inverseDisplay();
-    remap();
+    // display();
+    // randomPattern();
+    // colorDepth();
+    // addressIncrement();
+    // bitmap();
+    // scrolling();
+    // line();
+    // rectangle();
+    // copy();
+    // image();
+    // symbol();
+    // string();
+    // standardColors();
+    // inverseDisplay();
+    // remap();
     screenOrientation();
 
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
@@ -432,43 +432,52 @@ void Test::image() {
 
 void Test::symbol() {
 
-    size_t totalSymbols = screen::Font::TotalSize;
+    size_t totalSymbols = 256;
+
+    const screen::Font font1 = screen::Font8x8;
+    const screen::Font font2 = screen::Font6x8;
 
     screen::Color color = screen::StandardColor::White;
 
     broadcast([](Screen &s){s.setSpiDelay(1ns);});
 
-    broadcast([](Screen &s){s.setFontId(screen::FontId::Font8x8);});
+    size_t textRows = screen::Geometry::Rows / font1.height;
+    size_t textCols = screen::Geometry::Columns / font1.width;
+    size_t symbolsPerScreen = textRows * textCols;
 
-    size_t maxSymbols = m_screens[0].get().maxTextRows() * m_screens[0].get().maxTextColumns();
-
-    for (size_t i = 0; i < totalSymbols; i += maxSymbols) {
-        size_t end = std::min(i + maxSymbols, totalSymbols);
+    for (size_t i = 0; i < totalSymbols; i += symbolsPerScreen) {
+        size_t end = std::min(i + symbolsPerScreen, totalSymbols);
         for (size_t j = i; j < end; j++) {
-            broadcast([=](Screen &s){s.drawSymbol(j, color); s.incrementTextCursor();});
+            size_t localIndex = j - i;
+            size_t row = localIndex / textCols;
+            size_t col = localIndex % textCols;
+            uint16_t x = col * font1.width;
+            uint16_t y = row * font1.height;
+            broadcast([=](Screen &s){s.drawSymbol(static_cast<uint8_t>(j), x, y, font1, color);});
         }
         std::this_thread::sleep_for(5s);
-        broadcast([](Screen &s){s.clearScreen();}, 200ms);
-        broadcast([](Screen &s){s.setTextCursor(0, 0);});
+        broadcast([](Screen &s){ s.clearScreen(); }, 200ms);
     }
+    broadcast([](Screen &s){ s.clearScreen(); }, 200ms);
 
-    broadcast([](Screen &s){s.clearScreen();}, 200ms);
+    textRows = screen::Geometry::Rows / font2.height;
+    textCols = screen::Geometry::Columns / font2.width;
+    symbolsPerScreen = textRows * textCols;
 
-    broadcast([](Screen &s){s.setFontId(screen::FontId::Font6x8);});
-
-    maxSymbols = m_screens[0].get().maxTextRows() * m_screens[0].get().maxTextColumns();
-
-    for (size_t i = 0; i < totalSymbols; i += maxSymbols) {
-        size_t end = std::min(i + maxSymbols, totalSymbols);
+    for (size_t i = 0; i < totalSymbols; i += symbolsPerScreen) {
+        size_t end = std::min(i + symbolsPerScreen, totalSymbols);
         for (size_t j = i; j < end; j++) {
-            broadcast([=](Screen &s){s.drawSymbol(j, color); s.incrementTextCursor();});
+            size_t localIndex = j - i;
+            size_t row = localIndex / textCols;
+            size_t col = localIndex % textCols;
+            uint16_t x = col * font2.width;
+            uint16_t y = row * font2.height;
+            broadcast([=](Screen &s){s.drawSymbol(static_cast<uint8_t>(j), x, y, font2, color);});
         }
         std::this_thread::sleep_for(5s);
-        broadcast([](Screen &s){s.clearScreen();}, 200ms);
-        broadcast([](Screen &s){s.setTextCursor(0, 0);});
+        broadcast([](Screen &s){ s.clearScreen(); }, 200ms);
     }
-
-    broadcast([](Screen &s){s.clearScreen();}, 200ms);
+    broadcast([](Screen &s){ s.clearScreen(); }, 200ms);
 
     broadcast([](Screen &s){s.applyDefaultSettings();}, 100ms);
 }
@@ -476,6 +485,9 @@ void Test::symbol() {
 void Test::string() {
 
     std::string phrase = "Pmod OLEDrgb";
+
+    const screen::Font font1 = screen::Font8x8;
+    const screen::Font font2 = screen::Font6x8;
 
     std::vector<screen::Color> colors = {
         screen::StandardColor::White,
@@ -490,24 +502,24 @@ void Test::string() {
 
     broadcast([](Screen &s){s.setSpiDelay(1ns);});
 
-    broadcast([](Screen &s){s.setFontId(screen::FontId::Font8x8);});
-
-    for (size_t i = 0; i < colors.size(); i++) {
-        broadcast([&](Screen &s){s.setTextCursor(0,i);});
-        broadcast([&](Screen &s){s.drawString(phrase, colors[i]);});
+    // Font8x8
+    for (size_t row = 0; row < colors.size(); row++) {
+        broadcast([&](Screen &s){s.drawString(phrase, 0, row * font1.height, font1, colors[row]);});
     }
     std::this_thread::sleep_for(2s);
-
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
 
-    broadcast([](Screen &s){s.setFontId(screen::FontId::Font6x8);});
-
-    for (size_t i = 0; i < colors.size(); i++) {
-        broadcast([&](Screen &s){s.setTextCursor(0,i);});
-        broadcast([&](Screen &s){s.drawString(phrase, colors[i]);});
+    // Font6x8
+    for (size_t row = 0; row < colors.size(); row++) {
+        broadcast([&](Screen &s){s.drawString(phrase, 0, row * font2.height, font2, colors[row]);});
     }
     std::this_thread::sleep_for(2s);
+    broadcast([](Screen &s){s.clearScreen();}, 200ms);
 
+    // Strings that do not fit
+    broadcast([&](Screen &s){s.drawString("This does not fit", 0, 0, font1, colors[0]);});
+    broadcast([&](Screen &s){s.drawString("This does not fit", 0, 10, font2, colors[0]);});
+    std::this_thread::sleep_for(2s);
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
 
     broadcast([](Screen &s){s.applyDefaultSettings();}, 100ms);
@@ -567,19 +579,23 @@ void Test::standardColors() {
         "Teal",
     };
 
-    size_t totalColors = colors.size();
-    size_t rows = m_screens[0].get().maxTextRows();
+    broadcast([](Screen &s){s.setSpiDelay(1ns);});
 
-    for (size_t i = 0; i < totalColors; i += rows) {
-        size_t end = std::min(i + rows, totalColors);
+    size_t totalColors = colors.size();
+    size_t rowsPerScreen = screen::Geometry::Rows / screen::Font8x8.height;
+
+    for (size_t i = 0; i < totalColors; i += rowsPerScreen) {
+        size_t end = std::min(i + rowsPerScreen, totalColors);
         for (size_t j = i; j < end; j++) {
-            broadcast([&](Screen &s){s.setTextCursor(0, j - i); s.drawString(phrases[j], colors[j]);});
+            size_t row = j - i;
+            size_t x = 0;
+            size_t y = row * screen::Font8x8.height;
+            broadcast([&](Screen &s){s.drawString(phrases[j], x, y, screen::Font8x8, colors[j]);});
         }
-        std::this_thread::sleep_for(4s);
+        std::this_thread::sleep_for(5s);
         broadcast([](Screen &s){s.clearScreen();}, 200ms);
     }
 
-    broadcast([](Screen &s){s.clearScreen();}, 200ms);
     broadcast([](Screen &s){s.applyDefaultSettings();}, 100ms);
 }
 
@@ -609,17 +625,21 @@ void Test::inverseDisplay() {
 
     broadcast([](Screen &s){s.setSpiDelay(1ns);});
 
-    for (size_t i = 0; i < colors.size() / 2; i++) {
-        broadcast([&](Screen &s){s.setTextCursor(0, i); s.drawString(phrases[i], colors[i]);});
+    for (size_t row = 0; row < colors.size() / 2; row++) {
+        uint8_t x = 0;
+        uint8_t y = row * screen::Font8x8.height;
+        broadcast([&](Screen &s){s.drawString(phrases[row], x, y, screen::Font8x8, colors[row]);});
     }
     std::this_thread::sleep_for(200ms);
     broadcast([](Screen &s){s.sendCommand(screen::Command::InverseDisplay);}, 1s);
-    for (size_t i = colors.size() / 2; i < colors.size(); i++) {
-        broadcast([&](Screen &s){s.setTextCursor(0, i); s.drawString(phrases[i], colors[i]);});
+
+    for (size_t row = colors.size() / 2; row < colors.size(); row++) {
+        uint8_t x = 0;
+        uint8_t y = row * screen::Font8x8.height;
+        broadcast([&](Screen &s){s.drawString(phrases[row], x, y, screen::Font8x8, colors[row]);});
     }
     std::this_thread::sleep_for(200ms);
     broadcast([](Screen &s){s.sendCommand(screen::Command::NormalDisplay);}, 1s);
-
 
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
     broadcast([](Screen &s){s.applyDefaultSettings();}, 100ms);
@@ -643,8 +663,10 @@ void Test::remap() {
     broadcast([](Screen &s){s.setSpiDelay(1ns);});
 
     phrase = "Default";
-    for (size_t i = 0; i < colors.size(); i++) {
-        broadcast([&](Screen &s){s.setTextCursor(0, i); s.drawString(phrase, colors[i]);});
+    for (size_t row = 0; row < colors.size(); row++) {
+        uint8_t x = 0;
+        uint8_t y = row * screen::Font8x8.height;
+        broadcast([&](Screen &s){s.drawString(phrase, x, y, screen::Font8x8, colors[row]);});
     }
     std::this_thread::sleep_for(2s);
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
@@ -652,8 +674,10 @@ void Test::remap() {
 
     phrase = "ColumnNormal";
     broadcast([](Screen &s){s.setColumnRemap(screen::RemapColorDepth::ColumnRemap::Normal); s.applyRemapColorDepth();});
-    for (size_t i = 0; i < colors.size(); i++) {
-        broadcast([&](Screen &s){s.setTextCursor(0, i); s.drawString(phrase, colors[i]);});
+    for (size_t row = 0; row < colors.size(); row++) {
+        uint8_t x = 0;
+        uint8_t y = row * screen::Font8x8.height;
+        broadcast([&](Screen &s){s.drawString(phrase, x, y, screen::Font8x8, colors[row]);});
     }
     std::this_thread::sleep_for(2s);
     broadcast([](Screen &s){s.applyRemapColorDepth(screen::ApplyMode::Default);});
@@ -661,8 +685,10 @@ void Test::remap() {
 
     phrase = "BGR";
     broadcast([](Screen &s){s.setColorOrder(screen::RemapColorDepth::ColorOrder::BGR); s.applyRemapColorDepth();});
-    for (size_t i = 0; i < colors.size(); i++) {
-        broadcast([&](Screen &s){s.setTextCursor(0, i); s.drawString(phrase, colors[i]);});
+    for (size_t row = 0; row < colors.size(); row++) {
+        uint8_t x = 0;
+        uint8_t y = row * screen::Font8x8.height;
+        broadcast([&](Screen &s){s.drawString(phrase, x, y, screen::Font8x8, colors[row]);});
     }
     std::this_thread::sleep_for(2s);
     broadcast([](Screen &s){s.applyRemapColorDepth(screen::ApplyMode::Default);});
@@ -670,8 +696,10 @@ void Test::remap() {
 
     phrase = "COM Swap";
     broadcast([](Screen &s){s.setCOMSwap(screen::RemapColorDepth::COMSwap::Swap); s.applyRemapColorDepth();});
-    for (size_t i = 0; i < colors.size(); i++) {
-        broadcast([&](Screen &s){s.setTextCursor(0, i); s.drawString(phrase, colors[i]);});
+    for (size_t row = 0; row < colors.size(); row++) {
+        uint8_t x = 0;
+        uint8_t y = row * screen::Font8x8.height;
+        broadcast([&](Screen &s){s.drawString(phrase, x, y, screen::Font8x8, colors[row]);});
     }
     std::this_thread::sleep_for(2s);
     broadcast([](Screen &s){s.applyRemapColorDepth(screen::ApplyMode::Default);});
@@ -679,8 +707,10 @@ void Test::remap() {
 
     phrase = "ScanCOM0toN";
     broadcast([](Screen &s){s.setScanDirection(screen::RemapColorDepth::ScanDirection::COM0toN); s.applyRemapColorDepth();});
-    for (size_t i = 0; i < colors.size(); i++) {
-        broadcast([&](Screen &s){s.setTextCursor(0, i); s.drawString(phrase, colors[i]);});
+    for (size_t row = 0; row < colors.size(); row++) {
+        uint8_t x = 0;
+        uint8_t y = row * screen::Font8x8.height;
+        broadcast([&](Screen &s){s.drawString(phrase, x, y, screen::Font8x8, colors[row]);});
     }
     std::this_thread::sleep_for(2s);
     broadcast([](Screen &s){s.applyRemapColorDepth(screen::ApplyMode::Default);});
@@ -688,14 +718,15 @@ void Test::remap() {
 
     phrase = "COMSplitDis";
     broadcast([](Screen &s){s.setCOMSplit(screen::RemapColorDepth::COMSplit::Disable); s.applyRemapColorDepth();});
-    for (size_t i = 0; i < colors.size(); i++) {
-        broadcast([&](Screen &s){s.setTextCursor(0, i); s.drawString(phrase, colors[i]);});
+    for (size_t row = 0; row < colors.size(); row++) {
+        uint8_t x = 0;
+        uint8_t y = row * screen::Font8x8.height;
+        broadcast([&](Screen &s){s.drawString(phrase, x, y, screen::Font8x8, colors[row]);});
     }
     std::this_thread::sleep_for(2s);
     broadcast([](Screen &s){s.applyRemapColorDepth(screen::ApplyMode::Default);});
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
 
-    broadcast([](Screen &s){s.clearScreen();}, 200ms);
     broadcast([](Screen &s){s.applyDefaultSettings();}, 100ms);
 }
 
@@ -710,11 +741,13 @@ void Test::screenOrientation() {
 
     broadcast([](Screen &s){s.setSpiDelay(1ns);});
 
-    // Horizontal orientation
+    // Horizontal 0 orientation
     phrases = {" Horizontal ", "Orientation ", "     0º     "};
     broadcast([](Screen &s){s.setScreenOrientation(screen::Orientation::Horizontal_0);});
-    for (size_t i = 0; i < phrases.size(); i++) {
-        broadcast([&](Screen &s){s.setTextCursor(0, i + m_screens[0].get().maxTextRows() / 2 - phrases.size() / 2); s.drawString(phrases[i], color);});
+    for (size_t row = 0; row < phrases.size(); row++) {
+        uint8_t x = 0;
+        uint8_t y = (2 + row) * screen::Font8x8.height;
+        broadcast([&](Screen &s){s.drawString(phrases[row], x, y, screen::Font8x8, color);});
     }
     std::this_thread::sleep_for(1s);
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
@@ -722,23 +755,27 @@ void Test::screenOrientation() {
     broadcast([=](Screen &s){s.drawImage(imagePathHorizontal);}, 1s);
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
 
-    // Vertical orientation
-    phrases = {"Vertical", "Orientat", "  90º   "};
+    // Vertical 90 orientation
+    phrases = {"Vertical", "Orientat", "   90º  "};
     broadcast([](Screen &s){s.setScreenOrientation(screen::Orientation::Vertical_90);});
-    for (size_t i = 0; i < phrases.size(); i++) {
-        broadcast([&](Screen &s){s.setTextCursor(0, i + m_screens[0].get().maxTextColumns() / 2 - phrases.size() / 2); s.drawString(phrases[i], color);});
+    for (size_t row = 0; row < phrases.size(); row++) {
+        uint8_t x = 0;
+        uint8_t y = (4 + row) * screen::Font8x8.height;
+        broadcast([&](Screen &s){s.drawString(phrases[row], x, y, screen::Font8x8, color);});
     }
-    std::this_thread::sleep_for(1s);
+    std::this_thread::sleep_for(5s);
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
 
     broadcast([=](Screen &s){s.drawImage(imagePathVertical);}, 1s);
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
 
-    // Horizontal reverse orientation
+    // Horizontal 180 orientation
     phrases = {" Horizontal ", "Orientation ", "    180º    "};
     broadcast([](Screen &s){s.setScreenOrientation(screen::Orientation::Horizontal_180);});
-    for (size_t i = 0; i < phrases.size(); i++) {
-        broadcast([&](Screen &s){s.setTextCursor(0, i + m_screens[0].get().maxTextRows() / 2 - phrases.size() / 2); s.drawString(phrases[i], color);});
+    for (size_t row = 0; row < phrases.size(); row++) {
+        uint8_t x = 0;
+        uint8_t y = (2 + row) * screen::Font8x8.height;
+        broadcast([&](Screen &s){s.drawString(phrases[row], x, y, screen::Font8x8, color);});
     }
     std::this_thread::sleep_for(1s);
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
@@ -746,11 +783,13 @@ void Test::screenOrientation() {
     broadcast([=](Screen &s){s.drawImage(imagePathHorizontal);}, 1s);
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
 
-    // Vertical reverse orientation
+    // Vertical 270 orientation
     phrases = {"Vertical", "Orientat", "  270º  "};
     broadcast([](Screen &s){s.setScreenOrientation(screen::Orientation::Vertical_270);});
-    for (size_t i = 0; i < phrases.size(); i++) {
-        broadcast([&](Screen &s){s.setTextCursor(0, i + m_screens[0].get().maxTextColumns() / 2 - phrases.size() / 2); s.drawString(phrases[i], color);});
+    for (size_t row = 0; row < phrases.size(); row++) {
+        uint8_t x = 0;
+        uint8_t y = (4 + row) * screen::Font8x8.height;
+        broadcast([&](Screen &s){s.drawString(phrases[row], x, y, screen::Font8x8, color);});
     }
     std::this_thread::sleep_for(1s);
     broadcast([](Screen &s){s.clearScreen();}, 200ms);

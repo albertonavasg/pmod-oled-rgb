@@ -77,10 +77,6 @@ void Service::applyConfig(const std::string &configFile) {
         Screen &screen = m_screens[index];
 
         // Apply the settings
-        const json &textCursor = s.at("textCursor");
-
-        screen.setFontId(parseFontId(s.at("fontId").get<std::string>()));
-        screen.setTextCursor(static_cast<uint8_t>(textCursor.at(0).get<int>()), static_cast<uint8_t>(textCursor.at(1).get<int>()));
         screen.setSpiDelay(std::chrono::nanoseconds(s.at("spiDelay").get<int>()));
         screen.setScreenOrientation(parseOrientation(s.at("orientation").get<std::string>()));
         screen.setFillRectangleEnable(s.at("fillRectangle").get<bool>());
@@ -168,37 +164,31 @@ void Service::enterNoneMode(Screen &s, size_t index) {
         }
     }
 
-    s.drawString(("Screen " + id).c_str(), screen::StandardColor::White);
+    s.drawString(("Screen " + id).c_str(), 0, 0, screen::Font8x8, screen::StandardColor::White);
 }
 
 void Service::enterInfoMode(Screen &s) {
 
-    s.setFontId(screen::FontId::Font6x8);
-
     bool timeChanged = updateDateAndTime();
     if (timeChanged) {
-        s.setTextCursor(0, 0);
-        s.drawString(m_date, screen::StandardColor::White);
-        s.setTextCursor(0, 2);
-        s.drawString(m_time, screen::StandardColor::White);
+        s.drawString(m_date, 0, 0, screen::Font8x8, screen::StandardColor::White);
+        s.drawString(m_time, 0, 16, screen::Font8x8, screen::StandardColor::White);
     }
     bool ipChanged = updateIpAndMask();
     if (ipChanged) {
-        s.setTextCursor(0, 4);
-        s.drawString(m_ip, screen::StandardColor::White);
-        s.setTextCursor(0, 6);
-        s.drawString(m_mask, screen::StandardColor::White);
+        s.drawString(m_ip, 0, 32, screen::Font6x8, screen::StandardColor::White);
+        s.drawString(m_mask, 0, 48, screen::Font6x8, screen::StandardColor::White);
     }
 }
 
 void Service::enterDigitalClockMode(Screen &s) {
 
-    s.drawString("DigitalClock", screen::StandardColor::White);
+    s.drawString("DigitalClock", 0, 0, screen::Font8x8, screen::StandardColor::White);
 }
 
 void Service::enterAnalogClockMode(Screen &s) {
 
-    s.drawString("AnalogClock", screen::StandardColor::White);
+    s.drawString("AnalogClock", 0, 0, screen::Font8x8, screen::StandardColor::White);
 }
 
 void Service::updateMode(size_t index) {
@@ -233,21 +223,17 @@ void Service::updateInfoMode(Screen &s) {
 
     bool timeChanged = updateDateAndTime();
     if (timeChanged) {
-        s.clearWindow(0,0, 95, 31);
+        s.clearWindow(0,0, 95, 25);
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        s.setTextCursor(0, 0);
-        s.drawString(m_date, screen::StandardColor::White);
-        s.setTextCursor(0, 2);
-        s.drawString(m_time, screen::StandardColor::White);
+        s.drawString(m_date, 0, 0, screen::Font8x8, screen::StandardColor::White);
+        s.drawString(m_time, 0, 16, screen::Font8x8, screen::StandardColor::White);
     }
     bool ipChanged = updateIpAndMask();
     if (ipChanged) {
-        s.clearWindow(0,32, 95, 63);
+        s.clearWindow(0,32, 95, 55);
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        s.setTextCursor(0, 4);
-        s.drawString(m_ip, screen::StandardColor::White);
-        s.setTextCursor(0, 6);
-        s.drawString(m_mask, screen::StandardColor::White);
+        s.drawString(m_ip, 0, 32, screen::Font6x8, screen::StandardColor::White);
+        s.drawString(m_mask, 0, 48, screen::Font6x8, screen::StandardColor::White);
     }
 }
 
@@ -277,15 +263,6 @@ json Service::loadJson(const std::string &path) const {
 
     return j;
 }
-
-screen::FontId Service::parseFontId(const std::string &s) {
-
-    if (s == "Font6x8") return screen::FontId::Font6x8;
-    if (s == "Font8x8") return screen::FontId::Font8x8;
-
-    throw std::runtime_error("Invalid Font ID value: " + s);
-}
-
 service::ScreenMode Service::parseScreenMode(const std::string &s) {
 
     if (s == "None")         return service::ScreenMode::None;
