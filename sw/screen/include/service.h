@@ -59,6 +59,8 @@ class Service {
         service::ScreenMode parseScreenMode(const std::string &s);
         static screen::Orientation parseOrientation(const std::string &s);
 
+        bool renderTextBlock(Screen &s, const service::TextBlock &block, const std::string text);
+
         bool updateDateAndTime();
         bool updateIpAndMask();
         bool hasCarrier(const char *iface);

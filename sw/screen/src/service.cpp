@@ -24,6 +24,8 @@
 
 using json = nlohmann::json;
 
+using namespace std::chrono_literals;
+
 Service::Service(const std::string &configFile) {
 
     // Load config file
@@ -111,13 +113,13 @@ void Service::run() {
         enterMode(i);
     }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::this_thread::sleep_for(100ms);
 
     while (m_running) {
         for (size_t i = 0; i < m_screens.size(); i++) {
             updateMode(i);
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(100ms);
     }
 }
 
@@ -171,13 +173,19 @@ void Service::enterInfoMode(Screen &s) {
 
     bool timeChanged = updateDateAndTime();
     if (timeChanged) {
-        s.drawString(m_date, 0, 0, screen::Font8x8, screen::StandardColor::White);
-        s.drawString(m_time, 0, 16, screen::Font8x8, screen::StandardColor::White);
+        service::TextBlock dateBlock {0, 0, 96, 8, &screen::Font8x8, screen::StandardColor::White};
+        service::TextBlock timeBlock {0, 16, 96, 8, &screen::Font8x8, screen::StandardColor::White};
+
+        renderTextBlock(s, dateBlock, m_date);
+        renderTextBlock(s, timeBlock, m_time);
     }
     bool ipChanged = updateIpAndMask();
     if (ipChanged) {
-        s.drawString(m_ip, 0, 32, screen::Font6x8, screen::StandardColor::White);
-        s.drawString(m_mask, 0, 48, screen::Font6x8, screen::StandardColor::White);
+        service::TextBlock ipBlock {0, 32, 96, 8, &screen::Font6x8, screen::StandardColor::White};
+        service::TextBlock maskBlock {0, 48, 96, 8, &screen::Font6x8, screen::StandardColor::White};
+
+        renderTextBlock(s, ipBlock, m_ip);
+        renderTextBlock(s, maskBlock, m_mask);
     }
 }
 
@@ -223,17 +231,19 @@ void Service::updateInfoMode(Screen &s) {
 
     bool timeChanged = updateDateAndTime();
     if (timeChanged) {
-        s.clearWindow(0,0, 95, 25);
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        s.drawString(m_date, 0, 0, screen::Font8x8, screen::StandardColor::White);
-        s.drawString(m_time, 0, 16, screen::Font8x8, screen::StandardColor::White);
+        service::TextBlock dateBlock {0, 0, 96, 8, &screen::Font8x8, screen::StandardColor::White};
+        service::TextBlock timeBlock {0, 16, 96, 8, &screen::Font8x8, screen::StandardColor::White};
+
+        renderTextBlock(s, dateBlock, m_date);
+        renderTextBlock(s, timeBlock, m_time);
     }
     bool ipChanged = updateIpAndMask();
     if (ipChanged) {
-        s.clearWindow(0,32, 95, 55);
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        s.drawString(m_ip, 0, 32, screen::Font6x8, screen::StandardColor::White);
-        s.drawString(m_mask, 0, 48, screen::Font6x8, screen::StandardColor::White);
+        service::TextBlock ipBlock {0, 32, 96, 8, &screen::Font6x8, screen::StandardColor::White};
+        service::TextBlock maskBlock {0, 48, 96, 8, &screen::Font6x8, screen::StandardColor::White};
+
+        renderTextBlock(s, ipBlock, m_ip);
+        renderTextBlock(s, maskBlock, m_mask);
     }
 }
 
@@ -283,6 +293,30 @@ screen::Orientation Service::parseOrientation(const std::string &s) {
     throw std::runtime_error("Invalid Orientation value: " + s);
 }
 
+bool Service::renderTextBlock(Screen &s, const service::TextBlock &block, const std::string text){
+
+    if (text.empty() || !block.font) {
+        return false;
+    }
+
+    uint8_t charWidth  = block.font->width;
+    // uint8_t charHeight = block.font->charHeight;
+
+    // Maximum chars that fit horizontally
+    size_t maxChars = block.width / charWidth;
+
+    // Not render text if too long
+    if (text.size() > maxChars) {
+        return false;
+    }
+
+    s.clearWindow(block.x, block.y, block.x + block.width - 1, block.y + block.height - 1);
+    std::this_thread::sleep_for(1ms);
+    s.drawString(text, block.x, block.y, *(block.font), block.color);
+
+    return true;
+}
+
 bool Service::updateDateAndTime() {
 
     std::string oldDate = m_date;
@@ -315,7 +349,7 @@ bool Service::updateIpAndMask() {
         return false; // Failed to read interface list
     }
 
-    bool ipFound      = false;
+    bool ipFound    = false;
     bool anyUp      = false;
     bool anyCarrier = false;
 
