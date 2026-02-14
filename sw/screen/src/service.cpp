@@ -34,14 +34,16 @@ Service::Service(const std::string &configFile) {
     const json &screens = j.at("screens");
 
     m_screens.reserve(screens.size());
-    m_modes.reserve(screens.size());
+    m_screenModes.reserve(screens.size());
+    m_screenSubModes.reserve(screens.size());
 
     for (const json &s : screens) {
         const std::string id  = s.at("id").get<std::string>();
         const std::string uio = s.at("uio").get<std::string>();
 
         m_screens.emplace_back(uio);
-        m_modes.emplace_back(parseScreenMode(s.at("mode").get<std::string>()));
+        m_screenModes.emplace_back(parseScreenMode(s.at("mode").get<std::string>()));
+        m_screenSubModes.emplace_back(parseScreenSubMode(s.at("subMode").get<std::string>()));
         m_screenIndex[id] = m_screens.size() - 1;
     }
 
@@ -133,7 +135,7 @@ void Service::stop() {
 void Service::enterMode(size_t index) {
 
     Screen &screen = m_screens[index];
-    service::ScreenMode &mode  = m_modes[index];
+    service::ScreenMode &mode  = m_screenModes[index];
 
     screen.clearScreen();
 
@@ -202,7 +204,7 @@ void Service::enterAnalogClockMode(Screen &s) {
 void Service::updateMode(size_t index) {
 
     Screen &screen = m_screens[index];
-    service::ScreenMode &mode  = m_modes[index];
+    service::ScreenMode &mode  = m_screenModes[index];
 
     switch (mode) {
         case service::ScreenMode::None:
@@ -273,6 +275,7 @@ json Service::loadJson(const std::string &path) const {
 
     return j;
 }
+
 service::ScreenMode Service::parseScreenMode(const std::string &s) {
 
     if (s == "None")         return service::ScreenMode::None;
@@ -281,6 +284,16 @@ service::ScreenMode Service::parseScreenMode(const std::string &s) {
     if (s == "AnalogClock")  return service::ScreenMode::AnalogClock;
 
     throw std::runtime_error("Invalid Screen Mode value: " + s);
+}
+
+service::ScreenSubMode Service::parseScreenSubMode(const std::string &s) {
+
+    if (s == "None")             return service::ScreenSubMode::None;
+    if (s == "HourMinute")       return service::ScreenSubMode::HourMinute;
+    if (s == "HourMinuteSecond") return service::ScreenSubMode::HourMinuteSecond;
+    if (s == "HourMinuteTick")   return service::ScreenSubMode::HourMinuteTick;
+
+    throw std::runtime_error("Invalid Screen SubMode value: " + s);
 }
 
 screen::Orientation Service::parseOrientation(const std::string &s) {

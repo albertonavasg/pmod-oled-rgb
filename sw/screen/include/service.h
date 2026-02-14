@@ -31,7 +31,8 @@ class Service {
 
     private:
         std::vector<Screen> m_screens;
-        std::vector<service::ScreenMode> m_modes;
+        std::vector<service::ScreenMode> m_screenModes;
+        std::vector<service::ScreenSubMode> m_screenSubModes;
         std::unordered_map<std::string, size_t> m_screenIndex;
 
         std::atomic<bool> m_running{true};
@@ -57,6 +58,7 @@ class Service {
         json loadJson(const std::string &path) const;
 
         service::ScreenMode parseScreenMode(const std::string &s);
+        service::ScreenSubMode parseScreenSubMode(const std::string &s);
         static screen::Orientation parseOrientation(const std::string &s);
 
         bool renderTextBlock(Screen &s, const service::TextBlock &block, const std::string text);

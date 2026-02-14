@@ -15,6 +15,15 @@ namespace service {
         AnalogClock
     };
 
+    enum class ScreenSubMode {
+
+        None,
+        HourMinute,
+        HourMinuteSecond,
+        HourMinuteTick
+
+    };
+
     struct TextBlock {
 
         uint8_t x;

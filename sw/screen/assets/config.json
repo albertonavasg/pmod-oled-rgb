@@ -3,6 +3,7 @@
         {
             "id": "A",
             "mode": "None",
+            "subMode": "None",
             "uio": "uio0",
             "spiDelay": 0,
             "orientation": "Horizontal_180",
@@ -12,6 +13,7 @@
         {
             "id": "B",
             "mode": "Info",
+            "subMode": "HourMinute",
             "uio": "uio1",
             "spiDelay": 0,
             "orientation": "Horizontal_180",
