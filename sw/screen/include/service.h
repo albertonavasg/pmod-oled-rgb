@@ -21,8 +21,6 @@ class Service {
 
         // Apply config from JSON
         void applyConfig(const std::string &configFile);
-        // Get screen by Id
-        Screen& screen(const std::string &id);
 
         // Full test routine
         void runTests();
@@ -32,10 +30,7 @@ class Service {
         void stop();
 
     private:
-        std::vector<Screen> m_screens;
-        std::vector<service::ScreenMode> m_screenModes;
-        std::vector<service::ScreenSubMode> m_screenSubModes;
-        std::unordered_map<std::string, size_t> m_screenIndex;
+        std::vector<service::ScreenContext> m_screens;
 
         std::atomic<bool> m_running{true};
 
@@ -47,17 +42,17 @@ class Service {
         bool m_netHasChanged = false;
 
         // Mode handlers
-        void enterMode(size_t index);
-        void enterNoneMode(Screen &s, size_t index);
-        void enterInfoMode(Screen &s);
-        void enterDigitalClockMode(Screen &s);
-        void enterAnalogClockMode(Screen &s);
+        void enterMode(service::ScreenContext &ctx);
+        void enterNoneMode(service::ScreenContext &ctx);
+        void enterInfoMode(service::ScreenContext &ctx);
+        void enterDigitalClockMode(service::ScreenContext &ctx);
+        void enterAnalogClockMode(service::ScreenContext &ctx);
 
-        void updateMode(size_t index);
-        void updateNoneMode(Screen &s);
-        void updateInfoMode(Screen &s);
-        void updateDigitalClockMode(Screen &s);
-        void updateAnalogClockMode(Screen &s);
+        void updateMode(service::ScreenContext &ctx);
+        void updateNoneMode(service::ScreenContext &ctx);
+        void updateInfoMode(service::ScreenContext &ctx);
+        void updateDigitalClockMode(service::ScreenContext &ctx);
+        void updateAnalogClockMode(service::ScreenContext &ctx);
 
         // Helpers
         json loadJson(const std::string &path) const;
@@ -70,9 +65,9 @@ class Service {
         // Render
         bool renderTextBlock(Screen &s, const service::TextBlock &block, const std::string text);
 
-        void renderDateString(Screen &s);
-        void renderTimeString(Screen &s);
-        void renderIpString(Screen &s);
+        void renderDateString(service::ScreenContext &ctx);
+        void renderTimeString(service::ScreenContext &ctx);
+        void renderIpString(service::ScreenContext &ctx);
 
         // Date Time and IP updaters
         bool updateDateAndTime();

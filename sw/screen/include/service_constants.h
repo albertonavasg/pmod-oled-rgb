@@ -4,6 +4,7 @@
 #include <cstdint> // uint
 
 #include "screen_constants.h"
+#include "screen.h"
 
 namespace service {
 
@@ -22,6 +23,14 @@ namespace service {
         HourMinuteSecond,
         HourMinuteTick
 
+    };
+
+    struct ScreenContext {
+
+        std::unique_ptr<Screen> screen;
+        service::ScreenMode mode;
+        service::ScreenSubMode subMode;
+        std::string id;
     };
 
     struct TimeData {

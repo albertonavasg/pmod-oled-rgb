@@ -34,17 +34,17 @@ Service::Service(const std::string &configFile) {
     const json &screens = j.at("screens");
 
     m_screens.reserve(screens.size());
-    m_screenModes.reserve(screens.size());
-    m_screenSubModes.reserve(screens.size());
 
     for (const json &s : screens) {
         const std::string id  = s.at("id").get<std::string>();
         const std::string uio = s.at("uio").get<std::string>();
 
-        m_screens.emplace_back(uio);
-        m_screenModes.emplace_back(parseScreenMode(s.at("mode").get<std::string>()));
-        m_screenSubModes.emplace_back(parseScreenSubMode(s.at("subMode").get<std::string>()));
-        m_screenIndex[id] = m_screens.size() - 1;
+        m_screens.push_back({
+            std::make_unique<Screen>(uio),
+            parseScreenMode(s.at("mode").get<std::string>()),
+            parseScreenSubMode(s.at("subMode").get<std::string>()),
+            id
+        });
     }
 
     applyConfig(configFile);
@@ -59,7 +59,7 @@ void Service::applyConfig(const std::string &configFile) {
     // Load config file
     json j = loadJson(configFile);
 
-    // Check for top-level key "screens" and check that json is an array
+    // Check for top-level key "screens" and ensure it's an array
     if (!j.contains("screens") || !j["screens"].is_array()) {
         throw std::runtime_error("Config file missing 'screens' array");
     }
@@ -67,18 +67,22 @@ void Service::applyConfig(const std::string &configFile) {
     const json &screens = j.at("screens");
 
     for (const json &s : screens) {
-
-        // Find the screen by its ID
         const std::string id = s.at("id").get<std::string>();
 
-        std::unordered_map<std::string, std::size_t>::iterator iterator = m_screenIndex.find(id);
-        if (iterator == m_screenIndex.end()) {
+        // Find the screen by its ID
+        std::vector<service::ScreenContext>::iterator it;
+        it = std::find_if(
+            m_screens.begin(),
+            m_screens.end(),
+            [&](const service::ScreenContext &ctx) { return ctx.id == id; });
+
+        if (it == m_screens.end()) {
             throw std::runtime_error("Unknown screen id in config: " + id);
         }
 
-        const size_t index = iterator->second;
+        service::ScreenContext &ctx = *it;
 
-        Screen &screen = m_screens[index];
+        Screen &screen = *ctx.screen;
 
         // Apply the settings
         screen.setSpiDelay(std::chrono::nanoseconds(s.at("spiDelay").get<int>()));
@@ -88,17 +92,14 @@ void Service::applyConfig(const std::string &configFile) {
     }
 }
 
-Screen& Service::screen(const std::string &id) {
-
-    return m_screens.at(m_screenIndex.at(id));
-}
-
 void Service::runTests() {
 
     // Create a vector of references to all screens
     std::vector<std::reference_wrapper<Screen>> screenRefs;
-    for (Screen &s : m_screens) {
-        screenRefs.push_back(s);
+    screenRefs.reserve(m_screens.size());
+
+    for (service::ScreenContext &ctx : m_screens) {
+        screenRefs.push_back(*ctx.screen);
     }
 
     // Create a Test object
@@ -113,8 +114,10 @@ void Service::run() {
 
     m_timeHasChanged = updateDateAndTime();
     m_netHasChanged = updateIpAndMask();
-    for (size_t i = 0; i < m_screens.size(); i++) {
-        enterMode(i);
+
+    // Initial setup: enter modes for all screens
+    for (service::ScreenContext &ctx : m_screens) {
+        enterMode(ctx);
     }
 
     std::this_thread::sleep_for(100ms);
@@ -122,8 +125,9 @@ void Service::run() {
     while (m_running) {
         m_timeHasChanged = updateDateAndTime();
         m_netHasChanged = updateIpAndMask();
-        for (size_t i = 0; i < m_screens.size(); i++) {
-            updateMode(i);
+        // Update all screens
+        for (service::ScreenContext &ctx : m_screens) {
+            updateMode(ctx);
         }
         std::this_thread::sleep_for(400ms);
     }
@@ -136,25 +140,23 @@ void Service::stop() {
     }
 }
 
-void Service::enterMode(size_t index) {
+void Service::enterMode(service::ScreenContext &ctx) {
 
-    Screen &screen = m_screens[index];
-    service::ScreenMode &mode  = m_screenModes[index];
-
+    Screen &screen = *ctx.screen;
     screen.clearScreen();
 
-    switch (mode) {
+    switch (ctx.mode) {
         case service::ScreenMode::None:
-            enterNoneMode(screen, index);
+            enterNoneMode(ctx);
             break;
         case service::ScreenMode::Info:
-            enterInfoMode(screen);
+            enterInfoMode(ctx);
             break;
         case service::ScreenMode::DigitalClock:
-            enterDigitalClockMode(screen);
+            enterDigitalClockMode(ctx);
             break;
         case service::ScreenMode::AnalogClock:
-            enterAnalogClockMode(screen);
+            enterAnalogClockMode(ctx);
             break;
         default:
             std::cout << "Unknown mode" << std::endl;
@@ -162,55 +164,49 @@ void Service::enterMode(size_t index) {
     }
 }
 
-void Service::enterNoneMode(Screen &s, size_t index) {
+void Service::enterNoneMode(service::ScreenContext &ctx) {
 
-    std::string id;
-    for (std::pair<const std::string, std::size_t> &pair : m_screenIndex) {
-        if (pair.second == index) {
-            id = pair.first;
-            break;
-        }
-    }
+    Screen &s = *ctx.screen;
+    const std::string &id = ctx.id;
 
     s.drawString(("Screen " + id).c_str(), 0, 0, screen::Font8x8, screen::StandardColor::White);
 }
 
-void Service::enterInfoMode(Screen &s) {
+void Service::enterInfoMode(service::ScreenContext &ctx) {
 
     // Time
-    renderDateString(s);
-    renderTimeString(s);
+    renderDateString(ctx);
+    renderTimeString(ctx);
     // Network
-    renderIpString(s);
+    renderIpString(ctx);
 }
 
-void Service::enterDigitalClockMode(Screen &s) {
+void Service::enterDigitalClockMode(service::ScreenContext &ctx) {
 
+    Screen &s = *ctx.screen;
     s.drawString("DigitalClock", 0, 0, screen::Font8x8, screen::StandardColor::White);
 }
 
-void Service::enterAnalogClockMode(Screen &s) {
+void Service::enterAnalogClockMode(service::ScreenContext &ctx) {
 
+    Screen &s = *ctx.screen;
     s.drawString("AnalogClock", 0, 0, screen::Font8x8, screen::StandardColor::White);
 }
 
-void Service::updateMode(size_t index) {
+void Service::updateMode(service::ScreenContext &ctx) {
 
-    Screen &screen = m_screens[index];
-    service::ScreenMode &mode  = m_screenModes[index];
-
-    switch (mode) {
+    switch (ctx.mode) {
         case service::ScreenMode::None:
-            updateNoneMode(screen);
+            updateNoneMode(ctx);
             break;
         case service::ScreenMode::Info:
-            updateInfoMode(screen);
+            updateInfoMode(ctx);
             break;
         case service::ScreenMode::DigitalClock:
-            updateDigitalClockMode(screen);
+            updateDigitalClockMode(ctx);
             break;
         case service::ScreenMode::AnalogClock:
-            updateAnalogClockMode(screen);
+            updateAnalogClockMode(ctx);
             break;
         default:
             std::cout << "Unknown mode" << std::endl;
@@ -218,31 +214,31 @@ void Service::updateMode(size_t index) {
     }
 }
 
-void Service::updateNoneMode(Screen &s) {
+void Service::updateNoneMode(service::ScreenContext &ctx) {
 
 }
 
-void Service::updateInfoMode(Screen &s) {
+void Service::updateInfoMode(service::ScreenContext &ctx) {
 
     // Time
     if (m_timeHasChanged)
     {
-        renderDateString(s);
-        renderTimeString(s);
+        renderDateString(ctx);
+        renderTimeString(ctx);
     }
 
     // Network
     if (m_netHasChanged)
     {
-        renderIpString(s);
+        renderIpString(ctx);
     }
 }
 
-void Service::updateDigitalClockMode(Screen &s) {
+void Service::updateDigitalClockMode(service::ScreenContext &ctx) {
 
 }
 
-void Service::updateAnalogClockMode(Screen &s) {
+void Service::updateAnalogClockMode(service::ScreenContext &ctx) {
 
 }
 
@@ -319,7 +315,9 @@ bool Service::renderTextBlock(Screen &s, const service::TextBlock &block, const 
     return true;
 }
 
-void Service::renderDateString(Screen &s) {
+void Service::renderDateString(service::ScreenContext &ctx) {
+
+    Screen &s = *ctx.screen;
 
     service::TextBlock dateBlock {0, 0, 96, 8, screen::Font8x8, screen::StandardColor::White};
 
@@ -339,7 +337,9 @@ void Service::renderDateString(Screen &s) {
     renderTextBlock(s, dateBlock, dateBuf);
 }
 
-void Service::renderTimeString(Screen &s) {
+void Service::renderTimeString(service::ScreenContext &ctx) {
+
+    Screen &s = *ctx.screen;
 
     service::TextBlock timeBlock {0, 16, 96, 8, screen::Font8x8, screen::StandardColor::White};
 
@@ -353,7 +353,9 @@ void Service::renderTimeString(Screen &s) {
     renderTextBlock(s, timeBlock, timeBuf);
 }
 
-void Service::renderIpString(Screen &s) {
+void Service::renderIpString(service::ScreenContext &ctx) {
+
+    Screen &s = *ctx.screen;
 
     service::TextBlock ipBlock   {0, 32, 96, 8, screen::Font6x8, screen::StandardColor::White};
     service::TextBlock maskBlock {0, 48, 96, 8, screen::Font6x8, screen::StandardColor::White};
