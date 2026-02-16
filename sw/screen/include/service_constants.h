@@ -50,7 +50,7 @@ namespace service {
         uint8_t width;
         uint8_t height;
 
-        const screen::Font *font;
+        const screen::Font &font;
         screen::Color color;
     };
 }

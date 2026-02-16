@@ -388,12 +388,12 @@ screen::Orientation Service::parseOrientation(const std::string &s) {
 
 bool Service::renderTextBlock(Screen &s, const service::TextBlock &block, const std::string text){
 
-    if (text.empty() || !block.font) {
+    if (text.empty()) {
         return false;
     }
 
-    uint8_t charWidth  = block.font->width;
-    // uint8_t charHeight = block.font->charHeight;
+    uint8_t charWidth  = block.font.width;
+    // uint8_t charHeight = block.font.charHeight;
 
     // Maximum chars that fit horizontally
     size_t maxChars = block.width / charWidth;
@@ -405,7 +405,7 @@ bool Service::renderTextBlock(Screen &s, const service::TextBlock &block, const 
 
     s.clearWindow(block.x, block.y, block.x + block.width - 1, block.y + block.height - 1);
     std::this_thread::sleep_for(1ms);
-    s.drawString(text, block.x, block.y, *(block.font), block.color);
+    s.drawString(text, block.x, block.y, block.font, block.color);
 
     return true;
 }
