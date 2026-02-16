@@ -24,8 +24,10 @@ class Service {
         // Get screen by Id
         Screen& screen(const std::string &id);
 
+        // Full test routine
         void runTests();
 
+        // Main service loop
         void run();
         void stop();
 
@@ -44,6 +46,7 @@ class Service {
         service::NetworkData m_prevNet{};
         bool m_netHasChanged = false;
 
+        // Mode handlers
         void enterMode(size_t index);
         void enterNoneMode(Screen &s, size_t index);
         void enterInfoMode(Screen &s);
@@ -59,12 +62,19 @@ class Service {
         // Helpers
         json loadJson(const std::string &path) const;
 
+        // Parse config file
         service::ScreenMode parseScreenMode(const std::string &s);
         service::ScreenSubMode parseScreenSubMode(const std::string &s);
         static screen::Orientation parseOrientation(const std::string &s);
 
+        // Render
         bool renderTextBlock(Screen &s, const service::TextBlock &block, const std::string text);
 
+        void renderDateString(Screen &s);
+        void renderTimeString(Screen &s);
+        void renderIpString(Screen &s);
+
+        // Date Time and IP updaters
         bool updateDateAndTime();
         bool updateIpAndMask();
         bool hasCarrier(const char *iface);

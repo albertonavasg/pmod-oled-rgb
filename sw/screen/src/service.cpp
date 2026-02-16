@@ -11,7 +11,7 @@
 #include <arpa/inet.h>  // inet_ntop
 #include <net/if.h>     // IFF_UP, IFF_LOOPBACK
 #include <netinet/in.h> // sockaddr_in
-#include <cstring>      // strcmp
+#include <cstring>      // strcmp, snprintf
 
 #include <nlohmann/json.hpp>
 
@@ -178,56 +178,10 @@ void Service::enterNoneMode(Screen &s, size_t index) {
 void Service::enterInfoMode(Screen &s) {
 
     // Time
-    service::TextBlock dateBlock {0, 0, 96, 8, &screen::Font8x8, screen::StandardColor::White};
-    service::TextBlock timeBlock {0, 16, 96, 8, &screen::Font8x8, screen::StandardColor::White};
-
-    // ---- Format date ----
-    static const char* months[] = {
-        "Jan","Feb","Mar","Apr","May","Jun",
-        "Jul","Aug","Sep","Oct","Nov","Dec"
-    };
-
-    char dateBuf[16];
-    std::snprintf(dateBuf, sizeof(dateBuf),
-                "%s %u %u",
-                months[m_time.month - 1],
-                m_time.day,
-                m_time.year);
-
-    // ---- Format time HH:MM ----
-    char timeBuf[6];
-    std::snprintf(timeBuf, sizeof(timeBuf),
-                "%02hhu:%02hhu",
-                m_time.hour,
-                m_time.minute);
-
-    renderTextBlock(s, dateBlock, dateBuf);
-    renderTextBlock(s, timeBlock, timeBuf);
-
-    service::TextBlock ipBlock   {0, 32, 96, 8, &screen::Font6x8, screen::StandardColor::White};
-    service::TextBlock maskBlock {0, 48, 96, 8, &screen::Font6x8, screen::StandardColor::White};
-
+    renderDateString(s);
+    renderTimeString(s);
     // Network
-    if (!m_net.interfaceUp)
-    {
-        renderTextBlock(s, ipBlock, "Interface down");
-        renderTextBlock(s, maskBlock, "");
-    }
-    else if (!m_net.hasCarrier)
-    {
-        renderTextBlock(s, ipBlock, "No carrier");
-        renderTextBlock(s, maskBlock, "");
-    }
-    else if (!m_net.isIPv4)
-    {
-        renderTextBlock(s, ipBlock, "No IP");
-        renderTextBlock(s, maskBlock, "");
-    }
-    else
-    {
-        renderTextBlock(s, ipBlock, formatIPv4(m_net.ip));
-        renderTextBlock(s, maskBlock, formatIPv4(m_net.netmask));
-    }
+    renderIpString(s);
 }
 
 void Service::enterDigitalClockMode(Screen &s) {
@@ -273,59 +227,14 @@ void Service::updateInfoMode(Screen &s) {
     // Time
     if (m_timeHasChanged)
     {
-        service::TextBlock dateBlock {0, 0, 96, 8, &screen::Font8x8, screen::StandardColor::White};
-        service::TextBlock timeBlock {0, 16, 96, 8, &screen::Font8x8, screen::StandardColor::White};
-
-        // ---- Format date ----
-        static const char* months[] = {
-            "Jan","Feb","Mar","Apr","May","Jun",
-            "Jul","Aug","Sep","Oct","Nov","Dec"
-        };
-
-        char dateBuf[16];
-        std::snprintf(dateBuf, sizeof(dateBuf),
-                    "%s %u %u",
-                    months[m_time.month - 1],
-                    m_time.day,
-                    m_time.year);
-
-        // ---- Format time HH:MM ----
-        char timeBuf[6];
-        std::snprintf(timeBuf, sizeof(timeBuf),
-                    "%02hhu:%02hhu",
-                    m_time.hour,
-                    m_time.minute);
-
-        renderTextBlock(s, dateBlock, dateBuf);
-        renderTextBlock(s, timeBlock, timeBuf);
+        renderDateString(s);
+        renderTimeString(s);
     }
 
     // Network
     if (m_netHasChanged)
     {
-        service::TextBlock ipBlock   {0, 32, 96, 8, &screen::Font6x8, screen::StandardColor::White};
-        service::TextBlock maskBlock {0, 48, 96, 8, &screen::Font6x8, screen::StandardColor::White};
-
-        if (!m_net.interfaceUp)
-        {
-            renderTextBlock(s, ipBlock, "Interface down");
-            renderTextBlock(s, maskBlock, "");
-        }
-        else if (!m_net.hasCarrier)
-        {
-            renderTextBlock(s, ipBlock, "No carrier");
-            renderTextBlock(s, maskBlock, "");
-        }
-        else if (!m_net.isIPv4)
-        {
-            renderTextBlock(s, ipBlock, "No IP");
-            renderTextBlock(s, maskBlock, "");
-        }
-        else
-        {
-            renderTextBlock(s, ipBlock, formatIPv4(m_net.ip));
-            renderTextBlock(s, maskBlock, formatIPv4(m_net.netmask));
-        }
+        renderIpString(s);
     }
 }
 
@@ -408,6 +317,63 @@ bool Service::renderTextBlock(Screen &s, const service::TextBlock &block, const 
     s.drawString(text, block.x, block.y, block.font, block.color);
 
     return true;
+}
+
+void Service::renderDateString(Screen &s) {
+
+    service::TextBlock dateBlock {0, 0, 96, 8, screen::Font8x8, screen::StandardColor::White};
+
+    // ---- Format date ----
+    static const char* months[] = {
+        "Jan","Feb","Mar","Apr","May","Jun",
+        "Jul","Aug","Sep","Oct","Nov","Dec"
+    };
+
+    char dateBuf[16];
+    std::snprintf(dateBuf, sizeof(dateBuf),
+                "%s %u %u",
+                months[m_time.month - 1],
+                m_time.day,
+                m_time.year);
+
+    renderTextBlock(s, dateBlock, dateBuf);
+}
+
+void Service::renderTimeString(Screen &s) {
+
+    service::TextBlock timeBlock {0, 16, 96, 8, screen::Font8x8, screen::StandardColor::White};
+
+    // ---- Format time HH:MM ----
+    char timeBuf[6];
+    std::snprintf(timeBuf, sizeof(timeBuf),
+                "%02hhu:%02hhu",
+                m_time.hour,
+                m_time.minute);
+
+    renderTextBlock(s, timeBlock, timeBuf);
+}
+
+void Service::renderIpString(Screen &s) {
+
+    service::TextBlock ipBlock   {0, 32, 96, 8, screen::Font6x8, screen::StandardColor::White};
+    service::TextBlock maskBlock {0, 48, 96, 8, screen::Font6x8, screen::StandardColor::White};
+
+    if (!m_net.interfaceUp) {
+        renderTextBlock(s, ipBlock, "Interface down");
+        renderTextBlock(s, maskBlock, "");
+    }
+    else if (!m_net.hasCarrier) {
+        renderTextBlock(s, ipBlock, "No carrier");
+        renderTextBlock(s, maskBlock, "");
+    }
+    else if (!m_net.isIPv4) {
+        renderTextBlock(s, ipBlock, "No IP");
+        renderTextBlock(s, maskBlock, "");
+    }
+    else {
+        renderTextBlock(s, ipBlock, formatIPv4(m_net.ip));
+        renderTextBlock(s, maskBlock, formatIPv4(m_net.netmask));
+    }
 }
 
 bool Service::updateDateAndTime() {
