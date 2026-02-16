@@ -24,6 +24,25 @@ namespace service {
 
     };
 
+    struct TimeData {
+
+        uint16_t year;
+        uint8_t month;
+        uint8_t day;
+        uint8_t hour;
+        uint8_t minute;
+        uint8_t second;
+    };
+
+    struct NetworkData {
+
+        bool interfaceUp;
+        bool hasCarrier;
+        bool isIPv4;
+        uint32_t ip;
+        uint32_t netmask;
+    };
+
     struct TextBlock {
 
         uint8_t x;

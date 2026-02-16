@@ -37,10 +37,12 @@ class Service {
 
         std::atomic<bool> m_running{true};
 
-        std::string m_date = "";
-        std::string m_time = "";
-        std::string m_ip   = "";
-        std::string m_mask = "";
+        service::TimeData m_time{};
+        service::TimeData m_prevTime{};
+        bool m_timeHasChanged = false;
+        service::NetworkData m_net{};
+        service::NetworkData m_prevNet{};
+        bool m_netHasChanged = false;
 
         void enterMode(size_t index);
         void enterNoneMode(Screen &s, size_t index);
@@ -66,6 +68,7 @@ class Service {
         bool updateDateAndTime();
         bool updateIpAndMask();
         bool hasCarrier(const char *iface);
+        std::string formatIPv4(uint32_t ip);
 
 };
 

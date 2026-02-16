@@ -111,6 +111,8 @@ void Service::runTests() {
 
 void Service::run() {
 
+    m_timeHasChanged = updateDateAndTime();
+    m_netHasChanged = updateIpAndMask();
     for (size_t i = 0; i < m_screens.size(); i++) {
         enterMode(i);
     }
@@ -118,10 +120,12 @@ void Service::run() {
     std::this_thread::sleep_for(100ms);
 
     while (m_running) {
+        m_timeHasChanged = updateDateAndTime();
+        m_netHasChanged = updateIpAndMask();
         for (size_t i = 0; i < m_screens.size(); i++) {
             updateMode(i);
         }
-        std::this_thread::sleep_for(100ms);
+        std::this_thread::sleep_for(400ms);
     }
 }
 
@@ -173,21 +177,56 @@ void Service::enterNoneMode(Screen &s, size_t index) {
 
 void Service::enterInfoMode(Screen &s) {
 
-    bool timeChanged = updateDateAndTime();
-    if (timeChanged) {
-        service::TextBlock dateBlock {0, 0, 96, 8, &screen::Font8x8, screen::StandardColor::White};
-        service::TextBlock timeBlock {0, 16, 96, 8, &screen::Font8x8, screen::StandardColor::White};
+    // Time
+    service::TextBlock dateBlock {0, 0, 96, 8, &screen::Font8x8, screen::StandardColor::White};
+    service::TextBlock timeBlock {0, 16, 96, 8, &screen::Font8x8, screen::StandardColor::White};
 
-        renderTextBlock(s, dateBlock, m_date);
-        renderTextBlock(s, timeBlock, m_time);
+    // ---- Format date ----
+    static const char* months[] = {
+        "Jan","Feb","Mar","Apr","May","Jun",
+        "Jul","Aug","Sep","Oct","Nov","Dec"
+    };
+
+    char dateBuf[16];
+    std::snprintf(dateBuf, sizeof(dateBuf),
+                "%s %u %u",
+                months[m_time.month - 1],
+                m_time.day,
+                m_time.year);
+
+    // ---- Format time HH:MM ----
+    char timeBuf[6];
+    std::snprintf(timeBuf, sizeof(timeBuf),
+                "%02hhu:%02hhu",
+                m_time.hour,
+                m_time.minute);
+
+    renderTextBlock(s, dateBlock, dateBuf);
+    renderTextBlock(s, timeBlock, timeBuf);
+
+    service::TextBlock ipBlock   {0, 32, 96, 8, &screen::Font6x8, screen::StandardColor::White};
+    service::TextBlock maskBlock {0, 48, 96, 8, &screen::Font6x8, screen::StandardColor::White};
+
+    // Network
+    if (!m_net.interfaceUp)
+    {
+        renderTextBlock(s, ipBlock, "Interface down");
+        renderTextBlock(s, maskBlock, "");
     }
-    bool ipChanged = updateIpAndMask();
-    if (ipChanged) {
-        service::TextBlock ipBlock {0, 32, 96, 8, &screen::Font6x8, screen::StandardColor::White};
-        service::TextBlock maskBlock {0, 48, 96, 8, &screen::Font6x8, screen::StandardColor::White};
-
-        renderTextBlock(s, ipBlock, m_ip);
-        renderTextBlock(s, maskBlock, m_mask);
+    else if (!m_net.hasCarrier)
+    {
+        renderTextBlock(s, ipBlock, "No carrier");
+        renderTextBlock(s, maskBlock, "");
+    }
+    else if (!m_net.isIPv4)
+    {
+        renderTextBlock(s, ipBlock, "No IP");
+        renderTextBlock(s, maskBlock, "");
+    }
+    else
+    {
+        renderTextBlock(s, ipBlock, formatIPv4(m_net.ip));
+        renderTextBlock(s, maskBlock, formatIPv4(m_net.netmask));
     }
 }
 
@@ -231,21 +270,62 @@ void Service::updateNoneMode(Screen &s) {
 
 void Service::updateInfoMode(Screen &s) {
 
-    bool timeChanged = updateDateAndTime();
-    if (timeChanged) {
+    // Time
+    if (m_timeHasChanged)
+    {
         service::TextBlock dateBlock {0, 0, 96, 8, &screen::Font8x8, screen::StandardColor::White};
         service::TextBlock timeBlock {0, 16, 96, 8, &screen::Font8x8, screen::StandardColor::White};
 
-        renderTextBlock(s, dateBlock, m_date);
-        renderTextBlock(s, timeBlock, m_time);
+        // ---- Format date ----
+        static const char* months[] = {
+            "Jan","Feb","Mar","Apr","May","Jun",
+            "Jul","Aug","Sep","Oct","Nov","Dec"
+        };
+
+        char dateBuf[16];
+        std::snprintf(dateBuf, sizeof(dateBuf),
+                    "%s %u %u",
+                    months[m_time.month - 1],
+                    m_time.day,
+                    m_time.year);
+
+        // ---- Format time HH:MM ----
+        char timeBuf[6];
+        std::snprintf(timeBuf, sizeof(timeBuf),
+                    "%02hhu:%02hhu",
+                    m_time.hour,
+                    m_time.minute);
+
+        renderTextBlock(s, dateBlock, dateBuf);
+        renderTextBlock(s, timeBlock, timeBuf);
     }
-    bool ipChanged = updateIpAndMask();
-    if (ipChanged) {
-        service::TextBlock ipBlock {0, 32, 96, 8, &screen::Font6x8, screen::StandardColor::White};
+
+    // Network
+    if (m_netHasChanged)
+    {
+        service::TextBlock ipBlock   {0, 32, 96, 8, &screen::Font6x8, screen::StandardColor::White};
         service::TextBlock maskBlock {0, 48, 96, 8, &screen::Font6x8, screen::StandardColor::White};
 
-        renderTextBlock(s, ipBlock, m_ip);
-        renderTextBlock(s, maskBlock, m_mask);
+        if (!m_net.interfaceUp)
+        {
+            renderTextBlock(s, ipBlock, "Interface down");
+            renderTextBlock(s, maskBlock, "");
+        }
+        else if (!m_net.hasCarrier)
+        {
+            renderTextBlock(s, ipBlock, "No carrier");
+            renderTextBlock(s, maskBlock, "");
+        }
+        else if (!m_net.isIPv4)
+        {
+            renderTextBlock(s, ipBlock, "No IP");
+            renderTextBlock(s, maskBlock, "");
+        }
+        else
+        {
+            renderTextBlock(s, ipBlock, formatIPv4(m_net.ip));
+            renderTextBlock(s, maskBlock, formatIPv4(m_net.netmask));
+        }
     }
 }
 
@@ -332,39 +412,41 @@ bool Service::renderTextBlock(Screen &s, const service::TextBlock &block, const 
 
 bool Service::updateDateAndTime() {
 
-    std::string oldDate = m_date;
-    std::string oldTime = m_time;
-
-    // Get current system time
     std::time_t now = std::time(nullptr);
     std::tm *tm = std::localtime(&now);
 
-    // Format date (Month Day Year)
-    char buf[16];
-    std::strftime(buf, sizeof(buf), "%b %-d %Y", tm);
-    m_date = buf;
+    service::TimeData newTime{};
+    newTime.year   = tm->tm_year + 1900;
+    newTime.month  = tm->tm_mon + 1;
+    newTime.day    = tm->tm_mday;
+    newTime.hour   = tm->tm_hour;
+    newTime.minute = tm->tm_min;
+    newTime.second = tm->tm_sec;
 
-    // Format time (Hour:Minute)
-    std::strftime(buf, sizeof(buf), "%H:%M", tm);
-    m_time = buf;
+    bool changed =
+        newTime.year   != m_time.year   ||
+        newTime.month  != m_time.month  ||
+        newTime.day    != m_time.day    ||
+        newTime.hour   != m_time.hour   ||
+        newTime.minute != m_time.minute ||
+        newTime.second != m_time.second;
 
-    // Return true if visible state changed
-    return (m_date != oldDate || m_time != oldTime);
+    if (changed) {
+        m_prevTime = m_time;
+        m_time = newTime;
+    }
+
+    return changed;
 }
 
 bool Service::updateIpAndMask() {
 
-    std::string oldIp   = m_ip;
-    std::string oldMask = m_mask;
+    service::NetworkData newNet{};
+    struct ifaddrs* ifaddr;
 
-    struct ifaddrs *ifaddr;
     if (getifaddrs(&ifaddr) == -1) {
         return false; // Failed to read interface list
     }
-
-    bool ipFound    = false;
-    bool anyUp      = false;
-    bool anyCarrier = false;
 
     for (struct ifaddrs *ifa = ifaddr; ifa != nullptr; ifa = ifa->ifa_next) {
 
@@ -375,48 +457,37 @@ bool Service::updateIpAndMask() {
         if (!(ifa->ifa_flags & IFF_UP))
             continue; // Ignore interface DOWN
 
-        anyUp = true;
+        newNet.interfaceUp = true;
 
         if (!hasCarrier(ifa->ifa_name))
             continue; // Ignore interface with no carrier
 
-        anyCarrier = true;
+        newNet.hasCarrier = true;
 
         if (ifa->ifa_addr->sa_family != AF_INET)
             continue; // Ignore interface if not IPv4
 
-        char ipbuf[INET_ADDRSTRLEN];
-        char maskbuf[INET_ADDRSTRLEN];
+        newNet.isIPv4 = true;
 
         struct sockaddr_in *addr    = (struct sockaddr_in *)ifa->ifa_addr;
         struct sockaddr_in *netmask = (struct sockaddr_in *)ifa->ifa_netmask;
 
-        inet_ntop(AF_INET, &addr->sin_addr, ipbuf, sizeof(ipbuf));
-        inet_ntop(AF_INET, &netmask->sin_addr, maskbuf, sizeof(maskbuf));
+        newNet.ip      = ntohl(addr->sin_addr.s_addr);
+        newNet.netmask = ntohl(netmask->sin_addr.s_addr);
 
-        m_ip   = ipbuf;
-        m_mask = maskbuf;
-
-        ipFound  = true;
-
-        break; // Stop after first usable interface
+        break;
     }
 
     freeifaddrs(ifaddr);
 
-    if (!anyUp) {
-        m_ip   = "Interface down";
-        m_mask = "";
-    } else if (!anyCarrier) {
-        m_ip   = "No carrier";
-        m_mask = "";
-    } else if (!ipFound) {
-        m_ip   = "No IP";
-        m_mask = "No mask";
+    bool changed = std::memcmp(&newNet, &m_net, sizeof(service::NetworkData)) != 0;
+
+    if (changed) {
+        m_prevNet = m_net;
+        m_net = newNet;
     }
 
-    // Return true if visible state changed
-    return (m_ip != oldIp || m_mask != oldMask);
+    return changed;
 }
 
 bool Service::hasCarrier(const char *iface) {
@@ -426,4 +497,15 @@ bool Service::hasCarrier(const char *iface) {
     int carrier = 0;
     f >> carrier;
     return carrier == 1;
+}
+
+std::string Service::formatIPv4(uint32_t ip) {
+
+    struct in_addr addr;
+    addr.s_addr = htonl(ip);
+
+    char buf[INET_ADDRSTRLEN];
+    inet_ntop(AF_INET, &addr, buf, sizeof(buf));
+
+    return buf;
 }
