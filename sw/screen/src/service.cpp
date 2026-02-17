@@ -282,8 +282,6 @@ void Service::renderDateString(service::ScreenContext &ctx) {
 
     Screen &s = *ctx.screen;
 
-    service::TextBlock dateBlock {0, 0, 96, 8, screen::Font8x8, screen::StandardColor::White};
-
     // Format date
     static const char* months[] = {
         "Jan","Feb","Mar","Apr","May","Jun",
@@ -297,19 +295,12 @@ void Service::renderDateString(service::ScreenContext &ctx) {
                 m_date.day,
                 m_date.year);
 
-    renderTextBlock(s, dateBlock, dateBuf);
+    renderTextBlock(s, service::dateBlock, dateBuf);
 }
 
 void Service::renderTimeString(service::ScreenContext &ctx, const bool forceFullRender) {
 
     Screen &s = *ctx.screen;
-    // Text Blocks
-    service::TextBlock hoursBlock {0, 16, 16, 8, screen::Font8x8, screen::StandardColor::White};
-    service::TextBlock firstColonBlock {16, 16, 8, 8, screen::Font8x8, screen::StandardColor::White};
-    service::TextBlock minutesBlock {24, 16, 16, 8, screen::Font8x8, screen::StandardColor::White};
-    service::TextBlock secondColonBlock {40, 16, 8, 8, screen::Font8x8, screen::StandardColor::White};
-    service::TextBlock secondsBlock {48, 16, 16, 8, screen::Font8x8, screen::StandardColor::White};
-    service::TextBlock tickBlock {40, 16, 8, 8, screen::Font8x8, screen::StandardColor::White};
 
     // Buffers
     std::array<char, 3> hoursBuf{};
@@ -334,19 +325,19 @@ void Service::renderTimeString(service::ScreenContext &ctx, const bool forceFull
 
     // Render hours
     if (forceFullRender || m_time.hour != m_prevTime.hour) {
-        renderTextBlock(s, hoursBlock, std::string_view(hoursBuf.data(), 2));
+        renderTextBlock(s, service::hoursBlock, std::string_view(hoursBuf.data(), 2));
     }
     // Render first colon
     if (forceFullRender) {
-        renderTextBlock(s, firstColonBlock, ":");
+        renderTextBlock(s, service::firstColonBlock, ":");
     }
     // Render minutes
     if (forceFullRender || m_time.minute != m_prevTime.minute) {
-        renderTextBlock(s, minutesBlock, std::string_view(minutesBuf.data(), 2));
+        renderTextBlock(s, service::minutesBlock, std::string_view(minutesBuf.data(), 2));
     }
     // Render second colon
     if (forceFullRender && ctx.subMode == service::ScreenSubMode::HourMinuteSecond) {
-        renderTextBlock(s, secondColonBlock, ":");
+        renderTextBlock(s, service::secondColonBlock, ":");
     }
     // Render seconds or tick
     switch(ctx.subMode) {
@@ -354,12 +345,12 @@ void Service::renderTimeString(service::ScreenContext &ctx, const bool forceFull
             break;
         case service::ScreenSubMode::HourMinuteSecond:
             if (forceFullRender || m_time.second != m_prevTime.second) {
-                renderTextBlock(s, secondsBlock, std::string_view(secondsBuf.data(), 2));
+                renderTextBlock(s, service::secondsBlock, std::string_view(secondsBuf.data(), 2));
             }
             break;
         case service::ScreenSubMode::HourMinuteTick:
             if (forceFullRender || m_time.second != m_prevTime.second) {
-                renderTextBlock(s, tickBlock, tickBuf);
+                renderTextBlock(s, service::tickBlock, tickBuf);
             }
             break;
         default:
@@ -372,24 +363,21 @@ void Service::renderIpString(service::ScreenContext &ctx) {
 
     Screen &s = *ctx.screen;
 
-    service::TextBlock ipBlock   {0, 32, 96, 8, screen::Font6x8, screen::StandardColor::White};
-    service::TextBlock maskBlock {0, 48, 96, 8, screen::Font6x8, screen::StandardColor::White};
-
     if (!m_net.interfaceUp) {
-        renderTextBlock(s, ipBlock, "Interface down");
-        renderTextBlock(s, maskBlock, "");
+        renderTextBlock(s, service::ipBlock, "Interface down");
+        renderTextBlock(s, service::maskBlock, "");
     }
     else if (!m_net.hasCarrier) {
-        renderTextBlock(s, ipBlock, "No carrier");
-        renderTextBlock(s, maskBlock, "");
+        renderTextBlock(s, service::ipBlock, "No carrier");
+        renderTextBlock(s, service::maskBlock, "");
     }
     else if (!m_net.isIPv4) {
-        renderTextBlock(s, ipBlock, "No IP");
-        renderTextBlock(s, maskBlock, "");
+        renderTextBlock(s, service::ipBlock, "No IP");
+        renderTextBlock(s, service::maskBlock, "");
     }
     else {
-        renderTextBlock(s, ipBlock, formatIPv4(m_net.ip));
-        renderTextBlock(s, maskBlock, formatIPv4(m_net.netmask));
+        renderTextBlock(s, service::ipBlock, formatIPv4(m_net.ip));
+        renderTextBlock(s, service::maskBlock, formatIPv4(m_net.netmask));
     }
 }
 

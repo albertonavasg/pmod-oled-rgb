@@ -66,6 +66,16 @@ namespace service {
         const screen::Font &font;
         screen::Color color;
     };
+
+    inline const TextBlock dateBlock        { 0, 0,  96,  8, screen::Font8x8, screen::StandardColor::White};
+    inline const TextBlock hoursBlock       { 0, 16, 16,  8, screen::Font8x8, screen::StandardColor::White};
+    inline const TextBlock firstColonBlock  {16, 16,  8,  8, screen::Font8x8, screen::StandardColor::White};
+    inline const TextBlock minutesBlock     {24, 16, 16,  8, screen::Font8x8, screen::StandardColor::White};
+    inline const TextBlock secondColonBlock {40, 16,  8,  8, screen::Font8x8, screen::StandardColor::White};
+    inline const TextBlock secondsBlock     {48, 16, 16,  8, screen::Font8x8, screen::StandardColor::White};
+    inline const TextBlock tickBlock        {40, 16,  8,  8, screen::Font8x8, screen::StandardColor::White};
+    inline const TextBlock ipBlock          { 0, 32, 96,  8, screen::Font6x8, screen::StandardColor::White};
+    inline const TextBlock maskBlock        { 0, 48, 96,  8, screen::Font6x8, screen::StandardColor::White};
 }
 
 #endif // SERVICE_CONSTANTS_H
