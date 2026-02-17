@@ -1,11 +1,12 @@
 #ifndef SCREEN_H
 #define SCREEN_H
 
-#include <cstdint> // uint32_t
-#include <string>  // string
-#include <span>    // span
-#include <vector>  // vector
-#include <chrono>  // time
+#include <cstdint>     // uint32_t
+#include <string>      // string
+#include <span>        // span
+#include <vector>      // vector
+#include <chrono>      // time
+#include <string_view> // string_view
 
 #include "screen_constants.h"
 #include "screen_registers.h"
@@ -33,7 +34,7 @@ class Screen {
         bool drawImage(const std::string &path);
 
         bool drawSymbol(const uint8_t symbol, uint8_t x, uint8_t y, const screen::Font &font, screen::Color color);
-        bool drawString(const std::string &phrase, uint8_t x, uint8_t y, const screen::Font &font, screen::Color color);
+        bool drawString(std::string_view phrase, uint8_t x, uint8_t y, const screen::Font &font, screen::Color color);
 
         bool setupScrolling(uint8_t horizontalScrollOffset, uint8_t startRow, uint8_t rowsNumber, uint8_t verticalScrollOffset, uint8_t timeInterval);
         void enableScrolling(bool value);

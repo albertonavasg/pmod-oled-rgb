@@ -1,14 +1,15 @@
-#include <iostream>   // cout, endl
-#include <cstdint>    // uint32_t
-#include <cstring>    // strerror
-#include <cerrno>     // errno
-#include <stdexcept>  // runtime_error
-#include <chrono>     // time
-#include <thread>     // sleep_for
-#include <fcntl.h>    // open
-#include <unistd.h>   // close
-#include <sys/mman.h> // mmap, munmap
-#include <vector>     // vector
+#include <iostream>    // cout, endl
+#include <cstdint>     // uint32_t
+#include <cstring>     // strerror
+#include <cerrno>      // errno
+#include <stdexcept>   // runtime_error
+#include <chrono>      // time
+#include <thread>      // sleep_for
+#include <fcntl.h>     // open
+#include <unistd.h>    // close
+#include <sys/mman.h>  // mmap, munmap
+#include <vector>      // vector
+#include <string_view> // string_view
 
 #include "screen_constants.h"
 #include "screen_registers.h"
@@ -173,7 +174,7 @@ bool Screen::drawSymbol(const uint8_t symbol, uint8_t x, uint8_t y, const screen
     return drawBitmap(x, y, x + font.width - 1, y + font.height - 1, bitmap);
 }
 
-bool Screen::drawString(const std::string &phrase, uint8_t x, uint8_t y, const screen::Font &font, screen::Color color) {
+bool Screen::drawString(std::string_view phrase, uint8_t x, uint8_t y, const screen::Font &font, screen::Color color) {
 
     size_t i = 0;
     bool valid = true;

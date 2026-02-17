@@ -4,6 +4,7 @@
 #include <vector>        // vector
 #include <unordered_map> // unordered_map
 #include <atomic>        // atomic
+#include <string_view>   // string_view
 
 #include <nlohmann/json.hpp>
 
@@ -60,10 +61,10 @@ class Service {
         static screen::Orientation parseOrientation(const std::string &s);
 
         // Render
-        bool renderTextBlock(Screen &s, const service::TextBlock &block, const std::string text);
+        bool renderTextBlock(Screen &s, const service::TextBlock &block, std::string_view text);
 
         void renderDateString(service::ScreenContext &ctx);
-        void renderTimeString(service::ScreenContext &ctx);
+        void renderTimeString(service::ScreenContext &ctx, const bool forceFullRender);
         void renderIpString(service::ScreenContext &ctx);
 
         // Date Time and IP updaters

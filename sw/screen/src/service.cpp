@@ -11,7 +11,8 @@
 #include <arpa/inet.h>  // inet_ntop
 #include <net/if.h>     // IFF_UP, IFF_LOOPBACK
 #include <netinet/in.h> // sockaddr_in
-#include <cstring>      // strcmp, snprintf
+#include <cstring>      // snprintf
+#include <string_view>  // string_view
 
 #include <nlohmann/json.hpp>
 
@@ -179,7 +180,7 @@ void Service::updateInfoMode(service::ScreenContext &ctx) {
         renderDateString(ctx);
     }
     if (force || m_timeHasChanged) {
-        renderTimeString(ctx);
+        renderTimeString(ctx, force);
     }
     if (force || m_netHasChanged){
         renderIpString(ctx);
@@ -251,7 +252,7 @@ screen::Orientation Service::parseOrientation(const std::string &s) {
     throw std::runtime_error("Invalid Orientation value: " + s);
 }
 
-bool Service::renderTextBlock(Screen &s, const service::TextBlock &block, const std::string text){
+bool Service::renderTextBlock(Screen &s, const service::TextBlock &block, std::string_view text){
 
     uint8_t charWidth  = block.font.width;
     // uint8_t charHeight = block.font.charHeight;
@@ -299,50 +300,65 @@ void Service::renderDateString(service::ScreenContext &ctx) {
     renderTextBlock(s, dateBlock, dateBuf);
 }
 
-void Service::renderTimeString(service::ScreenContext &ctx) {
+void Service::renderTimeString(service::ScreenContext &ctx, const bool forceFullRender) {
 
     Screen &s = *ctx.screen;
+    // Text Blocks
     service::TextBlock hoursBlock {0, 16, 16, 8, screen::Font8x8, screen::StandardColor::White};
     service::TextBlock firstColonBlock {16, 16, 8, 8, screen::Font8x8, screen::StandardColor::White};
     service::TextBlock minutesBlock {24, 16, 16, 8, screen::Font8x8, screen::StandardColor::White};
     service::TextBlock secondColonBlock {40, 16, 8, 8, screen::Font8x8, screen::StandardColor::White};
     service::TextBlock secondsBlock {48, 16, 16, 8, screen::Font8x8, screen::StandardColor::White};
     service::TextBlock tickBlock {40, 16, 8, 8, screen::Font8x8, screen::StandardColor::White};
-    char hoursBuf[3];
-    char firstColonBuf[2] = ":";
-    char minutesBuf[3];
-    char secondColonBuf[2] = ":";
-    char secondsBuf[3];
-    const char* tickBuf = (m_time.second % 2) ? "." : " ";
-    std::snprintf(hoursBuf, sizeof(hoursBuf), "%02hhu", m_time.hour);
-    std::snprintf(minutesBuf, sizeof(minutesBuf), "%02hhu", m_time.minute);
-    std::snprintf(secondsBuf, sizeof(secondsBuf), "%02hhu", m_time.second);
 
+    // Buffers
+    std::array<char, 3> hoursBuf{};
+    std::array<char, 3> minutesBuf{};
+    std::array<char, 3> secondsBuf{};
+
+    // Manual conversion to "HH", "MM", "SS"
+    hoursBuf[0] = '0' + m_time.hour / 10;
+    hoursBuf[1] = '0' + m_time.hour % 10;
+    hoursBuf[2] = '\0';
+
+    minutesBuf[0] = '0' + m_time.minute / 10;
+    minutesBuf[1] = '0' + m_time.minute % 10;
+    minutesBuf[2] = '\0';
+
+    secondsBuf[0] = '0' + m_time.second / 10;
+    secondsBuf[1] = '0' + m_time.second % 10;
+    secondsBuf[2] = '\0';
+
+    // Tick char
+    std::string_view tickBuf = (m_time.second % 2) ? "." : " ";
+
+    // Render hours
+    if (forceFullRender || m_time.hour != m_prevTime.hour) {
+        renderTextBlock(s, hoursBlock, std::string_view(hoursBuf.data(), 2));
+    }
+    // Render first colon
+    if (forceFullRender) {
+        renderTextBlock(s, firstColonBlock, ":");
+    }
+    // Render minutes
+    if (forceFullRender || m_time.minute != m_prevTime.minute) {
+        renderTextBlock(s, minutesBlock, std::string_view(minutesBuf.data(), 2));
+    }
+    // Render second colon
+    if (forceFullRender && ctx.subMode == service::ScreenSubMode::HourMinuteSecond) {
+        renderTextBlock(s, secondColonBlock, ":");
+    }
+    // Render seconds or tick
     switch(ctx.subMode) {
         case service::ScreenSubMode::HourMinute:
-            std::cout << "HourMinute sub mode" << std::endl;
-            if (m_time.hour != m_prevTime.hour || m_time.minute != m_prevTime.minute) {
-                renderTextBlock(s, hoursBlock, hoursBuf);
-                renderTextBlock(s, firstColonBlock, firstColonBuf);
-                renderTextBlock(s, minutesBlock, minutesBuf);
-            }
             break;
         case service::ScreenSubMode::HourMinuteSecond:
-            std::cout << "HourMinuteSecond sub mode" << std::endl;
-            if (m_time.hour != m_prevTime.hour || m_time.minute != m_prevTime.minute || m_time.second != m_prevTime.second) {
-                renderTextBlock(s, hoursBlock, hoursBuf);
-                renderTextBlock(s, firstColonBlock, firstColonBuf);
-                renderTextBlock(s, minutesBlock, minutesBuf);
-                renderTextBlock(s, secondColonBlock, secondColonBuf);
-                renderTextBlock(s, secondsBlock, secondsBuf);
+            if (forceFullRender || m_time.second != m_prevTime.second) {
+                renderTextBlock(s, secondsBlock, std::string_view(secondsBuf.data(), 2));
             }
             break;
         case service::ScreenSubMode::HourMinuteTick:
-            std::cout << "HourMinuteTick sub mode" << std::endl;
-            if (m_time.hour != m_prevTime.hour || m_time.minute != m_prevTime.minute || m_time.second != m_prevTime.second) {
-                renderTextBlock(s, hoursBlock, hoursBuf);
-                renderTextBlock(s, firstColonBlock, firstColonBuf);
-                renderTextBlock(s, minutesBlock, minutesBuf);
+            if (forceFullRender || m_time.second != m_prevTime.second) {
                 renderTextBlock(s, tickBlock, tickBuf);
             }
             break;

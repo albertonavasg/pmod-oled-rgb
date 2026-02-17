@@ -23,21 +23,21 @@ void Test::full() {
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
     broadcast([](Screen &s){s.applyDefaultSettings();}, 100ms);
 
-    // display();
-    // randomPattern();
-    // colorDepth();
-    // addressIncrement();
-    // bitmap();
-    // scrolling();
-    // line();
-    // rectangle();
-    // copy();
-    // image();
-    // symbol();
-    // string();
-    // standardColors();
-    // inverseDisplay();
-    // remap();
+    display();
+    randomPattern();
+    colorDepth();
+    addressIncrement();
+    bitmap();
+    scrolling();
+    line();
+    rectangle();
+    copy();
+    image();
+    symbol();
+    string();
+    standardColors();
+    inverseDisplay();
+    remap();
     screenOrientation();
 
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
