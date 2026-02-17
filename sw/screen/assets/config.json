@@ -13,7 +13,7 @@
         {
             "id": "B",
             "mode": "Info",
-            "subMode": "HourMinute",
+            "subMode": "HourMinuteTick",
             "uio": "uio1",
             "spiDelay": 0,
             "orientation": "Horizontal_180",

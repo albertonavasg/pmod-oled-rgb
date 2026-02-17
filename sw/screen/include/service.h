@@ -34,14 +34,14 @@ class Service {
 
         std::atomic<bool> m_running{true};
 
-        service::DateData m_date{};
-        service::DateData m_prevDate{};
+        service::Date m_date{};
+        service::Date m_prevDate{};
         bool m_dateHasChanged = false;
-        service::TimeData m_time{};
-        service::TimeData m_prevTime{};
+        service::Time m_time{};
+        service::Time m_prevTime{};
         bool m_timeHasChanged = false;
-        service::NetworkData m_net{};
-        service::NetworkData m_prevNet{};
+        service::Network m_net{};
+        service::Network m_prevNet{};
         bool m_netHasChanged = false;
 
         // Mode handlers

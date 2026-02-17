@@ -382,15 +382,17 @@ void Service::updateDateAndTime() {
     std::time_t now = std::time(nullptr);
     std::tm *tm = std::localtime(&now);
 
-    service::DateData newDate{};
-    newDate.year   = tm->tm_year + 1900;
-    newDate.month  = tm->tm_mon + 1;
-    newDate.day    = tm->tm_mday;
+    service::Date newDate {
+        .year  = static_cast<uint16_t>(tm->tm_year + 1900),
+        .month = static_cast<uint8_t>(tm->tm_mon + 1),
+        .day   = static_cast<uint8_t>(tm->tm_mday)
+    };
 
-    service::TimeData newTime{};
-    newTime.hour   = tm->tm_hour;
-    newTime.minute = tm->tm_min;
-    newTime.second = tm->tm_sec;
+    service::Time newTime {
+        .hour   = static_cast<uint8_t>(tm->tm_hour),
+        .minute = static_cast<uint8_t>(tm->tm_min),
+        .second = static_cast<uint8_t>(tm->tm_sec)
+    };
 
     bool dateChanged =
         newDate.year   != m_date.year   ||
@@ -417,7 +419,7 @@ void Service::updateDateAndTime() {
 
 void Service::updateIpAndMask() {
 
-    service::NetworkData newNet{};
+    service::Network newNet{};
     struct ifaddrs* ifaddr;
 
     if (getifaddrs(&ifaddr) == -1) {
@@ -456,7 +458,7 @@ void Service::updateIpAndMask() {
 
     freeifaddrs(ifaddr);
 
-    bool changed = std::memcmp(&newNet, &m_net, sizeof(service::NetworkData)) != 0;
+    bool changed = std::memcmp(&newNet, &m_net, sizeof(service::Network)) != 0;
 
     if (changed) {
         m_prevNet = m_net;

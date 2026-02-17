@@ -34,20 +34,20 @@ namespace service {
         bool enteringNewMode;
     };
 
-    struct DateData {
+    struct Date {
 
         uint16_t year;
         uint8_t month;
         uint8_t day;
     };
 
-    struct TimeData {
+    struct Time {
         uint8_t hour;
         uint8_t minute;
         uint8_t second;
     };
 
-    struct NetworkData {
+    struct Network {
 
         bool interfaceUp;
         bool hasCarrier;
