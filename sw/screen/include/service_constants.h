@@ -28,9 +28,10 @@ namespace service {
     struct ScreenContext {
 
         std::unique_ptr<Screen> screen;
+        std::string id;
         service::ScreenMode mode;
         service::ScreenSubMode subMode;
-        std::string id;
+        bool enteringNewMode;
     };
 
     struct TimeData {

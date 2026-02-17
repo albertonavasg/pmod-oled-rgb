@@ -38,12 +38,14 @@ Service::Service(const std::string &configFile) {
     for (const json &s : screens) {
         const std::string id  = s.at("id").get<std::string>();
         const std::string uio = s.at("uio").get<std::string>();
+        const bool enteringNewMode = true;
 
         m_screens.push_back({
             std::make_unique<Screen>(uio),
+            id,
             parseScreenMode(s.at("mode").get<std::string>()),
             parseScreenSubMode(s.at("subMode").get<std::string>()),
-            id
+            enteringNewMode
         });
     }
 
@@ -112,19 +114,9 @@ void Service::runTests() {
 
 void Service::run() {
 
-    m_timeHasChanged = updateDateAndTime();
-    m_netHasChanged = updateIpAndMask();
-
-    // Initial setup: enter modes for all screens
-    for (service::ScreenContext &ctx : m_screens) {
-        enterMode(ctx);
-    }
-
-    std::this_thread::sleep_for(100ms);
-
     while (m_running) {
-        m_timeHasChanged = updateDateAndTime();
-        m_netHasChanged = updateIpAndMask();
+        updateDateAndTime();
+        updateIpAndMask();
         // Update all screens
         for (service::ScreenContext &ctx : m_screens) {
             updateMode(ctx);
@@ -140,60 +132,12 @@ void Service::stop() {
     }
 }
 
-void Service::enterMode(service::ScreenContext &ctx) {
-
-    Screen &screen = *ctx.screen;
-    screen.clearScreen();
-
-    switch (ctx.mode) {
-        case service::ScreenMode::None:
-            enterNoneMode(ctx);
-            break;
-        case service::ScreenMode::Info:
-            enterInfoMode(ctx);
-            break;
-        case service::ScreenMode::DigitalClock:
-            enterDigitalClockMode(ctx);
-            break;
-        case service::ScreenMode::AnalogClock:
-            enterAnalogClockMode(ctx);
-            break;
-        default:
-            std::cout << "Unknown mode" << std::endl;
-            break;
-    }
-}
-
-void Service::enterNoneMode(service::ScreenContext &ctx) {
-
-    Screen &s = *ctx.screen;
-    const std::string &id = ctx.id;
-
-    s.drawString(("Screen " + id).c_str(), 0, 0, screen::Font8x8, screen::StandardColor::White);
-}
-
-void Service::enterInfoMode(service::ScreenContext &ctx) {
-
-    // Time
-    renderDateString(ctx);
-    renderTimeString(ctx);
-    // Network
-    renderIpString(ctx);
-}
-
-void Service::enterDigitalClockMode(service::ScreenContext &ctx) {
-
-    Screen &s = *ctx.screen;
-    s.drawString("DigitalClock", 0, 0, screen::Font8x8, screen::StandardColor::White);
-}
-
-void Service::enterAnalogClockMode(service::ScreenContext &ctx) {
-
-    Screen &s = *ctx.screen;
-    s.drawString("AnalogClock", 0, 0, screen::Font8x8, screen::StandardColor::White);
-}
-
 void Service::updateMode(service::ScreenContext &ctx) {
+
+    if (ctx.enteringNewMode) {
+        Screen &screen = *ctx.screen;
+        screen.clearScreen();
+    }
 
     switch (ctx.mode) {
         case service::ScreenMode::None:
@@ -212,10 +156,19 @@ void Service::updateMode(service::ScreenContext &ctx) {
             std::cout << "Unknown mode" << std::endl;
             break;
     }
+
+    if (ctx.enteringNewMode) {
+        ctx.enteringNewMode = false;
+    }
 }
 
 void Service::updateNoneMode(service::ScreenContext &ctx) {
 
+    if (ctx.enteringNewMode) {
+        Screen &s = *ctx.screen;
+        const std::string &id = ctx.id;
+        s.drawString(("Screen " + id).c_str(), 0, 0, screen::Font8x8, screen::StandardColor::White);
+    }
 }
 
 void Service::updateInfoMode(service::ScreenContext &ctx) {
@@ -236,10 +189,18 @@ void Service::updateInfoMode(service::ScreenContext &ctx) {
 
 void Service::updateDigitalClockMode(service::ScreenContext &ctx) {
 
+    if (ctx.enteringNewMode) {
+        Screen &s = *ctx.screen;
+        s.drawString("DigitalClock", 0, 0, screen::Font8x8, screen::StandardColor::White);
+    }
 }
 
 void Service::updateAnalogClockMode(service::ScreenContext &ctx) {
 
+    if (ctx.enteringNewMode) {
+        Screen &s = *ctx.screen;
+        s.drawString("AnalogClock", 0, 0, screen::Font8x8, screen::StandardColor::White);
+    }
 }
 
 json Service::loadJson(const std::string &path) const {
@@ -378,7 +339,7 @@ void Service::renderIpString(service::ScreenContext &ctx) {
     }
 }
 
-bool Service::updateDateAndTime() {
+void Service::updateDateAndTime() {
 
     std::time_t now = std::time(nullptr);
     std::tm *tm = std::localtime(&now);
@@ -404,16 +365,16 @@ bool Service::updateDateAndTime() {
         m_time = newTime;
     }
 
-    return changed;
+    m_timeHasChanged = changed;
 }
 
-bool Service::updateIpAndMask() {
+void Service::updateIpAndMask() {
 
     service::NetworkData newNet{};
     struct ifaddrs* ifaddr;
 
     if (getifaddrs(&ifaddr) == -1) {
-        return false; // Failed to read interface list
+        return; // Failed to read interface list
     }
 
     for (struct ifaddrs *ifa = ifaddr; ifa != nullptr; ifa = ifa->ifa_next) {
@@ -455,7 +416,7 @@ bool Service::updateIpAndMask() {
         m_net = newNet;
     }
 
-    return changed;
+    m_netHasChanged = changed;
 }
 
 bool Service::hasCarrier(const char *iface) {

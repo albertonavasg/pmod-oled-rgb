@@ -42,12 +42,6 @@ class Service {
         bool m_netHasChanged = false;
 
         // Mode handlers
-        void enterMode(service::ScreenContext &ctx);
-        void enterNoneMode(service::ScreenContext &ctx);
-        void enterInfoMode(service::ScreenContext &ctx);
-        void enterDigitalClockMode(service::ScreenContext &ctx);
-        void enterAnalogClockMode(service::ScreenContext &ctx);
-
         void updateMode(service::ScreenContext &ctx);
         void updateNoneMode(service::ScreenContext &ctx);
         void updateInfoMode(service::ScreenContext &ctx);
@@ -70,8 +64,8 @@ class Service {
         void renderIpString(service::ScreenContext &ctx);
 
         // Date Time and IP updaters
-        bool updateDateAndTime();
-        bool updateIpAndMask();
+        void updateDateAndTime();
+        void updateIpAndMask();
         bool hasCarrier(const char *iface);
         std::string formatIPv4(uint32_t ip);
 
