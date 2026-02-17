@@ -34,6 +34,9 @@ class Service {
 
         std::atomic<bool> m_running{true};
 
+        service::DateData m_date{};
+        service::DateData m_prevDate{};
+        bool m_dateHasChanged = false;
         service::TimeData m_time{};
         service::TimeData m_prevTime{};
         bool m_timeHasChanged = false;

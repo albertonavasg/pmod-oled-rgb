@@ -34,11 +34,14 @@ namespace service {
         bool enteringNewMode;
     };
 
-    struct TimeData {
+    struct DateData {
 
         uint16_t year;
         uint8_t month;
         uint8_t day;
+    };
+
+    struct TimeData {
         uint8_t hour;
         uint8_t minute;
         uint8_t second;

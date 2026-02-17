@@ -121,7 +121,7 @@ void Service::run() {
         for (service::ScreenContext &ctx : m_screens) {
             updateMode(ctx);
         }
-        std::this_thread::sleep_for(400ms);
+        std::this_thread::sleep_for(100ms);
     }
 }
 
@@ -173,16 +173,15 @@ void Service::updateNoneMode(service::ScreenContext &ctx) {
 
 void Service::updateInfoMode(service::ScreenContext &ctx) {
 
-    // Time
-    if (m_timeHasChanged)
-    {
+    const bool force = ctx.enteringNewMode;
+
+    if (force || m_dateHasChanged) {
         renderDateString(ctx);
+    }
+    if (force || m_timeHasChanged) {
         renderTimeString(ctx);
     }
-
-    // Network
-    if (m_netHasChanged)
-    {
+    if (force || m_netHasChanged){
         renderIpString(ctx);
     }
 }
@@ -284,7 +283,7 @@ void Service::renderDateString(service::ScreenContext &ctx) {
 
     service::TextBlock dateBlock {0, 0, 96, 8, screen::Font8x8, screen::StandardColor::White};
 
-    // ---- Format date ----
+    // Format date
     static const char* months[] = {
         "Jan","Feb","Mar","Apr","May","Jun",
         "Jul","Aug","Sep","Oct","Nov","Dec"
@@ -293,9 +292,9 @@ void Service::renderDateString(service::ScreenContext &ctx) {
     char dateBuf[16];
     std::snprintf(dateBuf, sizeof(dateBuf),
                 "%s %u %u",
-                months[m_time.month - 1],
-                m_time.day,
-                m_time.year);
+                months[m_date.month - 1],
+                m_date.day,
+                m_date.year);
 
     renderTextBlock(s, dateBlock, dateBuf);
 }
@@ -303,17 +302,54 @@ void Service::renderDateString(service::ScreenContext &ctx) {
 void Service::renderTimeString(service::ScreenContext &ctx) {
 
     Screen &s = *ctx.screen;
+    service::TextBlock hoursBlock {0, 16, 16, 8, screen::Font8x8, screen::StandardColor::White};
+    service::TextBlock firstColonBlock {16, 16, 8, 8, screen::Font8x8, screen::StandardColor::White};
+    service::TextBlock minutesBlock {24, 16, 16, 8, screen::Font8x8, screen::StandardColor::White};
+    service::TextBlock secondColonBlock {40, 16, 8, 8, screen::Font8x8, screen::StandardColor::White};
+    service::TextBlock secondsBlock {48, 16, 16, 8, screen::Font8x8, screen::StandardColor::White};
+    service::TextBlock tickBlock {40, 16, 8, 8, screen::Font8x8, screen::StandardColor::White};
+    char hoursBuf[3];
+    char firstColonBuf[2] = ":";
+    char minutesBuf[3];
+    char secondColonBuf[2] = ":";
+    char secondsBuf[3];
+    const char* tickBuf = (m_time.second % 2) ? "." : " ";
+    std::snprintf(hoursBuf, sizeof(hoursBuf), "%02hhu", m_time.hour);
+    std::snprintf(minutesBuf, sizeof(minutesBuf), "%02hhu", m_time.minute);
+    std::snprintf(secondsBuf, sizeof(secondsBuf), "%02hhu", m_time.second);
 
-    service::TextBlock timeBlock {0, 16, 96, 8, screen::Font8x8, screen::StandardColor::White};
-
-    // ---- Format time HH:MM ----
-    char timeBuf[6];
-    std::snprintf(timeBuf, sizeof(timeBuf),
-                "%02hhu:%02hhu",
-                m_time.hour,
-                m_time.minute);
-
-    renderTextBlock(s, timeBlock, timeBuf);
+    switch(ctx.subMode) {
+        case service::ScreenSubMode::HourMinute:
+            std::cout << "HourMinute sub mode" << std::endl;
+            if (m_time.hour != m_prevTime.hour || m_time.minute != m_prevTime.minute) {
+                renderTextBlock(s, hoursBlock, hoursBuf);
+                renderTextBlock(s, firstColonBlock, firstColonBuf);
+                renderTextBlock(s, minutesBlock, minutesBuf);
+            }
+            break;
+        case service::ScreenSubMode::HourMinuteSecond:
+            std::cout << "HourMinuteSecond sub mode" << std::endl;
+            if (m_time.hour != m_prevTime.hour || m_time.minute != m_prevTime.minute || m_time.second != m_prevTime.second) {
+                renderTextBlock(s, hoursBlock, hoursBuf);
+                renderTextBlock(s, firstColonBlock, firstColonBuf);
+                renderTextBlock(s, minutesBlock, minutesBuf);
+                renderTextBlock(s, secondColonBlock, secondColonBuf);
+                renderTextBlock(s, secondsBlock, secondsBuf);
+            }
+            break;
+        case service::ScreenSubMode::HourMinuteTick:
+            std::cout << "HourMinuteTick sub mode" << std::endl;
+            if (m_time.hour != m_prevTime.hour || m_time.minute != m_prevTime.minute || m_time.second != m_prevTime.second) {
+                renderTextBlock(s, hoursBlock, hoursBuf);
+                renderTextBlock(s, firstColonBlock, firstColonBuf);
+                renderTextBlock(s, minutesBlock, minutesBuf);
+                renderTextBlock(s, tickBlock, tickBuf);
+            }
+            break;
+        default:
+            std::cout << "Unknown sub mode" << std::endl;
+            break;
+    }
 }
 
 void Service::renderIpString(service::ScreenContext &ctx) {
@@ -346,28 +382,37 @@ void Service::updateDateAndTime() {
     std::time_t now = std::time(nullptr);
     std::tm *tm = std::localtime(&now);
 
+    service::DateData newDate{};
+    newDate.year   = tm->tm_year + 1900;
+    newDate.month  = tm->tm_mon + 1;
+    newDate.day    = tm->tm_mday;
+
     service::TimeData newTime{};
-    newTime.year   = tm->tm_year + 1900;
-    newTime.month  = tm->tm_mon + 1;
-    newTime.day    = tm->tm_mday;
     newTime.hour   = tm->tm_hour;
     newTime.minute = tm->tm_min;
     newTime.second = tm->tm_sec;
 
-    bool changed =
-        newTime.year   != m_time.year   ||
-        newTime.month  != m_time.month  ||
-        newTime.day    != m_time.day    ||
+    bool dateChanged =
+        newDate.year   != m_date.year   ||
+        newDate.month  != m_date.month  ||
+        newDate.day    != m_date.day;
+
+    bool timeChanged =
         newTime.hour   != m_time.hour   ||
         newTime.minute != m_time.minute ||
         newTime.second != m_time.second;
 
-    if (changed) {
+    if (dateChanged) {
+        m_prevDate = m_date;
+        m_date = newDate;
+    }
+    if (timeChanged) {
         m_prevTime = m_time;
         m_time = newTime;
     }
 
-    m_timeHasChanged = changed;
+    m_dateHasChanged = dateChanged;
+    m_timeHasChanged = timeChanged;
 }
 
 void Service::updateIpAndMask() {
