@@ -254,10 +254,6 @@ screen::Orientation Service::parseOrientation(const std::string &s) {
 
 bool Service::renderTextBlock(Screen &s, const service::TextBlock &block, const std::string text){
 
-    if (text.empty()) {
-        return false;
-    }
-
     uint8_t charWidth  = block.font.width;
     // uint8_t charHeight = block.font.charHeight;
 
@@ -271,6 +267,12 @@ bool Service::renderTextBlock(Screen &s, const service::TextBlock &block, const 
 
     s.clearWindow(block.x, block.y, block.x + block.width - 1, block.y + block.height - 1);
     std::this_thread::sleep_for(1ms);
+
+    // Nothing to draw, just cleared the screen
+    if (text.empty()) {
+        return true;
+    }
+
     s.drawString(text, block.x, block.y, block.font, block.color);
 
     return true;
