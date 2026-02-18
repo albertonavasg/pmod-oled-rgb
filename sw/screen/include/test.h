@@ -25,6 +25,7 @@ class Test {
         void scrolling();
         void line();
         void rectangle();
+        void circle();
         void copy();
         void image();
         void symbol();

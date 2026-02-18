@@ -136,6 +136,72 @@ bool Screen::drawRectangle(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, const
     return true;
 }
 
+bool Screen::drawCircle(uint8_t x, uint8_t y, uint8_t d, const screen::Color colorLine) {
+
+    // Check geometry
+    if (d == 0 || x + d > screen::Geometry::Columns || y + d > screen::Geometry::Rows) {
+        return false;
+    }
+
+    // Initialize bitmap
+    std::vector<screen::Color> bitmap(d*d, screen::StandardColor::Black);
+
+    //////////////////////////////////////////
+    /// BASED ON MIDPOINT CIRCLE ALGORITHM ///
+    //////////////////////////////////////////
+
+    // Circle radius
+    int r = d / 2;
+
+    // std::cout << "d = " << static_cast<int>(d) << std::endl;
+    // std::cout << "r = " << r << std::endl;
+
+    // Variables to iterate pixel coords
+    int px = r;
+    int py = (d % 2) ? 0 : 1;
+    int error = 3 - 2 * r;
+
+    // Plot helper
+    auto plot = [&](int lx, int ly) {
+        if (lx >= -r && lx <= r && ly >= -r && ly <= r) {
+            // Convert from circle coords to bitmap coords
+            uint8_t col = (d % 2) ? (lx + r) : ((lx > 0) ? (lx + r - 1) : (lx + r));
+            uint8_t row = (d % 2) ? (-ly + r) : ((ly > 0) ? (-ly+ r) : (-ly + r -1));
+            bitmap[row * d + col] = colorLine;
+            // std::cout << "(col, row): (" << static_cast<int>(col) << "," << static_cast<int>(row) << ")" << std::endl;
+        }
+    };
+
+    while (py <= px){
+
+        // Add symmetric points to bitmap
+        plot(+px, +py); // Octant 1
+        plot(-px, +py); // Octant 4
+        plot(+px, -py); // Octant 8
+        plot(-px, -py); // Octant 5
+
+        plot(+py, +px); // Octant 2
+        plot(-py, +px); // Octant 3
+        plot(+py, -px); // Octant 7
+        plot(-py, -px); // Octant 6
+        // std::cout << "(+px, +py): (" << +px << "," << +py << ")" << std::endl;
+        // std::cout << "Error: " << error << std::endl;
+        // Midpoint update
+        if (error > 0) {
+            error += 2 * (5 - 2 * px + 2 * py);
+            px--;
+        } else {
+            error += 2 * (3 + 2 * py);
+        }
+
+        py++;
+    }
+
+    drawBitmap(x, y, x + d - 1, y + d - 1, bitmap);
+
+    return true;
+}
+
 bool Screen::copyWindow(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, uint8_t c3, uint8_t r3) {
 
     // Check geometry

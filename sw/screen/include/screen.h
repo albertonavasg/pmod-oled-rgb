@@ -28,7 +28,7 @@ class Screen {
 
         bool drawLine(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, const screen::Color color);
         bool drawRectangle(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, const screen::Color colorLine, const screen::Color colorFill);
-
+        bool drawCircle(uint8_t x, uint8_t y, uint8_t d, const screen::Color colorLine);
         bool copyWindow(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2, uint8_t c3, uint8_t r3);
 
         bool drawImage(const std::string &path);

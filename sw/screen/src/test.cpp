@@ -31,6 +31,7 @@ void Test::full() {
     scrolling();
     line();
     rectangle();
+    circle();
     copy();
     image();
     symbol();
@@ -360,6 +361,43 @@ void Test::rectangle() {
         uint8_t x2 = static_cast<uint8_t>((i * screen::Geometry::Columns) / screen::Geometry::Rows);
         uint8_t y2 = i;
         broadcast([=](Screen &s){s.drawRectangle(x1, y1, x2, y2, c1, c2);}, 200ms);
+    }
+    std::this_thread::sleep_for(1s);
+    broadcast([](Screen &s){s.clearScreen();}, 200ms);
+
+    broadcast([](Screen &s){s.applyDefaultSettings();}, 100ms);
+}
+
+void Test::circle() {
+
+    // Small circle to test algorithm
+    // broadcast([](Screen &s){s.drawCircle(20, 20, 10, screen::StandardColor::White);}, 200ms);
+    // broadcast([](Screen &s){s.drawCircle(20, 20, 20, screen::StandardColor::White);}, 200ms);
+    // broadcast([](Screen &s){s.drawCircle(20, 20, 30, screen::StandardColor::White);}, 200ms);
+    // std::this_thread::sleep_for(1s);
+    // broadcast([](Screen &s){s.clearScreen();}, 200ms);
+
+    // RGB circles
+    broadcast([](Screen &s){s.drawCircle(0, 15, 32, screen::StandardColor::Red);}, 200ms);
+    broadcast([](Screen &s){s.drawCircle(32, 15, 32, screen::StandardColor::Green);}, 200ms);
+    broadcast([](Screen &s){s.drawCircle(64, 15, 32, screen::StandardColor::Blue);}, 200ms);
+    std::this_thread::sleep_for(1s);
+    broadcast([](Screen &s){s.clearScreen();}, 200ms);
+
+    uint8_t x_coord = (screen::Geometry::Columns / 2) - (screen::Geometry::Rows / 2);
+    uint8_t y_coord = 0;
+    uint8_t d = screen::Geometry::Rows;
+
+    // Big circle
+    broadcast([&](Screen &s){s.drawCircle(x_coord, y_coord, d, screen::StandardColor::White);}, 500ms);
+    std::this_thread::sleep_for(1s);
+    broadcast([](Screen &s){s.clearScreen();}, 200ms);
+
+    // Centered circles with increasing size
+    for (int d = 2; d <= screen::Geometry::Rows; d += 2) {
+        uint8_t x = (screen::Geometry::Columns / 2) - (d / 2);
+        uint8_t y = (screen::Geometry::Rows / 2) - (d / 2);
+        broadcast([&](Screen &s){s.drawCircle(x, y, d, screen::StandardColor::White);}, 200ms);
     }
     std::this_thread::sleep_for(1s);
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
