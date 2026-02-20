@@ -249,6 +249,16 @@ void Test::line() {
     std::uniform_int_distribution<uint8_t> dist63(0, 63);
     std::uniform_int_distribution<uint8_t> dist95(0, 95);
 
+    // Four lines to test orientation
+    broadcast([](Screen &s){s.drawLine(0, 0, 95, 63, screen::StandardColor::White);}, 500ms);
+    broadcast([](Screen &s){s.clearScreen();}, 200ms);
+    broadcast([](Screen &s){s.drawLine(95, 63, 0, 0, screen::StandardColor::White);}, 500ms);
+    broadcast([](Screen &s){s.clearScreen();}, 200ms);
+    broadcast([](Screen &s){s.drawLine(95, 0, 0, 63, screen::StandardColor::White);}, 500ms);
+    broadcast([](Screen &s){s.clearScreen();}, 200ms);
+    broadcast([](Screen &s){s.drawLine(0, 63, 95, 0, screen::StandardColor::White);}, 500ms);
+    broadcast([](Screen &s){s.clearScreen();}, 200ms);
+
     // Three horizontal lines to check color order
     broadcast([](Screen &s){s.drawLine(10, 10, 90, 10, screen::StandardColor::Red);}, 200ms);
     broadcast([](Screen &s){s.drawLine(10, 30, 90, 30, screen::StandardColor::Green);}, 200ms);
@@ -283,14 +293,10 @@ void Test::line() {
     // Random colors and coordinates for lines
     for (size_t i = 0; i < 20; i++) {
         screen::Color c = {dist31(gen), dist63(gen), dist31(gen)};
-        uint8_t rx1 = dist95(gen);
-        uint8_t ry1 = dist63(gen);
-        uint8_t rx2 = dist95(gen);
-        uint8_t ry2 = dist63(gen);
-        uint8_t x1 = std::min(rx1, rx2);
-        uint8_t x2 = std::max(rx1, rx2);
-        uint8_t y1 = std::min(ry1, ry2);
-        uint8_t y2 = std::max(ry1, ry2);
+        uint8_t x1 = dist95(gen);
+        uint8_t y1 = dist63(gen);
+        uint8_t x2 = dist95(gen);
+        uint8_t y2 = dist63(gen);
         broadcast([=](Screen &s){s.drawLine(x1, y1, x2, y2, c);}, 200ms);
     }
     std::this_thread::sleep_for(1s);
@@ -307,6 +313,16 @@ void Test::rectangle() {
     std::uniform_int_distribution<uint8_t> dist63(0, 63);
     std::uniform_int_distribution<uint8_t> dist95(0, 95);
 
+    // Four rectangles to test orientation
+    broadcast([](Screen &s){s.drawRectangle(0, 0, 95, 63, screen::StandardColor::White, screen::StandardColor::Black);}, 500ms);
+    broadcast([](Screen &s){s.clearScreen();}, 200ms);
+    broadcast([](Screen &s){s.drawRectangle(95, 63, 0, 0, screen::StandardColor::White, screen::StandardColor::Black);}, 500ms);
+    broadcast([](Screen &s){s.clearScreen();}, 200ms);
+    broadcast([](Screen &s){s.drawRectangle(95, 0, 0, 63, screen::StandardColor::White, screen::StandardColor::Black);}, 500ms);
+    broadcast([](Screen &s){s.clearScreen();}, 200ms);
+    broadcast([](Screen &s){s.drawRectangle(0, 63, 95, 0, screen::StandardColor::White, screen::StandardColor::Black);}, 500ms);
+    broadcast([](Screen &s){s.clearScreen();}, 200ms);
+
     // Three rectangles withn no fill to check color order
     broadcast([](Screen &s){s.setFillRectangleEnable(false);});
     broadcast([](Screen &s){s.drawRectangle(5, 5, 30, 60, screen::StandardColor::Red, screen::StandardColor::Black);}, 200ms);
@@ -320,14 +336,10 @@ void Test::rectangle() {
     for (size_t i = 0; i < 20; i++) {
         screen::Color c1 = {dist31(gen), dist63(gen), dist31(gen)};
         screen::Color c2 = {0, 0, 0};
-        uint8_t rx1 = dist95(gen);
-        uint8_t ry1 = dist63(gen);
-        uint8_t rx2 = dist95(gen);
-        uint8_t ry2 = dist63(gen);
-        uint8_t x1 = std::min(rx1, rx2);
-        uint8_t x2 = std::max(rx1, rx2);
-        uint8_t y1 = std::min(ry1, ry2);
-        uint8_t y2 = std::max(ry1, ry2);
+        uint8_t x1 = dist95(gen);
+        uint8_t y1 = dist63(gen);
+        uint8_t x2 = dist95(gen);
+        uint8_t y2 = dist63(gen);
         broadcast([=](Screen &s){s.drawRectangle(x1, y1, x2, y2, c1, c2);}, 200ms);
     }
     std::this_thread::sleep_for(1s);
@@ -338,14 +350,10 @@ void Test::rectangle() {
     for (size_t i = 0; i < 20; i++) {
         screen::Color c1 = {dist31(gen), dist63(gen), dist31(gen)};
         screen::Color c2 = {dist31(gen), dist63(gen), dist31(gen)};
-        uint8_t rx1 = dist95(gen);
-        uint8_t ry1 = dist63(gen);
-        uint8_t rx2 = dist95(gen);
-        uint8_t ry2 = dist63(gen);
-        uint8_t x1 = std::min(rx1, rx2);
-        uint8_t x2 = std::max(rx1, rx2);
-        uint8_t y1 = std::min(ry1, ry2);
-        uint8_t y2 = std::max(ry1, ry2);
+        uint8_t x1 = dist95(gen);
+        uint8_t y1 = dist63(gen);
+        uint8_t x2 = dist95(gen);
+        uint8_t y2 = dist63(gen);
         broadcast([=](Screen &s){s.drawRectangle(x1, y1, x2, y2, c1, c2);}, 200ms);
     }
     std::this_thread::sleep_for(1s);
