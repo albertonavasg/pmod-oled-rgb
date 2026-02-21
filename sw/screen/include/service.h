@@ -67,12 +67,14 @@ class Service {
         void renderTimeString(service::ScreenContext &ctx, const bool forceFullRender);
         void renderIpString(service::ScreenContext &ctx);
 
-        // Date Time and IP updaters
+        void renderAnalogClockFace(service::ScreenContext &ctx);
+        void renderAnalogClockHands(service::ScreenContext &ctx, const bool forceFullRender);
+
+        // Date, Time and IP updaters
         void updateDateAndTime();
         void updateIpAndMask();
         bool hasCarrier(const char *iface);
         std::string formatIPv4(uint32_t ip);
-
 };
 
 #endif // SERVICE_H

@@ -13,6 +13,7 @@
 #include <netinet/in.h> // sockaddr_in
 #include <cstring>      // snprintf
 #include <string_view>  // string_view
+#include <cmath>        // sin, cos
 
 #include <nlohmann/json.hpp>
 
@@ -22,6 +23,8 @@
 #include "screen.h"
 #include "service.h"
 #include "test.h"
+
+#define PI 3.14159265
 
 using json = nlohmann::json;
 
@@ -197,9 +200,13 @@ void Service::updateDigitalClockMode(service::ScreenContext &ctx) {
 
 void Service::updateAnalogClockMode(service::ScreenContext &ctx) {
 
-    if (ctx.enteringNewMode) {
-        Screen &s = *ctx.screen;
-        s.drawString("AnalogClock", 0, 0, screen::Font8x8, screen::StandardColor::White);
+    const bool force = ctx.enteringNewMode;
+
+    if (force) {
+        renderAnalogClockFace(ctx);
+    }
+    if (force || m_timeHasChanged) {
+        renderAnalogClockHands(ctx, force);
     }
 }
 
@@ -295,7 +302,7 @@ void Service::renderDateString(service::ScreenContext &ctx) {
                 m_date.day,
                 m_date.year);
 
-    renderTextBlock(s, service::dateBlock, dateBuf);
+    renderTextBlock(s, service::InfoDateBlock, dateBuf);
 }
 
 void Service::renderTimeString(service::ScreenContext &ctx, const bool forceFullRender) {
@@ -320,24 +327,24 @@ void Service::renderTimeString(service::ScreenContext &ctx, const bool forceFull
     secondsBuf[1] = '0' + m_time.second % 10;
     secondsBuf[2] = '\0';
 
-    // Tick char
+    // Seconds tick char
     std::string_view tickBuf = (m_time.second % 2) ? "." : " ";
 
     // Render hours
     if (forceFullRender || m_time.hour != m_prevTime.hour) {
-        renderTextBlock(s, service::hoursBlock, std::string_view(hoursBuf.data(), 2));
+        renderTextBlock(s, service::InfoHoursBlock, std::string_view(hoursBuf.data(), 2));
     }
     // Render first colon
     if (forceFullRender) {
-        renderTextBlock(s, service::firstColonBlock, ":");
+        renderTextBlock(s, service::InfoFirstColonBlock, ":");
     }
     // Render minutes
     if (forceFullRender || m_time.minute != m_prevTime.minute) {
-        renderTextBlock(s, service::minutesBlock, std::string_view(minutesBuf.data(), 2));
+        renderTextBlock(s, service::InfoMinutesBlock, std::string_view(minutesBuf.data(), 2));
     }
     // Render second colon
     if (forceFullRender && ctx.subMode == service::ScreenSubMode::HourMinuteSecond) {
-        renderTextBlock(s, service::secondColonBlock, ":");
+        renderTextBlock(s, service::InfoSecondColonBlock, ":");
     }
     // Render seconds or tick
     switch(ctx.subMode) {
@@ -345,12 +352,12 @@ void Service::renderTimeString(service::ScreenContext &ctx, const bool forceFull
             break;
         case service::ScreenSubMode::HourMinuteSecond:
             if (forceFullRender || m_time.second != m_prevTime.second) {
-                renderTextBlock(s, service::secondsBlock, std::string_view(secondsBuf.data(), 2));
+                renderTextBlock(s, service::InfoSecondsBlock, std::string_view(secondsBuf.data(), 2));
             }
             break;
         case service::ScreenSubMode::HourMinuteTick:
             if (forceFullRender || m_time.second != m_prevTime.second) {
-                renderTextBlock(s, service::tickBlock, tickBuf);
+                renderTextBlock(s, service::InfoTickBlock, tickBuf);
             }
             break;
         default:
@@ -364,20 +371,114 @@ void Service::renderIpString(service::ScreenContext &ctx) {
     Screen &s = *ctx.screen;
 
     if (!m_net.interfaceUp) {
-        renderTextBlock(s, service::ipBlock, "Interface down");
-        renderTextBlock(s, service::maskBlock, "");
+        renderTextBlock(s, service::InfoIpBlock, "Interface down");
+        renderTextBlock(s, service::InfoMaskBlock, "");
     }
     else if (!m_net.hasCarrier) {
-        renderTextBlock(s, service::ipBlock, "No carrier");
-        renderTextBlock(s, service::maskBlock, "");
+        renderTextBlock(s, service::InfoIpBlock, "No carrier");
+        renderTextBlock(s, service::InfoMaskBlock, "");
     }
     else if (!m_net.isIPv4) {
-        renderTextBlock(s, service::ipBlock, "No IP");
-        renderTextBlock(s, service::maskBlock, "");
+        renderTextBlock(s, service::InfoIpBlock, "No IP");
+        renderTextBlock(s, service::InfoMaskBlock, "");
     }
     else {
-        renderTextBlock(s, service::ipBlock, formatIPv4(m_net.ip));
-        renderTextBlock(s, service::maskBlock, formatIPv4(m_net.netmask));
+        renderTextBlock(s, service::InfoIpBlock, formatIPv4(m_net.ip));
+        renderTextBlock(s, service::InfoMaskBlock, formatIPv4(m_net.netmask));
+    }
+}
+
+void Service::renderAnalogClockFace(service::ScreenContext &ctx) {
+
+    Screen &s = *ctx.screen;
+    uint8_t x_coord = (screen::Geometry::Columns / 2) - (screen::Geometry::Rows / 2);
+    uint8_t y_coord = 0;
+    uint8_t d = screen::Geometry::Rows;
+    screen::Color c = screen::StandardColor::White;
+    s.drawCircle(x_coord, y_coord, d, c);
+
+    for (int quarter = 0; quarter < 4; quarter++) {
+        float baseAngle = 0 + (quarter * (PI / 2));
+        bool upperHalf = (quarter == 0 || quarter == 3) ? true : false;
+        bool rightHalf = (quarter == 0 || quarter == 1) ? true : false;
+        for (int tick = 0; tick < 4; tick++) {
+            float drawAngle = baseAngle + (tick * (PI / 6));
+            uint8_t cx = (screen::Geometry::Columns / 2) + static_cast<uint8_t>(rightHalf);
+            uint8_t cy = (screen::Geometry::Rows / 2) - static_cast<uint8_t>(upperHalf);
+            uint8_t x1 = cx + (25 * sin(drawAngle));
+            uint8_t y1 = cy - (25 * cos(drawAngle));
+            uint8_t x2 = cx + (31 * sin(drawAngle));
+            uint8_t y2 = cy - (31 * cos(drawAngle));
+            s.drawLine(x1, y1, x2, y2, c);
+        }
+    }
+}
+
+void Service::renderAnalogClockHands(service::ScreenContext &ctx, const bool forceFullRender) {
+
+    Screen &s = *ctx.screen;
+
+    uint8_t hour12 = (m_time.hour >= 12) ? (m_time.hour - 12) : m_time.hour ;
+
+    bool hourUpperHalf = (hour12 <= 3 || hour12 > 9) ? true : false;
+    bool hourRightHalf = (hour12 > 0 && hour12 <= 6) ? true : false;
+
+    bool minuteUpperHalf = (m_time.minute <= 15 || m_time.minute > 45) ? true : false;
+    bool minuteRightHalf = (m_time.minute > 0 && m_time.minute <= 30) ? true : false;
+
+    float minuteAngle = (m_time.minute / 60.0) * 2 * PI;
+    float hourAngle = ((hour12 / 12.0) * 2 * PI) + ((m_time.minute / 60.0) * (2 * PI / 12.0));
+
+    uint8_t hx1 = (screen::Geometry::Columns / 2) + static_cast<uint8_t>(hourRightHalf);
+    uint8_t hy1 = (screen::Geometry::Rows / 2) - static_cast<uint8_t>(hourUpperHalf);
+    uint8_t hx2 = hx1 + (service::AnalogClockHourHandLength * sin(hourAngle));
+    uint8_t hy2 = hy1 - (service::AnalogClockHourHandLength * cos(hourAngle));
+
+    uint8_t mx1 = (screen::Geometry::Columns / 2) + static_cast<uint8_t>(minuteRightHalf);
+    uint8_t my1 = (screen::Geometry::Rows / 2) - static_cast<uint8_t>(minuteUpperHalf);
+    uint8_t mx2 = mx1 + (service::AnalogClockMinuteHandLength * sin(minuteAngle));
+    uint8_t my2 = my1 - (service::AnalogClockMinuteHandLength * cos(minuteAngle));
+
+    screen::Color c = screen::StandardColor::White;
+
+    // Clock hands
+    if (forceFullRender) {
+        s.drawLine(hx1, hy1, hx2, hy2, c);
+        s.drawLine(mx1, my1, mx2, my2, c);
+    } else if (m_time.hour != m_prevTime.hour || m_time.minute != m_prevTime.minute) {
+        s.clearWindow(hx1, hy1, hx2, hy2);
+        std::this_thread::sleep_for(1ms);
+        s.clearWindow(mx1, my1, mx2, my2);
+        std::this_thread::sleep_for(1ms);
+        s.drawLine(hx1, hy1, hx2, hy2, c);
+        s.drawLine(mx1, my1, mx2, my2, c);
+    }
+
+    // Auxiliar seconds or tick
+    // Seconds buffer
+    std::array<char, 3> secondsBuf{};
+    secondsBuf[0] = '0' + m_time.second / 10;
+    secondsBuf[1] = '0' + m_time.second % 10;
+    secondsBuf[2] = '\0';
+    // Seconds tick char
+    std::string_view tickBuf = (m_time.second % 2) ? "." : " ";
+    // Render seconds or tick
+    switch(ctx.subMode) {
+        case service::ScreenSubMode::HourMinute:
+            break;
+        case service::ScreenSubMode::HourMinuteSecond:
+            if (forceFullRender || m_time.second != m_prevTime.second) {
+                renderTextBlock(s, service::AnalogClockSecondsBlock, std::string_view(secondsBuf.data(), 2));
+            }
+            break;
+        case service::ScreenSubMode::HourMinuteTick:
+            if (forceFullRender || m_time.second != m_prevTime.second) {
+                renderTextBlock(s, service::AnalogClockTickBlock, tickBuf);
+            }
+            break;
+        default:
+            std::cout << "Unknown sub mode" << std::endl;
+            break;
     }
 }
 

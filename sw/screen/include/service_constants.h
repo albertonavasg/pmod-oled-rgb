@@ -67,15 +67,21 @@ namespace service {
         screen::Color color;
     };
 
-    inline const TextBlock dateBlock        { 0, 0,  96,  8, screen::Font8x8, screen::StandardColor::White};
-    inline const TextBlock hoursBlock       { 0, 16, 16,  8, screen::Font8x8, screen::StandardColor::White};
-    inline const TextBlock firstColonBlock  {16, 16,  8,  8, screen::Font8x8, screen::StandardColor::White};
-    inline const TextBlock minutesBlock     {24, 16, 16,  8, screen::Font8x8, screen::StandardColor::White};
-    inline const TextBlock secondColonBlock {40, 16,  8,  8, screen::Font8x8, screen::StandardColor::White};
-    inline const TextBlock secondsBlock     {48, 16, 16,  8, screen::Font8x8, screen::StandardColor::White};
-    inline const TextBlock tickBlock        {40, 16,  8,  8, screen::Font8x8, screen::StandardColor::White};
-    inline const TextBlock ipBlock          { 0, 32, 96,  8, screen::Font6x8, screen::StandardColor::White};
-    inline const TextBlock maskBlock        { 0, 48, 96,  8, screen::Font6x8, screen::StandardColor::White};
+    inline const TextBlock InfoDateBlock        { 0, 0,  96,  8, screen::Font8x8, screen::StandardColor::White};
+    inline const TextBlock InfoHoursBlock       { 0, 16, 16,  8, screen::Font8x8, screen::StandardColor::White};
+    inline const TextBlock InfoFirstColonBlock  {16, 16,  8,  8, screen::Font8x8, screen::StandardColor::White};
+    inline const TextBlock InfoMinutesBlock     {24, 16, 16,  8, screen::Font8x8, screen::StandardColor::White};
+    inline const TextBlock InfoSecondColonBlock {40, 16,  8,  8, screen::Font8x8, screen::StandardColor::White};
+    inline const TextBlock InfoSecondsBlock     {48, 16, 16,  8, screen::Font8x8, screen::StandardColor::White};
+    inline const TextBlock InfoTickBlock        {40, 16,  8,  8, screen::Font8x8, screen::StandardColor::White};
+    inline const TextBlock InfoIpBlock          { 0, 32, 96,  8, screen::Font6x8, screen::StandardColor::White};
+    inline const TextBlock InfoMaskBlock        { 0, 48, 96,  8, screen::Font6x8, screen::StandardColor::White};
+
+    inline const TextBlock AnalogClockSecondsBlock {80, 56, 16, 8, screen::Font8x8, screen::StandardColor::White};
+    inline const TextBlock AnalogClockTickBlock    {88, 56,  8, 8, screen::Font8x8, screen::StandardColor::White};
+
+    constexpr uint8_t AnalogClockHourHandLength   = 10;
+    constexpr uint8_t AnalogClockMinuteHandLength = 20;
 }
 
 #endif // SERVICE_CONSTANTS_H

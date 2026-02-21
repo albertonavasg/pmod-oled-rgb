@@ -2,8 +2,8 @@
     "screens": [
         {
             "id": "A",
-            "mode": "None",
-            "subMode": "None",
+            "mode": "AnalogClock",
+            "subMode": "HourMinuteTick",
             "uio": "uio0",
             "spiDelay": 0,
             "orientation": "Horizontal_180",
