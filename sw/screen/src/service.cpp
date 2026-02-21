@@ -172,6 +172,7 @@ void Service::updateNoneMode(service::ScreenContext &ctx) {
         Screen &s = *ctx.screen;
         const std::string &id = ctx.id;
         s.drawString(("Screen " + id).c_str(), 0, 0, screen::Font8x8, screen::StandardColor::White);
+        std::this_thread::sleep_for(1ms);
     }
 }
 
@@ -195,6 +196,7 @@ void Service::updateDigitalClockMode(service::ScreenContext &ctx) {
     if (ctx.enteringNewMode) {
         Screen &s = *ctx.screen;
         s.drawString("DigitalClock", 0, 0, screen::Font8x8, screen::StandardColor::White);
+        std::this_thread::sleep_for(1ms);
     }
 }
 
@@ -281,6 +283,7 @@ bool Service::renderTextBlock(Screen &s, const service::TextBlock &block, std::s
     }
 
     s.drawString(text, block.x, block.y, block.font, block.color);
+    std::this_thread::sleep_for(1ms);
 
     return true;
 }
