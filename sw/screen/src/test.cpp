@@ -32,6 +32,7 @@ void Test::full() {
     line();
     rectangle();
     circle();
+    clear();
     copy();
     image();
     symbol();
@@ -410,6 +411,26 @@ void Test::circle() {
     std::this_thread::sleep_for(1s);
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
 
+    broadcast([](Screen &s){s.applyDefaultSettings();}, 100ms);
+}
+
+void Test::clear() {
+
+    std::vector<screen::Color> bitmap(50*50, screen::StandardColor::White);
+
+    broadcast([&](Screen &s){s.drawBitmap(10,10,59,59, bitmap);}, 500ms);
+    broadcast([](Screen &s){s.clearWindow(10,10,59,59);}, 200ms);
+
+    broadcast([&](Screen &s){s.drawBitmap(10,10,59,59, bitmap);}, 500ms);
+    broadcast([](Screen &s){s.clearWindow(59,59,10,10);}, 200ms);
+
+    broadcast([&](Screen &s){s.drawBitmap(10,10,59,59, bitmap);}, 500ms);
+    broadcast([](Screen &s){s.clearWindow(10,59,59,10);}, 200ms);
+
+    broadcast([&](Screen &s){s.drawBitmap(10,10,59,59, bitmap);}, 500ms);
+    broadcast([](Screen &s){s.clearWindow(59,10,10,59);}, 200ms);
+
+    broadcast([](Screen &s){s.clearScreen();}, 200ms);
     broadcast([](Screen &s){s.applyDefaultSettings();}, 100ms);
 }
 

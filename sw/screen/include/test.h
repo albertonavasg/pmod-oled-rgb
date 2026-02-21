@@ -26,6 +26,7 @@ class Test {
         void line();
         void rectangle();
         void circle();
+        void clear();
         void copy();
         void image();
         void symbol();
