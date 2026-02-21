@@ -70,6 +70,10 @@ class Service {
         void renderAnalogClockFace(service::ScreenContext &ctx);
         void renderAnalogClockHands(service::ScreenContext &ctx, const bool forceFullRender);
 
+        // Math helpers
+        service::Line calcHourLine(const service::Time &t);
+        service::Line calcMinuteLine(const service::Time &t);
+
         // Date, Time and IP updaters
         void updateDateAndTime();
         void updateIpAndMask();

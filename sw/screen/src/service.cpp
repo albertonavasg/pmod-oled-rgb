@@ -396,6 +396,7 @@ void Service::renderAnalogClockFace(service::ScreenContext &ctx) {
     uint8_t d = screen::Geometry::Rows;
     screen::Color c = screen::StandardColor::White;
     s.drawCircle(x_coord, y_coord, d, c);
+    std::this_thread::sleep_for(1ms);
 
     for (int quarter = 0; quarter < 4; quarter++) {
         float baseAngle = 0 + (quarter * (PI / 2));
@@ -410,6 +411,7 @@ void Service::renderAnalogClockFace(service::ScreenContext &ctx) {
             uint8_t x2 = cx + (31 * sin(drawAngle));
             uint8_t y2 = cy - (31 * cos(drawAngle));
             s.drawLine(x1, y1, x2, y2, c);
+            std::this_thread::sleep_for(1ms);
         }
     }
 }
@@ -418,40 +420,29 @@ void Service::renderAnalogClockHands(service::ScreenContext &ctx, const bool for
 
     Screen &s = *ctx.screen;
 
-    uint8_t hour12 = (m_time.hour >= 12) ? (m_time.hour - 12) : m_time.hour ;
-
-    bool hourUpperHalf = (hour12 <= 3 || hour12 > 9) ? true : false;
-    bool hourRightHalf = (hour12 > 0 && hour12 <= 6) ? true : false;
-
-    bool minuteUpperHalf = (m_time.minute <= 15 || m_time.minute > 45) ? true : false;
-    bool minuteRightHalf = (m_time.minute > 0 && m_time.minute <= 30) ? true : false;
-
-    float minuteAngle = (m_time.minute / 60.0) * 2 * PI;
-    float hourAngle = ((hour12 / 12.0) * 2 * PI) + ((m_time.minute / 60.0) * (2 * PI / 12.0));
-
-    uint8_t hx1 = (screen::Geometry::Columns / 2) + static_cast<uint8_t>(hourRightHalf);
-    uint8_t hy1 = (screen::Geometry::Rows / 2) - static_cast<uint8_t>(hourUpperHalf);
-    uint8_t hx2 = hx1 + (service::AnalogClockHourHandLength * sin(hourAngle));
-    uint8_t hy2 = hy1 - (service::AnalogClockHourHandLength * cos(hourAngle));
-
-    uint8_t mx1 = (screen::Geometry::Columns / 2) + static_cast<uint8_t>(minuteRightHalf);
-    uint8_t my1 = (screen::Geometry::Rows / 2) - static_cast<uint8_t>(minuteUpperHalf);
-    uint8_t mx2 = mx1 + (service::AnalogClockMinuteHandLength * sin(minuteAngle));
-    uint8_t my2 = my1 - (service::AnalogClockMinuteHandLength * cos(minuteAngle));
-
     screen::Color c = screen::StandardColor::White;
 
     // Clock hands
     if (forceFullRender) {
-        s.drawLine(hx1, hy1, hx2, hy2, c);
-        s.drawLine(mx1, my1, mx2, my2, c);
+        service::Line h = calcHourLine(m_time);
+        service::Line m = calcMinuteLine(m_time);
+        s.drawLine(h.x1, h.y1, h.x2, h.y2, c);
+        std::this_thread::sleep_for(1ms);
+        s.drawLine(m.x1, m.y1, m.x2, m.y2, c);
+        std::this_thread::sleep_for(1ms);
     } else if (m_time.hour != m_prevTime.hour || m_time.minute != m_prevTime.minute) {
-        s.clearWindow(hx1, hy1, hx2, hy2);
+        service::Line h_prev = calcHourLine(m_prevTime);
+        service::Line m_prev = calcMinuteLine(m_prevTime);
+        s.clearWindow(h_prev.x1, h_prev.y1, h_prev.x2, h_prev.y2);
         std::this_thread::sleep_for(1ms);
-        s.clearWindow(mx1, my1, mx2, my2);
+        s.clearWindow(m_prev.x1, m_prev.y1, m_prev.x2, m_prev.y2);
         std::this_thread::sleep_for(1ms);
-        s.drawLine(hx1, hy1, hx2, hy2, c);
-        s.drawLine(mx1, my1, mx2, my2, c);
+        service::Line h = calcHourLine(m_time);
+        service::Line m = calcMinuteLine(m_time);
+        s.drawLine(h.x1, h.y1, h.x2, h.y2, c);
+        std::this_thread::sleep_for(1ms);
+        s.drawLine(m.x1, m.y1, m.x2, m.y2, c);
+        std::this_thread::sleep_for(1ms);
     }
 
     // Auxiliar seconds or tick
@@ -481,6 +472,43 @@ void Service::renderAnalogClockHands(service::ScreenContext &ctx, const bool for
             break;
     }
 }
+
+service::Line Service::calcHourLine(const service::Time &t) {
+
+    service::Line hourLine{};
+
+    uint8_t hour12 = (t.hour >= 12) ? (t.hour - 12) : t.hour ;
+
+    bool hourUpperHalf = (hour12 <= 3 || hour12 > 9) ? true : false;
+    bool hourRightHalf = (hour12 > 0 && hour12 <= 6) ? true : false;
+
+    float hourAngle = ((hour12 / 12.0) * 2 * PI) + ((t.minute / 60.0) * (2 * PI / 12.0));
+
+    hourLine.x1 = (screen::Geometry::Columns / 2) + static_cast<uint8_t>(hourRightHalf);
+    hourLine.y1 = (screen::Geometry::Rows / 2) - static_cast<uint8_t>(hourUpperHalf);
+    hourLine.x2 = hourLine.x1 + (service::AnalogClockHourHandLength * sin(hourAngle));
+    hourLine.y2 = hourLine.y1 - (service::AnalogClockHourHandLength * cos(hourAngle));
+
+    return hourLine;
+}
+
+service::Line Service::calcMinuteLine(const service::Time &t) {
+
+    service::Line minuteLine{};
+
+    bool minuteUpperHalf = (t.minute <= 15 || t.minute > 45) ? true : false;
+    bool minuteRightHalf = (t.minute > 0 && t.minute <= 30) ? true : false;
+
+    float minuteAngle = (t.minute / 60.0) * 2 * PI;
+
+    minuteLine.x1 = (screen::Geometry::Columns / 2) + static_cast<uint8_t>(minuteRightHalf);
+    minuteLine.y1 = (screen::Geometry::Rows / 2) - static_cast<uint8_t>(minuteUpperHalf);
+    minuteLine.x2 = minuteLine.x1 + (service::AnalogClockMinuteHandLength * sin(minuteAngle));
+    minuteLine.y2 = minuteLine.y1 - (service::AnalogClockMinuteHandLength * cos(minuteAngle));
+
+    return minuteLine;
+}
+
 
 void Service::updateDateAndTime() {
 

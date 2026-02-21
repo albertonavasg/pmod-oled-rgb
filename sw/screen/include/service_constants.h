@@ -80,6 +80,13 @@ namespace service {
     inline const TextBlock AnalogClockSecondsBlock {80, 56, 16, 8, screen::Font8x8, screen::StandardColor::White};
     inline const TextBlock AnalogClockTickBlock    {88, 56,  8, 8, screen::Font8x8, screen::StandardColor::White};
 
+    struct Line {
+        uint8_t x1;
+        uint8_t y1;
+        uint8_t x2;
+        uint8_t y2;
+    };
+
     constexpr uint8_t AnalogClockHourHandLength   = 10;
     constexpr uint8_t AnalogClockMinuteHandLength = 20;
 }
