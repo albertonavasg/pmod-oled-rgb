@@ -22,8 +22,8 @@ namespace service {
         None,
         HourMinute,
         HourMinuteSecond,
-        HourMinuteTick
-
+        HourMinuteTick,
+        HourMinuteColonTick
     };
 
     struct ScreenContext {
@@ -81,6 +81,9 @@ namespace service {
     inline const TextBlock AnalogClockSecondsBlock {80, 56, 16, 8, screen::Font8x8, screen::StandardColor::White};
     inline const TextBlock AnalogClockTickBlock    {88, 56,  8, 8, screen::Font8x8, screen::StandardColor::White};
 
+    inline const TextBlock DigitalClockSecondsBlock {40, 56, 16, 8, screen::Font8x8, screen::StandardColor::White};
+    inline const TextBlock DigitalClockTickBlock    {44, 56,  8, 8, screen::Font8x8, screen::StandardColor::White};
+
     struct BitmapBlock {
         uint8_t x;
         uint8_t y;
@@ -91,7 +94,7 @@ namespace service {
     inline const BitmapBlock DigitalClockHourFirstDigit    { 8, 24, 16, 16};
     inline const BitmapBlock DigitalClockHourSecondDigit   {24, 24, 16, 16};
 
-    inline const BitmapBlock DigitalClockColon             {40, 24, 16, 16};
+    inline const BitmapBlock DigitalClockColonDigit        {40, 24, 16, 16};
 
     inline const BitmapBlock DigitalClockMinuteFirstDigit  {56, 24, 16, 16};
     inline const BitmapBlock DigitalClockMinuteSecondDigit {72, 24, 16, 16};
@@ -99,7 +102,7 @@ namespace service {
     constexpr uint8_t DigitWidth = 16;
     constexpr uint8_t DigitHeight = 16;
 
-    extern const uint16_t digit[11*DigitWidth];
+    extern const uint16_t digit[12*DigitWidth];
 
     struct Line {
         uint8_t x1;
