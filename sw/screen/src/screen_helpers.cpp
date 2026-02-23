@@ -9,8 +9,6 @@
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
 #include "stb_image/stb_image_resize2.h"
 
-#include "fonts.h"
-
 #include "screen_constants.h"
 #include "screen_registers.h"
 #include "screen.h"
