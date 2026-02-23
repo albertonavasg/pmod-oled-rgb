@@ -312,29 +312,12 @@ void Service::renderTimeString(service::ScreenContext &ctx, const bool forceFull
 
     Screen &s = *ctx.screen;
 
-    // Buffers
-    std::array<char, 3> hoursBuf{};
-    std::array<char, 3> minutesBuf{};
-    std::array<char, 3> secondsBuf{};
-
-    // Manual conversion to "HH", "MM", "SS"
-    hoursBuf[0] = '0' + m_time.hour / 10;
-    hoursBuf[1] = '0' + m_time.hour % 10;
-    hoursBuf[2] = '\0';
-
-    minutesBuf[0] = '0' + m_time.minute / 10;
-    minutesBuf[1] = '0' + m_time.minute % 10;
-    minutesBuf[2] = '\0';
-
-    secondsBuf[0] = '0' + m_time.second / 10;
-    secondsBuf[1] = '0' + m_time.second % 10;
-    secondsBuf[2] = '\0';
-
-    // Seconds tick char
-    std::string_view tickBuf = (m_time.second % 2) ? "." : " ";
-
     // Render hours
     if (forceFullRender || m_time.hour != m_prevTime.hour) {
+        std::array<char, 3> hoursBuf{};
+        hoursBuf[0] = '0' + m_time.hour / 10;
+        hoursBuf[1] = '0' + m_time.hour % 10;
+        hoursBuf[2] = '\0';
         renderTextBlock(s, service::InfoHoursBlock, std::string_view(hoursBuf.data(), 2));
     }
     // Render first colon
@@ -343,23 +326,31 @@ void Service::renderTimeString(service::ScreenContext &ctx, const bool forceFull
     }
     // Render minutes
     if (forceFullRender || m_time.minute != m_prevTime.minute) {
+        std::array<char, 3> minutesBuf{};
+        minutesBuf[0] = '0' + m_time.minute / 10;
+        minutesBuf[1] = '0' + m_time.minute % 10;
+        minutesBuf[2] = '\0';
         renderTextBlock(s, service::InfoMinutesBlock, std::string_view(minutesBuf.data(), 2));
-    }
-    // Render second colon
-    if (forceFullRender && ctx.subMode == service::ScreenSubMode::HourMinuteSecond) {
-        renderTextBlock(s, service::InfoSecondColonBlock, ":");
     }
     // Render seconds or tick
     switch(ctx.subMode) {
         case service::ScreenSubMode::HourMinute:
             break;
         case service::ScreenSubMode::HourMinuteSecond:
+            if (forceFullRender) {
+                renderTextBlock(s, service::InfoSecondColonBlock, ":");
+            }
             if (forceFullRender || m_time.second != m_prevTime.second) {
+                std::array<char, 3> secondsBuf{};
+                secondsBuf[0] = '0' + m_time.second / 10;
+                secondsBuf[1] = '0' + m_time.second % 10;
+                secondsBuf[2] = '\0';
                 renderTextBlock(s, service::InfoSecondsBlock, std::string_view(secondsBuf.data(), 2));
             }
             break;
         case service::ScreenSubMode::HourMinuteTick:
             if (forceFullRender || m_time.second != m_prevTime.second) {
+                std::string_view tickBuf = (m_time.second % 2) ? "." : " ";
                 renderTextBlock(s, service::InfoTickBlock, tickBuf);
             }
             break;
@@ -373,31 +364,36 @@ void Service::renderIpString(service::ScreenContext &ctx) {
 
     Screen &s = *ctx.screen;
 
+    std::string ipString = "";
+    std::string maskString = "";
+
     if (!m_net.interfaceUp) {
-        renderTextBlock(s, service::InfoIpBlock, "Interface down");
-        renderTextBlock(s, service::InfoMaskBlock, "");
+        ipString = "Interface down";
     }
     else if (!m_net.hasCarrier) {
-        renderTextBlock(s, service::InfoIpBlock, "No carrier");
-        renderTextBlock(s, service::InfoMaskBlock, "");
+        ipString = "No carrier";
     }
     else if (!m_net.isIPv4) {
-        renderTextBlock(s, service::InfoIpBlock, "No IP");
-        renderTextBlock(s, service::InfoMaskBlock, "");
+        ipString =  "No IP";
     }
     else {
-        renderTextBlock(s, service::InfoIpBlock, formatIPv4(m_net.ip));
-        renderTextBlock(s, service::InfoMaskBlock, formatIPv4(m_net.netmask));
+        ipString = formatIPv4(m_net.ip);
+        maskString = formatIPv4(m_net.netmask);
     }
+
+    renderTextBlock(s, service::InfoIpBlock, ipString);
+    renderTextBlock(s, service::InfoMaskBlock, maskString);
 }
 
 void Service::renderAnalogClockFace(service::ScreenContext &ctx) {
 
     Screen &s = *ctx.screen;
+    screen::Color c = screen::StandardColor::White;
+
     uint8_t x_coord = (screen::Geometry::Columns / 2) - (screen::Geometry::Rows / 2);
     uint8_t y_coord = 0;
     uint8_t d = screen::Geometry::Rows;
-    screen::Color c = screen::StandardColor::White;
+
     s.drawCircle(x_coord, y_coord, d, c);
     std::this_thread::sleep_for(1ms);
 
@@ -411,8 +407,8 @@ void Service::renderAnalogClockFace(service::ScreenContext &ctx) {
             uint8_t cy = (screen::Geometry::Rows / 2) - static_cast<uint8_t>(upperHalf);
             uint8_t x1 = cx + (25 * sin(drawAngle));
             uint8_t y1 = cy - (25 * cos(drawAngle));
-            uint8_t x2 = cx + (31 * sin(drawAngle));
-            uint8_t y2 = cy - (31 * cos(drawAngle));
+            uint8_t x2 = cx + (28 * sin(drawAngle));
+            uint8_t y2 = cy - (28 * cos(drawAngle));
             s.drawLine(x1, y1, x2, y2, c);
             std::this_thread::sleep_for(1ms);
         }
@@ -422,7 +418,6 @@ void Service::renderAnalogClockFace(service::ScreenContext &ctx) {
 void Service::renderAnalogClockHands(service::ScreenContext &ctx, const bool forceFullRender) {
 
     Screen &s = *ctx.screen;
-
     screen::Color c = screen::StandardColor::White;
 
     // Clock hands
@@ -448,25 +443,22 @@ void Service::renderAnalogClockHands(service::ScreenContext &ctx, const bool for
         std::this_thread::sleep_for(1ms);
     }
 
-    // Auxiliar seconds or tick
-    // Seconds buffer
-    std::array<char, 3> secondsBuf{};
-    secondsBuf[0] = '0' + m_time.second / 10;
-    secondsBuf[1] = '0' + m_time.second % 10;
-    secondsBuf[2] = '\0';
-    // Seconds tick char
-    std::string_view tickBuf = (m_time.second % 2) ? "." : " ";
-    // Render seconds or tick
+    // Seconds or tick
     switch(ctx.subMode) {
         case service::ScreenSubMode::HourMinute:
             break;
         case service::ScreenSubMode::HourMinuteSecond:
             if (forceFullRender || m_time.second != m_prevTime.second) {
+                std::array<char, 3> secondsBuf{};
+                secondsBuf[0] = '0' + m_time.second / 10;
+                secondsBuf[1] = '0' + m_time.second % 10;
+                secondsBuf[2] = '\0';
                 renderTextBlock(s, service::AnalogClockSecondsBlock, std::string_view(secondsBuf.data(), 2));
             }
             break;
         case service::ScreenSubMode::HourMinuteTick:
             if (forceFullRender || m_time.second != m_prevTime.second) {
+                std::string_view tickBuf = (m_time.second % 2) ? "." : " ";
                 renderTextBlock(s, service::AnalogClockTickBlock, tickBuf);
             }
             break;
@@ -511,7 +503,6 @@ service::Line Service::calcMinuteLine(const service::Time &t) {
 
     return minuteLine;
 }
-
 
 void Service::updateDateAndTime() {
 
