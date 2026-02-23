@@ -52,6 +52,7 @@ class Service {
 
         service::Line calcHourLine(const service::Time &t);
         service::Line calcMinuteLine(const service::Time &t);
+        std::vector<screen::Color> importDigitAsBitmap(const uint8_t num, screen::Color color);
 
         // Parse config file
         service::ScreenMode parseScreenMode(const std::string &s);
@@ -60,10 +61,13 @@ class Service {
 
         // Render
         bool renderTextBlock(Screen &s, const service::TextBlock &block, std::string_view text);
+        bool renderBitmapBlock(Screen &s, const service::BitmapBlock &block, std::vector<screen::Color> &bitmap);
 
         void renderDateString(service::ScreenContext &ctx);
         void renderTimeString(service::ScreenContext &ctx, const bool forceFullRender);
         void renderIpString(service::ScreenContext &ctx);
+
+        void renderDigitalClock(service::ScreenContext &ctx, const bool forceFullRender);
 
         void renderAnalogClockFace(service::ScreenContext &ctx);
         void renderAnalogClockHands(service::ScreenContext &ctx, const bool forceFullRender);

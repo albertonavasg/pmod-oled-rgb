@@ -2,6 +2,7 @@
 #define SERVICE_CONSTANTS_H
 
 #include <cstdint> // uint
+#include <memory>  // unique_ptr
 
 #include "screen_constants.h"
 #include "screen.h"
@@ -79,6 +80,26 @@ namespace service {
 
     inline const TextBlock AnalogClockSecondsBlock {80, 56, 16, 8, screen::Font8x8, screen::StandardColor::White};
     inline const TextBlock AnalogClockTickBlock    {88, 56,  8, 8, screen::Font8x8, screen::StandardColor::White};
+
+    struct BitmapBlock {
+        uint8_t x;
+        uint8_t y;
+        uint8_t width;
+        uint8_t height;
+    };
+
+    inline const BitmapBlock DigitalClockHourFirstDigit    { 0, 24, 16, 16};
+    inline const BitmapBlock DigitalClockHourSecondDigit   {20, 24, 16, 16};
+
+    inline const BitmapBlock DigitalClockColon             {40, 24, 16, 16};
+
+    inline const BitmapBlock DigitalClockMinuteFirstDigit  {60, 24, 16, 16};
+    inline const BitmapBlock DigitalClockMinuteSecondDigit {80, 24, 16, 16};
+
+    constexpr uint8_t DigitWidth = 16;
+    constexpr uint8_t DigitHeight = 16;
+
+    extern const uint16_t digit[11*DigitWidth];
 
     struct Line {
         uint8_t x1;

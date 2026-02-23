@@ -137,10 +137,10 @@ void Service::updateInfoMode(service::ScreenContext &ctx) {
 
 void Service::updateDigitalClockMode(service::ScreenContext &ctx) {
 
-    if (ctx.enteringNewMode) {
-        Screen &s = *ctx.screen;
-        s.drawString("DigitalClock", 0, 0, screen::Font8x8, screen::StandardColor::White);
-        std::this_thread::sleep_for(1ms);
+    const bool force = ctx.enteringNewMode;
+
+    if (force || m_timeHasChanged) {
+        renderDigitalClock(ctx, force);
     }
 }
 
@@ -249,6 +249,26 @@ service::Line Service::calcMinuteLine(const service::Time &t) {
     return minuteLine;
 }
 
+std::vector<screen::Color> Service::importDigitAsBitmap(const uint8_t num, screen::Color color) {
+
+    // Reserve bitmap vector
+    std::vector<screen::Color> bitmap(service::DigitHeight * service::DigitWidth);
+
+    // Import the digit bitmap
+    const uint16_t *glyph = &service::digit[num * service::DigitWidth];
+
+    // Fill bitmap
+    for (size_t row = 0; row < service::DigitHeight; row++) {
+        uint16_t rowData = glyph[row];
+        for (size_t col = 0; col < service::DigitWidth; col++) {
+            bool pixelOn = rowData & (1 << col);
+            bitmap[row * service::DigitWidth + col] = pixelOn ? color : screen::StandardColor::Black;
+        }
+    }
+
+    return bitmap;
+}
+
 service::ScreenMode Service::parseScreenMode(const std::string &s) {
 
     if (s == "None")         return service::ScreenMode::None;
@@ -306,6 +326,22 @@ bool Service::renderTextBlock(Screen &s, const service::TextBlock &block, std::s
     return true;
 }
 
+bool Service::renderBitmapBlock(Screen &s, const service::BitmapBlock &block, std::vector<screen::Color> &bitmap){
+
+    // Not render if size mismatch
+    if (bitmap.size() != (block.height * block.width)) {
+        return false;
+    }
+
+    s.clearWindow(block.x, block.y, block.x + block.width - 1, block.y + block.height - 1);
+    std::this_thread::sleep_for(1ms);
+
+    s.drawBitmap(block.x, block.y, block.x + block.width - 1, block.y + block.height - 1, bitmap);
+    std::this_thread::sleep_for(1ms);
+
+    return true;
+}
+
 void Service::renderDateString(service::ScreenContext &ctx) {
 
     Screen &s = *ctx.screen;
@@ -330,7 +366,7 @@ void Service::renderTimeString(service::ScreenContext &ctx, const bool forceFull
 
     Screen &s = *ctx.screen;
 
-    // Render hours
+    // Hours
     if (forceFullRender || m_time.hour != m_prevTime.hour) {
         std::array<char, 3> hoursBuf{};
         hoursBuf[0] = '0' + m_time.hour / 10;
@@ -338,11 +374,11 @@ void Service::renderTimeString(service::ScreenContext &ctx, const bool forceFull
         hoursBuf[2] = '\0';
         renderTextBlock(s, service::InfoHoursBlock, std::string_view(hoursBuf.data(), 2));
     }
-    // Render first colon
+    // First colon
     if (forceFullRender) {
         renderTextBlock(s, service::InfoFirstColonBlock, ":");
     }
-    // Render minutes
+    // Minutes
     if (forceFullRender || m_time.minute != m_prevTime.minute) {
         std::array<char, 3> minutesBuf{};
         minutesBuf[0] = '0' + m_time.minute / 10;
@@ -350,14 +386,16 @@ void Service::renderTimeString(service::ScreenContext &ctx, const bool forceFull
         minutesBuf[2] = '\0';
         renderTextBlock(s, service::InfoMinutesBlock, std::string_view(minutesBuf.data(), 2));
     }
-    // Render seconds or tick
+    // Seconds or tick
     switch(ctx.subMode) {
         case service::ScreenSubMode::HourMinute:
             break;
         case service::ScreenSubMode::HourMinuteSecond:
+            // Second colon
             if (forceFullRender) {
                 renderTextBlock(s, service::InfoSecondColonBlock, ":");
             }
+            // Seconds
             if (forceFullRender || m_time.second != m_prevTime.second) {
                 std::array<char, 3> secondsBuf{};
                 secondsBuf[0] = '0' + m_time.second / 10;
@@ -367,6 +405,7 @@ void Service::renderTimeString(service::ScreenContext &ctx, const bool forceFull
             }
             break;
         case service::ScreenSubMode::HourMinuteTick:
+            // Seconds tick
             if (forceFullRender || m_time.second != m_prevTime.second) {
                 std::string_view tickBuf = (m_time.second % 2) ? "." : " ";
                 renderTextBlock(s, service::InfoTickBlock, tickBuf);
@@ -401,6 +440,43 @@ void Service::renderIpString(service::ScreenContext &ctx) {
 
     renderTextBlock(s, service::InfoIpBlock, ipString);
     renderTextBlock(s, service::InfoMaskBlock, maskString);
+}
+
+void Service::renderDigitalClock(service::ScreenContext &ctx, const bool forceFullRender) {
+
+    Screen &s = *ctx.screen;
+    screen::Color color = screen::StandardColor::White;
+
+    std::vector<screen::Color> bitmap(service::DigitWidth * service::DigitHeight);
+
+    if (forceFullRender) {
+        // Hours
+        bitmap = importDigitAsBitmap(m_time.hour / 10 , color);
+        renderBitmapBlock(s, service::DigitalClockHourFirstDigit, bitmap);
+        bitmap = importDigitAsBitmap(m_time.hour % 10 , color);
+        renderBitmapBlock(s, service::DigitalClockHourSecondDigit, bitmap);
+        // Colon
+        bitmap = importDigitAsBitmap(10, color);
+        renderBitmapBlock(s, service::DigitalClockColon, bitmap);
+        //Minutes
+        bitmap = importDigitAsBitmap(m_time.minute / 10 , color);
+        renderBitmapBlock(s, service::DigitalClockMinuteFirstDigit, bitmap);
+        bitmap = importDigitAsBitmap(m_time.minute % 10 , color);
+        renderBitmapBlock(s, service::DigitalClockMinuteSecondDigit, bitmap);
+    } else {
+        if (m_time.hour != m_prevTime.hour) {
+            bitmap = importDigitAsBitmap(m_time.hour / 10 , color);
+            renderBitmapBlock(s, service::DigitalClockHourFirstDigit, bitmap);
+            bitmap = importDigitAsBitmap(m_time.hour % 10 , color);
+            renderBitmapBlock(s, service::DigitalClockHourSecondDigit, bitmap);
+        }
+        if (m_time.minute != m_prevTime.minute) {
+            bitmap = importDigitAsBitmap(m_time.minute / 10 , color);
+            renderBitmapBlock(s, service::DigitalClockMinuteFirstDigit, bitmap);
+            bitmap = importDigitAsBitmap(m_time.minute % 10 , color);
+            renderBitmapBlock(s, service::DigitalClockMinuteSecondDigit, bitmap);
+        }
+    }
 }
 
 void Service::renderAnalogClockFace(service::ScreenContext &ctx) {
