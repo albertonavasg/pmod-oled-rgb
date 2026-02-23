@@ -20,12 +20,6 @@ class Service {
         explicit Service(const std::string &configFile);
         ~Service();
 
-        // Apply config from JSON
-        void applyConfig(const std::string &configFile);
-
-        // Full test routine
-        void runTests();
-
         // Main service loop
         void run();
         void stop();
@@ -54,6 +48,10 @@ class Service {
 
         // Helpers
         json loadJson(const std::string &path) const;
+        void applyConfig(const std::string &configFile);
+
+        service::Line calcHourLine(const service::Time &t);
+        service::Line calcMinuteLine(const service::Time &t);
 
         // Parse config file
         service::ScreenMode parseScreenMode(const std::string &s);
@@ -70,15 +68,14 @@ class Service {
         void renderAnalogClockFace(service::ScreenContext &ctx);
         void renderAnalogClockHands(service::ScreenContext &ctx, const bool forceFullRender);
 
-        // Math helpers
-        service::Line calcHourLine(const service::Time &t);
-        service::Line calcMinuteLine(const service::Time &t);
-
         // Date, Time and IP updaters
         void updateDateAndTime();
         void updateIpAndMask();
         bool hasCarrier(const char *iface);
         std::string formatIPv4(uint32_t ip);
+
+        // Full test routine
+        void runTests();
 };
 
 #endif // SERVICE_H

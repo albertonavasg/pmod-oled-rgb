@@ -60,62 +60,6 @@ Service::~Service() {
     stop();
 }
 
-void Service::applyConfig(const std::string &configFile) {
-
-    // Load config file
-    json j = loadJson(configFile);
-
-    // Check for top-level key "screens" and ensure it's an array
-    if (!j.contains("screens") || !j["screens"].is_array()) {
-        throw std::runtime_error("Config file missing 'screens' array");
-    }
-
-    const json &screens = j.at("screens");
-
-    for (const json &s : screens) {
-        const std::string id = s.at("id").get<std::string>();
-
-        // Find the screen by its ID
-        std::vector<service::ScreenContext>::iterator it;
-        it = std::find_if(
-            m_screens.begin(),
-            m_screens.end(),
-            [&](const service::ScreenContext &ctx) { return ctx.id == id; });
-
-        if (it == m_screens.end()) {
-            throw std::runtime_error("Unknown screen id in config: " + id);
-        }
-
-        service::ScreenContext &ctx = *it;
-
-        Screen &screen = *ctx.screen;
-
-        // Apply the settings
-        screen.setSpiDelay(std::chrono::nanoseconds(s.at("spiDelay").get<int>()));
-        screen.setScreenOrientation(parseOrientation(s.at("orientation").get<std::string>()));
-        screen.setFillRectangleEnable(s.at("fillRectangle").get<bool>());
-        screen.setReverseCopyEnable(s.at("reverseCopy").get<bool>());
-    }
-}
-
-void Service::runTests() {
-
-    // Create a vector of references to all screens
-    std::vector<std::reference_wrapper<Screen>> screenRefs;
-    screenRefs.reserve(m_screens.size());
-
-    for (service::ScreenContext &ctx : m_screens) {
-        screenRefs.push_back(*ctx.screen);
-    }
-
-    // Create a Test object
-    Test tester(screenRefs);
-
-    std::cout << "Running tests..." << std::endl;
-    tester.full();
-    std::cout << "All tests completed." << std::endl;
-}
-
 void Service::run() {
 
     while (m_running) {
@@ -229,6 +173,80 @@ json Service::loadJson(const std::string &path) const {
     file >> j;
 
     return j;
+}
+
+void Service::applyConfig(const std::string &configFile) {
+
+    // Load config file
+    json j = loadJson(configFile);
+
+    // Check for top-level key "screens" and ensure it's an array
+    if (!j.contains("screens") || !j["screens"].is_array()) {
+        throw std::runtime_error("Config file missing 'screens' array");
+    }
+
+    const json &screens = j.at("screens");
+
+    for (const json &s : screens) {
+        const std::string id = s.at("id").get<std::string>();
+
+        // Find the screen by its ID
+        std::vector<service::ScreenContext>::iterator it;
+        it = std::find_if(
+            m_screens.begin(),
+            m_screens.end(),
+            [&](const service::ScreenContext &ctx) { return ctx.id == id; });
+
+        if (it == m_screens.end()) {
+            throw std::runtime_error("Unknown screen id in config: " + id);
+        }
+
+        service::ScreenContext &ctx = *it;
+
+        Screen &screen = *ctx.screen;
+
+        // Apply the settings
+        screen.setSpiDelay(std::chrono::nanoseconds(s.at("spiDelay").get<int>()));
+        screen.setScreenOrientation(parseOrientation(s.at("orientation").get<std::string>()));
+        screen.setFillRectangleEnable(s.at("fillRectangle").get<bool>());
+        screen.setReverseCopyEnable(s.at("reverseCopy").get<bool>());
+    }
+}
+
+service::Line Service::calcHourLine(const service::Time &t) {
+
+    service::Line hourLine{};
+
+    uint8_t hour12 = (t.hour >= 12) ? (t.hour - 12) : t.hour ;
+
+    bool hourUpperHalf = (hour12 <= 3 || hour12 > 9) ? true : false;
+    bool hourRightHalf = (hour12 > 0 && hour12 <= 6) ? true : false;
+
+    float hourAngle = ((hour12 / 12.0) * 2 * PI) + ((t.minute / 60.0) * (2 * PI / 12.0));
+
+    hourLine.x1 = (screen::Geometry::Columns / 2) + static_cast<uint8_t>(hourRightHalf);
+    hourLine.y1 = (screen::Geometry::Rows / 2) - static_cast<uint8_t>(hourUpperHalf);
+    hourLine.x2 = hourLine.x1 + (service::AnalogClockHourHandLength * sin(hourAngle));
+    hourLine.y2 = hourLine.y1 - (service::AnalogClockHourHandLength * cos(hourAngle));
+
+    return hourLine;
+}
+
+service::Line Service::calcMinuteLine(const service::Time &t) {
+
+    service::Line minuteLine{};
+
+    bool minuteUpperHalf = (t.minute <= 15 || t.minute > 45) ? true : false;
+    bool minuteRightHalf = (t.minute > 0 && t.minute <= 30) ? true : false;
+
+    float minuteAngle = (t.minute / 60.0) * 2 * PI;
+
+    minuteLine.x1 = (screen::Geometry::Columns / 2) + static_cast<uint8_t>(minuteRightHalf);
+    minuteLine.y1 = (screen::Geometry::Rows / 2) - static_cast<uint8_t>(minuteUpperHalf);
+    minuteLine.x2 = minuteLine.x1 + (service::AnalogClockMinuteHandLength * sin(minuteAngle));
+    minuteLine.y2 = minuteLine.y1 - (service::AnalogClockMinuteHandLength * cos(minuteAngle));
+
+    return minuteLine;
 }
 
 service::ScreenMode Service::parseScreenMode(const std::string &s) {
@@ -468,42 +486,6 @@ void Service::renderAnalogClockHands(service::ScreenContext &ctx, const bool for
     }
 }
 
-service::Line Service::calcHourLine(const service::Time &t) {
-
-    service::Line hourLine{};
-
-    uint8_t hour12 = (t.hour >= 12) ? (t.hour - 12) : t.hour ;
-
-    bool hourUpperHalf = (hour12 <= 3 || hour12 > 9) ? true : false;
-    bool hourRightHalf = (hour12 > 0 && hour12 <= 6) ? true : false;
-
-    float hourAngle = ((hour12 / 12.0) * 2 * PI) + ((t.minute / 60.0) * (2 * PI / 12.0));
-
-    hourLine.x1 = (screen::Geometry::Columns / 2) + static_cast<uint8_t>(hourRightHalf);
-    hourLine.y1 = (screen::Geometry::Rows / 2) - static_cast<uint8_t>(hourUpperHalf);
-    hourLine.x2 = hourLine.x1 + (service::AnalogClockHourHandLength * sin(hourAngle));
-    hourLine.y2 = hourLine.y1 - (service::AnalogClockHourHandLength * cos(hourAngle));
-
-    return hourLine;
-}
-
-service::Line Service::calcMinuteLine(const service::Time &t) {
-
-    service::Line minuteLine{};
-
-    bool minuteUpperHalf = (t.minute <= 15 || t.minute > 45) ? true : false;
-    bool minuteRightHalf = (t.minute > 0 && t.minute <= 30) ? true : false;
-
-    float minuteAngle = (t.minute / 60.0) * 2 * PI;
-
-    minuteLine.x1 = (screen::Geometry::Columns / 2) + static_cast<uint8_t>(minuteRightHalf);
-    minuteLine.y1 = (screen::Geometry::Rows / 2) - static_cast<uint8_t>(minuteUpperHalf);
-    minuteLine.x2 = minuteLine.x1 + (service::AnalogClockMinuteHandLength * sin(minuteAngle));
-    minuteLine.y2 = minuteLine.y1 - (service::AnalogClockMinuteHandLength * cos(minuteAngle));
-
-    return minuteLine;
-}
-
 void Service::updateDateAndTime() {
 
     std::time_t now = std::time(nullptr);
@@ -613,4 +595,22 @@ std::string Service::formatIPv4(uint32_t ip) {
     inet_ntop(AF_INET, &addr, buf, sizeof(buf));
 
     return buf;
+}
+
+void Service::runTests() {
+
+    // Create a vector of references to all screens
+    std::vector<std::reference_wrapper<Screen>> screenRefs;
+    screenRefs.reserve(m_screens.size());
+
+    for (service::ScreenContext &ctx : m_screens) {
+        screenRefs.push_back(*ctx.screen);
+    }
+
+    // Create a Test object
+    Test tester(screenRefs);
+
+    std::cout << "Running tests..." << std::endl;
+    tester.full();
+    std::cout << "All tests completed." << std::endl;
 }
