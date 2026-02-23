@@ -88,13 +88,13 @@ namespace service {
         uint8_t height;
     };
 
-    inline const BitmapBlock DigitalClockHourFirstDigit    { 0, 24, 16, 16};
-    inline const BitmapBlock DigitalClockHourSecondDigit   {20, 24, 16, 16};
+    inline const BitmapBlock DigitalClockHourFirstDigit    { 8, 24, 16, 16};
+    inline const BitmapBlock DigitalClockHourSecondDigit   {24, 24, 16, 16};
 
     inline const BitmapBlock DigitalClockColon             {40, 24, 16, 16};
 
-    inline const BitmapBlock DigitalClockMinuteFirstDigit  {60, 24, 16, 16};
-    inline const BitmapBlock DigitalClockMinuteSecondDigit {80, 24, 16, 16};
+    inline const BitmapBlock DigitalClockMinuteFirstDigit  {56, 24, 16, 16};
+    inline const BitmapBlock DigitalClockMinuteSecondDigit {72, 24, 16, 16};
 
     constexpr uint8_t DigitWidth = 16;
     constexpr uint8_t DigitHeight = 16;

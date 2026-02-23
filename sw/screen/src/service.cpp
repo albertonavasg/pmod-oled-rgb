@@ -464,18 +464,44 @@ void Service::renderDigitalClock(service::ScreenContext &ctx, const bool forceFu
         bitmap = importDigitAsBitmap(m_time.minute % 10 , color);
         renderBitmapBlock(s, service::DigitalClockMinuteSecondDigit, bitmap);
     } else {
+        // Hours
         if (m_time.hour != m_prevTime.hour) {
             bitmap = importDigitAsBitmap(m_time.hour / 10 , color);
             renderBitmapBlock(s, service::DigitalClockHourFirstDigit, bitmap);
             bitmap = importDigitAsBitmap(m_time.hour % 10 , color);
             renderBitmapBlock(s, service::DigitalClockHourSecondDigit, bitmap);
         }
+        // Seconds
         if (m_time.minute != m_prevTime.minute) {
             bitmap = importDigitAsBitmap(m_time.minute / 10 , color);
             renderBitmapBlock(s, service::DigitalClockMinuteFirstDigit, bitmap);
             bitmap = importDigitAsBitmap(m_time.minute % 10 , color);
             renderBitmapBlock(s, service::DigitalClockMinuteSecondDigit, bitmap);
         }
+    }
+
+    // Seconds or tick
+    switch(ctx.subMode) {
+        case service::ScreenSubMode::HourMinute:
+            break;
+        case service::ScreenSubMode::HourMinuteSecond:
+            if (forceFullRender || m_time.second != m_prevTime.second) {
+                std::array<char, 3> secondsBuf{};
+                secondsBuf[0] = '0' + m_time.second / 10;
+                secondsBuf[1] = '0' + m_time.second % 10;
+                secondsBuf[2] = '\0';
+                renderTextBlock(s, service::AnalogClockSecondsBlock, std::string_view(secondsBuf.data(), 2));
+            }
+            break;
+        case service::ScreenSubMode::HourMinuteTick:
+            if (forceFullRender || m_time.second != m_prevTime.second) {
+                std::string_view tickBuf = (m_time.second % 2) ? "." : " ";
+                renderTextBlock(s, service::AnalogClockTickBlock, tickBuf);
+            }
+            break;
+        default:
+            std::cout << "Unknown sub mode" << std::endl;
+            break;
     }
 }
 
