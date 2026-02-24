@@ -81,8 +81,8 @@ namespace service {
     inline const TextBlock AnalogClockSecondsBlock {80, 56, 16, 8, screen::Font8x8, screen::StandardColor::White};
     inline const TextBlock AnalogClockTickBlock    {88, 56,  8, 8, screen::Font8x8, screen::StandardColor::White};
 
-    inline const TextBlock DigitalClockSecondsBlock {40, 56, 16, 8, screen::Font8x8, screen::StandardColor::White};
-    inline const TextBlock DigitalClockTickBlock    {44, 56,  8, 8, screen::Font8x8, screen::StandardColor::White};
+    inline const TextBlock DigitalClockSecondsBlock {80, 56, 16, 8, screen::Font8x8, screen::StandardColor::White};
+    inline const TextBlock DigitalClockTickBlock    {88, 56,  8, 8, screen::Font8x8, screen::StandardColor::White};
 
     struct BitmapBlock {
         uint8_t x;
