@@ -255,7 +255,7 @@ std::vector<screen::Color> Service::importDigitAsBitmap(const uint8_t num, scree
     std::vector<screen::Color> bitmap(service::DigitHeight * service::DigitWidth);
 
     // Import the digit bitmap
-    const uint16_t *glyph = &service::digit[num * service::DigitWidth];
+    const uint16_t *glyph = &service::digit[num * service::DigitHeight];
 
     // Fill bitmap
     for (size_t row = 0; row < service::DigitHeight; row++) {

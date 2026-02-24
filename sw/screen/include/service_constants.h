@@ -102,7 +102,7 @@ namespace service {
     constexpr uint8_t DigitWidth = 16;
     constexpr uint8_t DigitHeight = 16;
 
-    extern const uint16_t digit[12*DigitWidth];
+    extern const uint16_t digit[12*DigitHeight];
 
     struct Line {
         uint8_t x1;
