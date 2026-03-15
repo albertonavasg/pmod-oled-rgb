@@ -5,7 +5,7 @@ TARGET_USER=root
 TARGET_HOST=pynqz2-screen
 TARGET_DIR=/opt/screen
 
-BIN_DIR=build
+BIN_DIR=bin
 SCRIPTS_DIR=scripts
 ASSETS_DIR=assets
 

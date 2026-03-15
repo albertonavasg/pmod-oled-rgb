@@ -1,58 +1,70 @@
 # Paths
-SRC_DIR := src
+SRC_DIR     := src
+APP_DIR     := apps
 INCLUDE_DIR := include
-APP_DIR := apps
-BUILD_DIR := build
-
-# Makefile silent
-.SILENT:
+BIN_DIR     := bin
 
 # Cross-compiler
 TOOLCHAIN_PATH := $(HOME)/tools/arm-gnu-toolchain-12.2.rel1-x86_64-arm-none-linux-gnueabihf/bin
 CXX := $(TOOLCHAIN_PATH)/arm-none-linux-gnueabihf-g++
-# Compiler flags
+
+# Flags
 CXXFLAGS := -I$(INCLUDE_DIR) -isystem $(INCLUDE_DIR)/nlohmann -Wall -O2 -std=c++20 -Wno-psabi
-# Linker flags
 LDFLAGS :=
 
-# Sources
-SRCS := $(wildcard $(SRC_DIR)/*.cpp)
-OBJS := $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(SRCS))
+# Common sources and corresponding object files
+COMMON_SRCS := $(wildcard $(SRC_DIR)/*.cpp)
+COMMON_OBJS := $(patsubst $(SRC_DIR)/%.cpp,$(BIN_DIR)/%.o,$(COMMON_SRCS))
 
-# Default: all
+# App object names
+TEST_APP_OBJ    := $(BIN_DIR)/test_app.o
+SERVICE_APP_OBJ := $(BIN_DIR)/service_app.o
+
+# App binary names
+TEST_APP_BIN    := $(BIN_DIR)/test_app
+SERVICE_APP_BIN := $(BIN_DIR)/service_app
+
+# Makefile silent
+.SILENT:
+# Explicit default goal
 .DEFAULT_GOAL := all
 
-# Autodetect apps and create targets
-APPS := $(basename $(notdir $(wildcard $(APP_DIR)/*.cpp)))
-APP_TARGETS := $(addprefix $(BUILD_DIR)/,$(APPS))
+# Main targets
+all: test_app service_app
 
-# All apps target
-all: $(APP_TARGETS)
+test_app: $(TEST_APP_BIN)
 
-# Ensure build directory exists
-$(BUILD_DIR):
-	mkdir -p $(BUILD_DIR)
+service_app: $(SERVICE_APP_BIN)
 
-# Compile src files
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp | $(BUILD_DIR)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-# Compile app files
-$(BUILD_DIR)/%.o: $(APP_DIR)/%.cpp | $(BUILD_DIR)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-# Link apps
-$(BUILD_DIR)/%: $(OBJS) $(BUILD_DIR)/%.o
-	echo "Linking -> $@"
-	$(CXX) $(OBJS) $(BUILD_DIR)/$*.o $(LDFLAGS) -o $@
-	echo "Built -> $@"
-
-# Make each app a phony target to force Make to expand pattern rules
-.PHONY: $(APPS)
-$(APPS): %: $(BUILD_DIR)/%
-
-# Clean
-.PHONY: clean all
 clean:
-	rm -rf $(BUILD_DIR)/*
-	echo "Clean done"
+	echo "[CLEAN]"
+	rm -rf $(BIN_DIR)
+
+.PHONY: all clean test_app service_app
+
+# Utility targets
+$(BIN_DIR):
+	mkdir -p $(BIN_DIR)
+
+# Compile common sources
+$(BIN_DIR)/%.o: $(SRC_DIR)/%.cpp | $(BIN_DIR)
+	echo "[CXX] $(notdir $<)"
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# Compile each app
+$(TEST_APP_OBJ): $(APP_DIR)/test_app.cpp | $(BIN_DIR)
+	echo "[APP] $(notdir $<)"
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(SERVICE_APP_OBJ): $(APP_DIR)/service_app.cpp | $(BIN_DIR)
+	echo "[APP] $(notdir $<)"
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# Link each app
+$(TEST_APP_BIN): $(COMMON_OBJS) $(TEST_APP_OBJ)
+	echo "[LD] $(notdir $@)"
+	$(CXX) $(LDFLAGS) $(COMMON_OBJS) $(TEST_APP_OBJ) -o $@
+
+$(SERVICE_APP_BIN): $(COMMON_OBJS) $(SERVICE_APP_OBJ)
+	echo "[LD] $(notdir $@)"
+	$(CXX) $(LDFLAGS) $(COMMON_OBJS) $(SERVICE_APP_OBJ) -o $@
