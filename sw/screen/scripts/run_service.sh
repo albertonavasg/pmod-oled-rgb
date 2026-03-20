@@ -1,4 +1,5 @@
 #!/bin/sh
+
 set -euo pipefail
 
 # Get the directory of the script
