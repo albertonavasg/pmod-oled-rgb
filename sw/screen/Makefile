@@ -49,22 +49,22 @@ $(BIN_DIR):
 # Compile common sources
 $(BIN_DIR)/%.o: $(SRC_DIR)/%.cpp | $(BIN_DIR)
 	echo "[CXX] $(notdir $<)"
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c -o $< $@
 
 # Compile each app
 $(TEST_APP_OBJ): $(APP_DIR)/test_app.cpp | $(BIN_DIR)
 	echo "[APP] $(notdir $<)"
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 $(SERVICE_APP_OBJ): $(APP_DIR)/service_app.cpp | $(BIN_DIR)
 	echo "[APP] $(notdir $<)"
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 # Link each app
 $(TEST_APP_BIN): $(COMMON_OBJS) $(TEST_APP_OBJ)
 	echo "[LD] $(notdir $@)"
-	$(CXX) $(LDFLAGS) $(COMMON_OBJS) $(TEST_APP_OBJ) -o $@
+	$(CXX) $(LDFLAGS) -o $@ $(COMMON_OBJS) $(TEST_APP_OBJ)
 
 $(SERVICE_APP_BIN): $(COMMON_OBJS) $(SERVICE_APP_OBJ)
 	echo "[LD] $(notdir $@)"
-	$(CXX) $(LDFLAGS) $(COMMON_OBJS) $(SERVICE_APP_OBJ) -o $@
+	$(CXX) $(LDFLAGS) -o $@ $(COMMON_OBJS) $(SERVICE_APP_OBJ)
