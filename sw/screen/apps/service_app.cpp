@@ -12,7 +12,7 @@
 
 using namespace std::chrono_literals;
 
-static Service* g_service = nullptr;
+static Service *g_service = nullptr;
 
 static void signalHandler(int);
 

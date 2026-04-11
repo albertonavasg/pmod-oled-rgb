@@ -62,14 +62,28 @@ Service::~Service() {
 
 void Service::run() {
 
+    using clock = std::chrono::steady_clock;
+
+    constexpr auto period = 100ms;
+    auto next_tick = clock::now();
+
     while (m_running) {
+        next_tick += period;
+
         updateDateAndTime();
         updateIpAndMask();
-        // Update all screens
-        for (service::ScreenContext &ctx : m_screens) {
+
+        for (service::ScreenContext& ctx : m_screens) {
             updateMode(ctx);
         }
-        std::this_thread::sleep_for(100ms);
+
+        auto now = clock::now();
+
+        if (now < next_tick) {
+            std::this_thread::sleep_until(next_tick);
+        } else if (now - next_tick > period) {
+            next_tick = now;
+        }
     }
 }
 
