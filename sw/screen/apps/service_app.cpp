@@ -18,17 +18,26 @@ static void signalHandler(int);
 
 int main() {
 
-    std::cout << "Screen service application running." << std::endl;
+    try {
+        std::cout << "Screen service application running." << std::endl;
 
-    std::signal(SIGINT,  signalHandler);
-    std::signal(SIGTERM, signalHandler);
+        std::signal(SIGINT,  signalHandler);
+        std::signal(SIGTERM, signalHandler);
 
-    Service service(AppPaths::CONFIG_PATH);
-    g_service = &service;
+        Service service(AppPaths::CONFIG_PATH);
+        g_service = &service;
 
-    service.run();
+        service.run();
 
-    return 0;
+        return EXIT_SUCCESS;
+    } catch (const std::exception &e) {
+        std::cerr << "Fatal error: " << e.what() << std::endl;
+        return EXIT_FAILURE;
+
+    } catch (...) {
+        std::cerr << "Unknown fatal error" << std::endl;
+        return EXIT_FAILURE;
+    }
 }
 
 static void signalHandler(int) {
