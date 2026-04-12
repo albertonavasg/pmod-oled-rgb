@@ -40,8 +40,8 @@ Service::Service(const std::string &configFile) {
     m_screens.reserve(screens.size());
 
     for (const json &s : screens) {
-        const std::string id  = s.at("id").get<std::string>();
         const std::string uio = s.at("uio").get<std::string>();
+        const std::string id  = s.at("id").get<std::string>();
         const bool enteringNewMode = true;
 
         m_screens.push_back({
@@ -73,7 +73,7 @@ void Service::run() {
         updateDateAndTime();
         updateIpAndMask();
 
-        for (service::ScreenContext& ctx : m_screens) {
+        for (service::ScreenContext &ctx : m_screens) {
             updateMode(ctx);
         }
 

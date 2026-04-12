@@ -34,9 +34,7 @@ Screen::Screen(const std::string &uio_device) {
         throw std::runtime_error("mmap failed for " + path + ": " + std::strerror(errno));
     }
 
-    writePowerState(true);
-
-    if (!waitForPowerState(screen::PowerState::On, std::chrono::seconds(1))) {
+    if (!screenOnOff(true)) {
         munmap((void*)m_reg, MAP_SIZE);
         close(m_fd);
         m_fd = -1;
@@ -48,13 +46,22 @@ Screen::Screen(const std::string &uio_device) {
 Screen::~Screen() {
 
     if (m_reg && m_reg != MAP_FAILED) {
-        writePowerState(false);
-        waitForPowerState(screen::PowerState::Off, std::chrono::seconds(1));
+        screenOnOff(false);
         munmap((void*)m_reg, MAP_SIZE);
     }
 
     if (m_fd >= 0) {
         close(m_fd);
+    }
+}
+
+bool Screen::screenOnOff(bool value) {
+
+    writePowerState(value);
+    if (value) {
+        return waitForPowerState(screen::PowerState::On, std::chrono::seconds(1));
+    } else {
+        return waitForPowerState(screen::PowerState::Off, std::chrono::seconds(1));
     }
 }
 

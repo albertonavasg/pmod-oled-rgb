@@ -4,8 +4,6 @@
 #include <cstdint> // uint
 #include <chrono>  // time
 
-using namespace std::chrono_literals;
-
 namespace screen {
 
     enum class PowerState : uint8_t {
@@ -65,7 +63,7 @@ namespace screen {
         ActivateScroll        = 0x2F,
     };
 
-    constexpr std::chrono::nanoseconds defaultSpiDelay = 0ns;
+    constexpr std::chrono::nanoseconds defaultSpiDelay = std::chrono::nanoseconds(0);
 
     namespace Geometry {
 

@@ -21,6 +21,8 @@ class Screen {
         ~Screen();
 
         //// Public methods
+        bool screenOnOff(bool value);
+
         bool clearWindow(uint8_t c1, uint8_t r1, uint8_t c2, uint8_t r2);
         void clearScreen();
 
