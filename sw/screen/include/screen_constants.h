@@ -138,7 +138,7 @@ namespace screen {
         constexpr Color Black = {0, 0, 0};
     }
 
-    enum class ApplyMode {
+    enum class ApplyMode : uint8_t {
 
         Current,
         Default

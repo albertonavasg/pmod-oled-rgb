@@ -39,6 +39,9 @@ class Service {
         service::Network m_prevNet{};
         bool m_netHasChanged = false;
 
+        // Power State Handler
+        bool setPowerState(service::ScreenContext &ctx, bool value);
+
         // Mode handlers
         void updateMode(service::ScreenContext &ctx);
         void updateNoneMode(service::ScreenContext &ctx);

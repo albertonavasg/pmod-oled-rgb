@@ -94,6 +94,16 @@ void Service::stop() {
     }
 }
 
+bool Service::setPowerState(service::ScreenContext &ctx, bool value) {
+
+    Screen &screen = *ctx.screen;
+    if (screen.getOnOff() == value) {
+        return false;
+    } else {
+        return screen.setOnOff(value);
+    }
+}
+
 void Service::updateMode(service::ScreenContext &ctx) {
 
     if (ctx.enteringNewMode) {
