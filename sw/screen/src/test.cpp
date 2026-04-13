@@ -23,6 +23,7 @@ void Test::full() {
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
     broadcast([](Screen &s){s.applyDefaultSettings();}, 100ms);
 
+    onOff();
     display();
     randomPattern();
     colorDepth();
@@ -41,6 +42,15 @@ void Test::full() {
     inverseDisplay();
     remap();
     screenOrientation();
+
+    broadcast([](Screen &s){s.clearScreen();}, 200ms);
+    broadcast([](Screen &s){s.applyDefaultSettings();}, 100ms);
+}
+
+void Test::onOff() {
+
+    broadcast([](Screen &s){s.setOnOff(false);}, 1s);
+    broadcast([](Screen &s){s.setOnOff(true);}, 1s);
 
     broadcast([](Screen &s){s.clearScreen();}, 200ms);
     broadcast([](Screen &s){s.applyDefaultSettings();}, 100ms);

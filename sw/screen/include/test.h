@@ -17,6 +17,7 @@ class Test {
 
         // Test routines
         void full();
+        void onOff();
         void display();
         void randomPattern();
         void colorDepth();
