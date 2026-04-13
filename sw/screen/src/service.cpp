@@ -42,11 +42,13 @@ Service::Service(const std::string &configFile) {
     for (const json &s : screens) {
         const std::string uio = s.at("uio").get<std::string>();
         const std::string id  = s.at("id").get<std::string>();
+        const bool powerState = true;
         const bool enteringNewMode = true;
 
         m_screens.push_back({
             std::make_unique<Screen>(uio),
             id,
+            powerState,
             parseScreenMode(s.at("mode").get<std::string>()),
             parseScreenSubMode(s.at("subMode").get<std::string>()),
             enteringNewMode
@@ -74,7 +76,9 @@ void Service::run() {
         updateIpAndMask();
 
         for (service::ScreenContext &ctx : m_screens) {
-            updateMode(ctx);
+            if (ctx.powerState) {
+                updateMode(ctx);
+            }
         }
 
         auto now = clock::now();
@@ -100,7 +104,12 @@ bool Service::setPowerState(service::ScreenContext &ctx, bool value) {
     if (screen.getOnOff() == value) {
         return false;
     } else {
-        return screen.setOnOff(value);
+        if (screen.setOnOff(value)) {
+            ctx.powerState = value;
+            return true;
+        } else {
+            return false;
+        }
     }
 }
 

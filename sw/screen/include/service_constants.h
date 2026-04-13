@@ -30,6 +30,7 @@ namespace service {
 
         std::unique_ptr<Screen> screen;
         std::string id;
+        bool powerState;
         service::ScreenMode mode;
         service::ScreenSubMode subMode;
         bool enteringNewMode;
