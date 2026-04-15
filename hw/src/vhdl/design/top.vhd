@@ -3,7 +3,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
 entity top is
-    Port ( 
+    Port (
         CLK   : in std_logic;
         RESET : in std_logic;
 
@@ -16,61 +16,6 @@ entity top is
 end top;
 
 architecture Behavioral of top is
-
-    -- Components
-    component screen_controller is
-        Port (
-            -- Sync
-            CLK    : in std_logic;
-            RESETN : in std_logic;
-    
-            -- Control
-            ON_OFF      : in  std_logic;
-            SPI_TRIGGER : in  std_logic;
-    
-            -- Status
-            ON_OFF_STATUS : out std_logic_vector(1 downto 0);
-            SPI_READY     : out std_logic;
-            
-            -- SPI data request
-            SPI_DATA_REQUEST : out std_logic;
-            
-            -- Data input
-            BYTE      : in  std_logic_vector(7 downto 0);
-            DC_SELECT : in  std_logic;
-    
-            -- Pmod physical pins
-            MOSI         : out std_logic;
-            SCK          : out std_logic;
-            CS           : out std_logic;
-            DATA_COMMAND : out std_logic;
-            POWER_RESET  : out std_logic;
-            VCC_ENABLE   : out std_logic;
-            PMOD_ENABLE  : out std_logic
-        );
-    end component;
-
-    component screen_tester is
-        Port ( 
-            -- Sync
-            CLK    : in std_logic;
-            RESETN : in std_logic;
-    
-            -- Enable
-            ENABLE : in std_logic;
-    
-            -- Control
-            SPI_TRIGGER : out std_logic;
-    
-            -- Status
-            ON_OFF_STATUS : in  std_logic_vector(1 downto 0);
-            SPI_READY     : in  std_logic;
-    
-            -- Data
-            BYTE      : out std_logic_vector(7 downto 0);
-            DC_SELECT : out std_logic
-        );
-    end component;
 
     -- Signals (screen_controller)
     signal on_off      : std_logic;
@@ -100,8 +45,6 @@ architecture Behavioral of top is
     constant DB_MAX   : integer := 1250000; -- 10ms at 125MHz
 
 begin
-
-    -- Processes
 
     -- Debounce reset
     debounce_rst: process(CLK)
@@ -136,28 +79,27 @@ begin
     -- Invert reset
     resetn <= not reset_sync(1);
 
-    -- Port Map
-    screen_controller_inst: screen_controller
+    screen_controller_inst: entity work.screen_controller
         Port Map (
             -- Sync
             CLK    => CLK,
             RESETN => resetn,
-    
+
             -- Control
             ON_OFF      => on_off,
             SPI_TRIGGER => spi_trigger,
-    
+
             -- Status
             ON_OFF_STATUS => on_off_status,
             SPI_READY     => spi_ready,
-            
+
             -- SPI data request
             SPI_DATA_REQUEST => open,
 
             -- Data input
             BYTE      => byte,
             DC_SELECT => dc_select,
-    
+
             -- Pmod physical pins
             MOSI         => mosi,
             SCK          => sck,
@@ -165,25 +107,25 @@ begin
             DATA_COMMAND => data_command,
             POWER_RESET  => power_reset,
             VCC_ENABLE   => vcc_enable,
-            PMOD_ENABLE  => pmod_enable 
+            PMOD_ENABLE  => pmod_enable
         );
-    
-    screen_tester_inst: screen_tester
+
+    screen_tester_inst: entity work.screen_tester
         Port Map (
             -- Sync
             CLK    => CLK,
             RESETN => resetn,
-    
+
             -- Enable
             ENABLE => enable_screen_tester,
-    
+
             -- Control
             SPI_TRIGGER => spi_trigger,
-    
+
             -- Status
             ON_OFF_STATUS => on_off_status,
             SPI_READY     => spi_ready,
-    
+
             -- Data
             BYTE      => byte,
             DC_SELECT => dc_select

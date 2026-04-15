@@ -36,46 +36,17 @@ end screen_controller;
 
 architecture Behavioral of screen_controller is
 
-    -- Components
-    component spi_master is
-        Generic (   
-            N              : positive  := 32;  -- 32bit serial word length is default
-            CPOL           : std_logic := '0'; -- SPI mode selection (mode 0 default)
-            CPHA           : std_logic := '0'; -- CPOL = clock polarity, CPHA = clock phase.
-            PREFETCH       : positive  := 2;   -- prefetch lookahead cycles
-            SPI_2X_CLK_DIV : positive  := 5    -- for a 100MHz sclk_i, yields a 10MHz SCK
-        );
-        Port (  
-            sclk_i : in std_logic := 'X'; -- high-speed serial interface system clock
-            pclk_i : in std_logic := 'X'; -- high-speed parallel interface system clock
-            rst_i  : in std_logic := 'X'; -- reset core
-            ---- serial interface ----
-            spi_ssel_o : out std_logic;        -- spi bus slave select line
-            spi_sck_o  : out std_logic;        -- spi bus sck
-            spi_mosi_o : out std_logic;        -- spi bus mosi output
-            spi_miso_i : in  std_logic := 'X'; -- spi bus spi_miso_i input
-            ---- parallel interface ----
-            di_req_o   : out std_logic;                                          -- preload lookahead data request line
-            di_i       : in  std_logic_vector (N-1 downto 0) := (others => 'X'); -- parallel data in (clocked on rising spi_clk after last bit)
-            wren_i     : in  std_logic := 'X';                                   -- user data write enable, starts transmission when interface is idle
-            wr_ack_o   : out std_logic;                                          -- write acknowledge
-            do_valid_o : out std_logic;                                          -- do_o data valid signal, valid during one spi_clk rising edge.
-            do_o       : out std_logic_vector (N-1 downto 0);                    -- parallel output (clocked on rising spi_clk after last bit)
-            done_o     : out std_logic											 -- handshake added to break continuous tx/rx 
-        );                      
-    end component;
-
     -- SPI Commands
     constant EMPTY_COMMAND                 : std_logic_vector(7 downto 0) := x"00";
     constant UNLOCK_COMMAND                : std_logic_vector(7 downto 0) := x"FD";
     constant UNLOCK_DATA                   : std_logic_vector(7 downto 0) := x"12";
     constant DISPLAY_OFF_COMMAND           : std_logic_vector(7 downto 0) := x"AE";
     constant DISPLAY_ON_COMMAND            : std_logic_vector(7 downto 0) := x"AF";
-    constant CLEAR_WINDOW_COMMAND          : std_logic_vector(7 downto 0) := x"25";    
-    constant REMAP_COMMAND                 : std_logic_vector(7 downto 0) := x"A0";  
-    constant DISPLAY_START_LINE_COMMAND    : std_logic_vector(7 downto 0) := x"A1"; 
-    constant DISPLAY_OFFSET_COMMAND        : std_logic_vector(7 downto 0) := x"A2"; 
-    constant NORMAL_DISPLAY_COMMAND        : std_logic_vector(7 downto 0) := x"A4"; 
+    constant CLEAR_WINDOW_COMMAND          : std_logic_vector(7 downto 0) := x"25";
+    constant REMAP_COMMAND                 : std_logic_vector(7 downto 0) := x"A0";
+    constant DISPLAY_START_LINE_COMMAND    : std_logic_vector(7 downto 0) := x"A1";
+    constant DISPLAY_OFFSET_COMMAND        : std_logic_vector(7 downto 0) := x"A2";
+    constant NORMAL_DISPLAY_COMMAND        : std_logic_vector(7 downto 0) := x"A4";
     constant ENTIRE_DISPLAY_ON_COMMAND     : std_logic_vector(7 downto 0) := x"A5";
     constant ENTIRE_DISPLAY_OFF_COMMAND    : std_logic_vector(7 downto 0) := x"A6";
     constant INVERSE_DISPLAY_COMMAND       : std_logic_vector(7 downto 0) := x"A7";
@@ -114,11 +85,11 @@ architecture Behavioral of screen_controller is
     -- General State Machine
     type gsm_states is (gsm_off, gsm_turning_on, gsm_on, gsm_turning_off);
     signal gsm_state : gsm_states := gsm_off;
-    
+
     -- SPI State Machine
     type   spi_states is (spi_idle, spi_write, spi_finish);
     signal spi_state : spi_states := spi_idle;
-    
+
     -- SPI signals
     signal spi_data_req  : std_logic := '0';
     signal spi_data      : std_logic_vector(7 downto 0) := (others => '0');
@@ -175,7 +146,7 @@ architecture Behavioral of screen_controller is
 
     -- Flag to indicate power_on or power_off sequence has ended
     signal transition_completed_flag : std_logic := '0';
-    
+
     -- Delayed signals
     signal on_off_d         : std_logic := '0';
     signal spi_data_req_d   : std_logic := '0';
@@ -246,7 +217,7 @@ begin
         variable seq_counter : integer := 0;
     begin
         if (rising_edge(CLK)) then
-        
+
             if (RESETN = '0') then
                 spi_data_array <= (others => (others => '0'));
                 spi_start_flag <= '0';
@@ -260,17 +231,17 @@ begin
 
             else
 
-                case gsm_state is 
+                case gsm_state is
 
                     when gsm_off =>
 
                         spi_data_array <= (others => (others => '0'));
                         spi_start_flag <= '0';
-            
+
                         POWER_RESET <= '1';
                         VCC_ENABLE  <= '0';
                         PMOD_ENABLE <= '0';
-            
+
                         seq_counter := 0;
                         transition_completed_flag <= '0';
 
@@ -289,68 +260,68 @@ begin
                             configure_timer(timer_enable, '1', max_timer_value, TIMER_5US, timer_auto_reset, '0');
                             POWER_RESET <= '0';
                             seq_counter := seq_counter + 1;
-                        
+
                         elsif (seq_counter = 3 and timer_expired = '1') then
                             configure_timer(timer_enable, '0', max_timer_value, 0, timer_auto_reset, '0');
                             seq_counter := seq_counter + 1;
-                        
+
                         elsif (seq_counter = 4) then
                             configure_timer(timer_enable, '1', max_timer_value, TIMER_5US, timer_auto_reset, '0');
                             POWER_RESET <= '1';
                             seq_counter := seq_counter + 1;
-                        
+
                         elsif (seq_counter = 5 and timer_expired = '1') then
                             configure_timer(timer_enable, '0', max_timer_value, 0, timer_auto_reset, '0');
                             seq_counter := seq_counter + 1;
-                        
+
                         elsif (seq_counter = 6) then
                             spi_data_array     <= ON_SEQUENCE_1;
                             spi_data_array_len <= ON_SEQUENCE_1_LEN;
                             spi_start_flag     <= '1';
                             seq_counter := seq_counter + 1;
-                        
+
                         elsif (seq_counter = 7) then
                             spi_start_flag <= '0';
                             seq_counter    := seq_counter + 1;
-                        
+
                         elsif (seq_counter = 8 and spi_done_flag = '1' and spi_done_flag_d = '0') then
                             configure_timer(timer_enable, '1', max_timer_value, TIMER_25MS, timer_auto_reset, '0');
                             VCC_ENABLE  <= '1';
                             seq_counter := seq_counter + 1;
-                        
+
                         elsif (seq_counter = 9 and timer_expired = '1') then
                             configure_timer(timer_enable, '0', max_timer_value, 0, timer_auto_reset, '0');
                             seq_counter := seq_counter + 1;
-                        
+
                         elsif (seq_counter = 10) then
                             spi_data_array     <= ON_SEQUENCE_2;
                             spi_data_array_len <= ON_SEQUENCE_2_LEN;
                             spi_start_flag     <= '1';
                             seq_counter        := seq_counter + 1;
-                        
+
                         elsif (seq_counter = 11) then
                             spi_start_flag <= '0';
                             seq_counter := seq_counter + 1;
-                        
+
                         elsif (seq_counter = 12 and spi_done_flag = '1' and spi_done_flag_d = '0') then
                             configure_timer(timer_enable, '1', max_timer_value, TIMER_100MS, timer_auto_reset, '0');
                             seq_counter := seq_counter + 1;
-                        
+
                         elsif (seq_counter = 13 and timer_expired = '1') then
                             configure_timer(timer_enable, '0', max_timer_value, 0, timer_auto_reset, '0');
                             transition_completed_flag <= '1';
                             seq_counter               := seq_counter + 1;
                         end if;
-                    
+
                     when gsm_on =>
 
                         spi_data_array <= (others => (others => '0'));
                         spi_start_flag <= '0';
-            
+
                         POWER_RESET <= '1';
                         VCC_ENABLE  <= '1';
                         PMOD_ENABLE <= '1';
-            
+
                         seq_counter := 0;
                         transition_completed_flag <= '0';
 
@@ -361,16 +332,16 @@ begin
                             spi_data_array_len <= OFF_SEQUENCE_LEN;
                             spi_start_flag     <= '1';
                             seq_counter        := seq_counter + 1;
-                        
+
                         elsif (seq_counter = 1) then
                             spi_start_flag <= '0';
                             seq_counter    := seq_counter + 1;
-                        
+
                         elsif (seq_counter = 2 and spi_done_flag = '1' and spi_done_flag_d = '0') then
                             configure_timer(timer_enable, '1', max_timer_value, TIMER_400MS, timer_auto_reset, '0');
                             VCC_ENABLE  <= '0';
                             seq_counter := seq_counter + 1;
-                        
+
                         elsif (seq_counter = 3 and timer_expired = '1') then
                             configure_timer(timer_enable, '0', max_timer_value, 0, timer_auto_reset, '0');
                             transition_completed_flag <= '1';
@@ -396,7 +367,7 @@ begin
             else
                 case spi_state is
 
-                    when spi_idle =>         
+                    when spi_idle =>
                         spi_done_flag        <= '0';
                         spi_data_internal    <= (others => '0');
                         spi_trigger_internal <= '0';
@@ -447,7 +418,7 @@ begin
 
     -- Bypass SPI status signals when screen is ON
     -- Set them as 0 in the other cases
-    SPI_READY        <= spi_done     when (gsm_state = gsm_on) else '0'; 
+    SPI_READY        <= spi_done     when (gsm_state = gsm_on) else '0';
     SPI_DATA_REQUEST <= spi_data_req when (gsm_state = gsm_on) else '0';
 
     -- Bypass SPI control signals when screen is ON
@@ -494,7 +465,7 @@ begin
                             timer_value <= 0;
                         end if;
                     end if;
-                else 
+                else
                     timer_value   <= 0;
                     timer_expired <= '0';
                 end if;
@@ -505,8 +476,7 @@ begin
     -- Invert reset
     rst <= not RESETN;
 
-    -- Port Map
-        spi_master_inst: spi_master
+    spi_master_inst: entity work.spi_master
         Generic Map (
             N              => 8,   -- 1 Byte serial word length
             CPOL           => '1', -- Clock idles at high
