@@ -39,45 +39,44 @@ architecture Behavioral of top is
     signal enable_screen_tester : std_logic := '0';
 
     -- Signals for reset debounce and sync
+    signal reset_meta : std_logic := '0';
+    signal reset_sync : std_logic := '0';
     signal reset_db   : std_logic := '0';
-    signal reset_sync : std_logic_vector(1 downto 0) := (others => '0');
     signal resetn     : std_logic := '0';
+
+    signal db_count   : unsigned(23 downto 0) := (others => '0');
     constant DB_MAX   : integer := 1250000; -- 10ms at 125MHz
 
 begin
 
-    -- Debounce reset
-    debounce_rst: process(CLK)
-        variable counter : unsigned(23 downto 0) := (others => '0');
+    -- Sync reset
+    sync_rst : process(clk)
     begin
         if rising_edge(clk) then
-            if (RESET = '1') then
-                if counter < DB_MAX then
-                    counter := counter + 1;
-                else
-                    reset_db <= '1';
-                end if;
+            reset_meta <= RESET;
+            reset_sync <= reset_meta;
+        end if;
+    end process;
+
+    -- Debounce reset
+    debounce_rst : process(clk)
+    begin
+        if rising_edge(clk) then
+            if reset_sync = reset_db then
+                db_count <= (others => '0');
             else
-                if counter > 0 then
-                    counter := counter - 1;
+                if db_count < DB_MAX then
+                    db_count <= db_count + 1;
                 else
-                    reset_db <= '0';
+                    reset_db <= reset_sync;
+                    db_count <= (others => '0');
                 end if;
             end if;
         end if;
     end process;
 
-    -- Double FF reset synchronizer
-    sync_rst: process(CLK)
-    begin
-        if rising_edge(CLK) then
-            reset_sync(0) <= reset_db;
-            reset_sync(1) <= reset_sync(0);
-        end if;
-    end process;
-
     -- Invert reset
-    resetn <= not reset_sync(1);
+    resetn <= not reset_db;
 
     screen_controller_inst: entity work.screen_controller
         Port Map (
