@@ -80,7 +80,7 @@ architecture Behavioral of screen_controller is
 
     -- Type definitions
     constant SPI_SEQUENCE_MAX_SIZE : integer := 100;
-    type spi_sequence is array(0 to SPI_SEQUENCE_MAX_SIZE - 1) of std_logic_vector(7 downto 0);
+    type spi_sequence is array(natural range <>) of std_logic_vector(7 downto 0);
 
     -- General State Machine
     type gsm_states is (gsm_off, gsm_turning_on, gsm_on, gsm_turning_off);
@@ -97,8 +97,8 @@ architecture Behavioral of screen_controller is
     signal spi_write_ack : std_logic := '0';
     signal spi_done      : std_logic := '0';
 
-    signal spi_data_array : spi_sequence := (others => (others => '0'));
-    signal spi_data_array_len : integer := 0;
+    signal spi_data_array : spi_sequence(0 to SPI_SEQUENCE_MAX_SIZE - 1) := (others => (others => '0'));
+    signal spi_data_array_len : natural := 0;
 
     -- SPI command sequences
     constant ON_SEQUENCE_1 : spi_sequence := (UNLOCK_COMMAND, UNLOCK_DATA,
@@ -122,15 +122,12 @@ architecture Behavioral of screen_controller is
                                                 CONTRAST_B_COMMAND, x"50",
                                                 CONTRAST_C_COMMAND, x"7D",
                                                 DISABLE_SCROLL_COMMAND,
-                                                CLEAR_WINDOW_COMMAND, MIN_COLUMN, MIN_ROW, MAX_COLUMN, MAX_ROW,
-                                                others => EMPTY_COMMAND);
-    constant ON_SEQUENCE_1_LEN : integer := 44;
+                                                CLEAR_WINDOW_COMMAND, MIN_COLUMN, MIN_ROW, MAX_COLUMN, MAX_ROW
+                                            );
 
-    constant on_sequence_2 : spi_sequence := (DISPLAY_ON_COMMAND, others => EMPTY_COMMAND);
-    constant ON_SEQUENCE_2_LEN : integer := 1;
+    constant ON_SEQUENCE_2 : spi_sequence := (0 => DISPLAY_ON_COMMAND);
 
-    constant off_sequence : spi_sequence := (DISPLAY_OFF_COMMAND, others => EMPTY_COMMAND);
-    constant OFF_SEQUENCE_LEN : integer := 1;
+    constant OFF_SEQUENCE : spi_sequence := (0 => DISPLAY_OFF_COMMAND);
 
     -- Reset signal
     signal rst : std_logic;
@@ -275,10 +272,10 @@ begin
                             seq_counter := seq_counter + 1;
 
                         elsif (seq_counter = 6) then
-                            spi_data_array     <= ON_SEQUENCE_1;
-                            spi_data_array_len <= ON_SEQUENCE_1_LEN;
-                            spi_start_flag     <= '1';
-                            seq_counter := seq_counter + 1;
+                            spi_data_array(0 to ON_SEQUENCE_1'length - 1) <= ON_SEQUENCE_1;
+                            spi_data_array_len                            <= ON_SEQUENCE_1'length;
+                            spi_start_flag                                <= '1';
+                            seq_counter                                   := seq_counter + 1;
 
                         elsif (seq_counter = 7) then
                             spi_start_flag <= '0';
@@ -294,10 +291,10 @@ begin
                             seq_counter := seq_counter + 1;
 
                         elsif (seq_counter = 10) then
-                            spi_data_array     <= ON_SEQUENCE_2;
-                            spi_data_array_len <= ON_SEQUENCE_2_LEN;
-                            spi_start_flag     <= '1';
-                            seq_counter        := seq_counter + 1;
+                            spi_data_array(0 to ON_SEQUENCE_2'length - 1) <= ON_SEQUENCE_2;
+                            spi_data_array_len                            <= ON_SEQUENCE_2'length;
+                            spi_start_flag                                <= '1';
+                            seq_counter                                   := seq_counter + 1;
 
                         elsif (seq_counter = 11) then
                             spi_start_flag <= '0';
@@ -322,16 +319,16 @@ begin
                         VCC_ENABLE  <= '1';
                         PMOD_ENABLE <= '1';
 
-                        seq_counter := 0;
+                        seq_counter               := 0;
                         transition_completed_flag <= '0';
 
                     when gsm_turning_off =>
 
                         if (seq_counter = 0) then
-                            spi_data_array     <= OFF_SEQUENCE;
-                            spi_data_array_len <= OFF_SEQUENCE_LEN;
-                            spi_start_flag     <= '1';
-                            seq_counter        := seq_counter + 1;
+                            spi_data_array(0 to OFF_SEQUENCE'length - 1) <= OFF_SEQUENCE;
+                            spi_data_array_len                           <= OFF_SEQUENCE'length;
+                            spi_start_flag                               <= '1';
+                            seq_counter                                  := seq_counter + 1;
 
                         elsif (seq_counter = 1) then
                             spi_start_flag <= '0';
