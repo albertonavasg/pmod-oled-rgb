@@ -380,7 +380,7 @@ void Service::renderDateString(service::ScreenContext &ctx) {
 
     Screen &s = *ctx.screen;
 
-    // Format date
+    // Format month
     static const char* months[] = {
         "Jan","Feb","Mar","Apr","May","Jun",
         "Jul","Aug","Sep","Oct","Nov","Dec"
@@ -388,10 +388,10 @@ void Service::renderDateString(service::ScreenContext &ctx) {
 
     char dateBuf[16];
     std::snprintf(dateBuf, sizeof(dateBuf),
-                "%s %u %u",
+                "%u %s %u",
+                m_date.year,
                 months[m_date.month - 1],
-                m_date.day,
-                m_date.year);
+                m_date.day);
 
     renderTextBlock(s, service::InfoDateBlock, dateBuf);
 }
