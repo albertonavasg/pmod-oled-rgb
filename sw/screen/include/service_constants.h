@@ -93,7 +93,7 @@ namespace service {
     };
 
     constexpr uint8_t DigitWidth = 16;
-    constexpr uint8_t DigitHeight = 33;
+    constexpr uint8_t DigitHeight = 29;
 
     extern const uint16_t digit[12*DigitHeight];
 
