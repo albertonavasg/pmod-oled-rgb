@@ -1,4 +1,5 @@
 axi_screen/
+build/
 NA/
 *.log
 *.jou

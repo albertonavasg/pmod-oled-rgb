@@ -3,7 +3,7 @@
 set -euo pipefail
 
 TARGET_USER=root
-TARGET_HOST=pynqz2-screen
+TARGET_HOST=pynq-z2-screen
 TARGET_DIR=/opt/screen
 
 BIN_DIR=bin

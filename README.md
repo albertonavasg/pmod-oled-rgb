@@ -1,9 +1,9 @@
 # pmod-oled-rgb
 
-Project for **Design of Embedded Systems**, a subject from my Master's Degree in Industrial Electronics.   
+Project for **Design of Embedded Systems**, a subject from my Master's Degree in Industrial Electronics.
 
 <div align="center">
-<img src="images/pmod-oled-rgb.png" title="Pmod OLED RGB" width="100%" height="auto"> 
+<img src="images/pmod-oled-rgb.png" title="Pmod OLED RGB" width="100%" height="auto">
 </div>
 
 ***
@@ -12,6 +12,7 @@ Project for **Design of Embedded Systems**, a subject from my Master's Degree in
 
 - [Requirements]()
 - [Project Overview](#project-overview)
+- [Steps](#steps)
 - [Design](#design)
     - [The VHDL Block](#the-vhdl-block)
     - [Vivado project: screen](#vivado-project-screen)
@@ -27,11 +28,11 @@ Project for **Design of Embedded Systems**, a subject from my Master's Degree in
 
 ## Requirements
 
-Vivado: **2024.1**  
-Petalinux: **2024.1**  
-Board: **PYNQ-Z2**
+Vivado: **2025.1**
 
-The Vivado development can be done in Windows or Linux, but Petalinux requires Linux: [Petalinux 2024.1][petalinux-2024.1]
+Petalinux: **2025.1**
+
+Board: **PYNQ-Z2**
 
 ***
 
@@ -50,12 +51,39 @@ Here is a little demo video of it working, executing some demo functions, such a
 
 [PMOD OLED RGB Demo][youtube-demo]
 
-This was the first version of the project.  
+This was the first version of the project.
 
-To see the code, go to the folder `old_version`  
+To see the code, go to the folder `old_version`
 
-Currently I am working on the second version, with some enhacements: add support for a second screen, build the embedded operating system with petalinux, show the FPGA IP address on one of the screens, etc.  
+Currently I am working on the second version, with some enhacements: add support for a second screen, build the embedded operating system with petalinux, show the FPGA IP address on one of the screens, etc.
 This is the work described now.
+
+## Steps
+
+Generate hardware platform
+
+    $ cd hw/vivado_axi_screen
+    $ ./generate_hw_platform
+
+Generate Petalinux image
+
+    $ cd os
+    $ ./generate_petalinux_image
+
+Package OS in SD card (already partitioned)
+
+    $ cd os
+    $ ./package_sd_image.sh
+
+Compile and send `basic_test` software to the board
+
+    $ cd sw/basic_test/linux
+    $ ./compile_and_send.sh
+
+Compile and send `screen` software to the board
+
+    $ cd sw/screen
+    $ ./deploy.sh
 
 ## Design
 
@@ -70,60 +98,16 @@ The architecture is really simple:
     └── spi_master
 ```
 
-The core block is `spi_master`.  
+The core block is `spi_master`.
 
 In the first version of the project, I created from scratch an `spi_master` block with a fixed speed (1MHz SCK) and also fixed to work in SPI mode 3.
 
-For this second version, I decided to get an `spi_master` block from [OpenCores][open-cores], which is configurable and much more sofisticated.  
-I configured it for SPI mode 3 (required by the Pmod OLED RGB) and used a 6.25MHz SCK (125MHz clk input with 20 clock divider). The maximum SCK allowed by the screen is 6.6MHz.  
-
-```
-entity spi_master is
-    Generic (   
-        N              : positive  := 32;  -- 32bit serial word length is default
-        CPOL           : std_logic := '0'; -- SPI mode selection (mode 0 default)
-        CPHA           : std_logic := '0'; -- CPOL = clock polarity, CPHA = clock phase.
-        PREFETCH       : positive  := 2;   -- prefetch lookahead cycles
-        SPI_2X_CLK_DIV : positive  := 5    -- for a 100MHz sclk_i, yields a 10MHz SCK
-    );
-    Port (  
-        sclk_i : in std_logic := 'X'; -- high-speed serial interface system clock
-        pclk_i : in std_logic := 'X'; -- high-speed parallel interface system clock
-        rst_i  : in std_logic := 'X'; -- reset core
-        ---- serial interface ----
-        spi_ssel_o : out std_logic;        -- spi bus slave select line
-        spi_sck_o  : out std_logic;        -- spi bus sck
-        spi_mosi_o : out std_logic;        -- spi bus mosi output
-        spi_miso_i : in  std_logic := 'X'; -- spi bus spi_miso_i input
-        ---- parallel interface ----
-        di_req_o   : out std_logic;                                          -- preload lookahead data request line
-        di_i       : in  std_logic_vector (N-1 downto 0) := (others => 'X'); -- parallel data in (clocked on rising spi_clk after last bit)
-        wren_i     : in  std_logic := 'X';                                   -- user data write enable, starts transmission when interface is idle
-        wr_ack_o   : out std_logic;                                          -- write acknowledge
-        do_valid_o : out std_logic;                                          -- do_o data valid signal, valid during one spi_clk rising edge.
-        do_o       : out std_logic_vector (N-1 downto 0);                    -- parallel output (clocked on rising spi_clk after last bit)
-        done_o     : out std_logic                                           -- handshake added to break continuous tx/rx
-        --- debug ports: can be removed or left unconnected for the application circuit ---
-        -- sck_ena_o     : out std_logic;                     -- debug: internal sck enable signal
-        -- sck_ena_ce_o  : out std_logic;                     -- debug: internal sck clock enable signal
-        -- do_transfer_o : out std_logic;                     -- debug: internal transfer driver
-        -- wren_o        : out std_logic;                     -- debug: internal state of the wren_i pulse stretcher
-        -- rx_bit_reg_o  : out std_logic;                     -- debug: internal rx bit
-        -- state_dbg_o   : out std_logic_vector (3 downto 0); -- debug: internal state register
-        -- core_clk_o    : out std_logic;
-        -- core_n_clk_o  : out std_logic;
-        -- core_ce_o     : out std_logic;
-        -- core_n_ce_o   : out std_logic
-        -- sh_reg_dbg_o  : out std_logic_vector (N-1 downto 0) -- debug: internal shift register
-    );                      
-end spi_master;
-```
-
-<br>
+For this second version, I decided to get an `spi_master` block from [OpenCores][open-cores], which is configurable and much more sofisticated.
+I configured it for SPI mode 3 (required by the Pmod OLED RGB) and used a 6.25MHz SCK (125MHz clk input with 20 clock divider). The maximum SCK allowed by the screen is 6.6MHz.
 
 The upper level block is `screen_controller` and behaves as follows:
 
-When putting a `1` in `ON_OFF`, the turning_on sequence is executed (some required steps to correctly start using the Pmod OLED RGB, such as managing `POWER_RESET`, `VCC_ENABLE` and `PMOD_ENABLE`, and sending some SPI commands to set the default settings). More info about this can be found in the [Reference Manual][pmod-oled-rgb-reference-manual].  
+When putting a `1` in `ON_OFF`, the turning_on sequence is executed (some required steps to correctly start using the Pmod OLED RGB, such as managing `POWER_RESET`, `VCC_ENABLE` and `PMOD_ENABLE`, and sending some SPI commands to set the default settings). More info about this can be found in the [Reference Manual][pmod-oled-rgb-reference-manual].
 
 `ON_OFF_STATUS` indicates:
 - `00` OFF
@@ -131,7 +115,7 @@ When putting a `1` in `ON_OFF`, the turning_on sequence is executed (some requir
 - `10` Turning OFF
 - `11` ON
 
-When the screen is `ON`, the block bypasses the control signals to the `spi_master` block. In the other states, these control signals are managed internally to execute the aforementioned sequences.  
+When the screen is `ON`, the block bypasses the control signals to the `spi_master` block. In the other states, these control signals are managed internally to execute the aforementioned sequences.
 
 When `SPI_READY` shows a `1`, we can send a byte through SPI, because there is no SPI transtaction in progress.
 
@@ -143,49 +127,16 @@ To start an SPI transaction:
 The byte will be sent and the block will request another byte putting a `1` in `SPI_DATA_REQUEST`. This allows for continous data transmit (used when executing the `TURNING_ON` and `TURNING_OFF` sequence directly in hardware).
 If no more bytes are sent, the transaction will end and `SPI_READY` will show a `1`.
 
-```
-entity screen_controller is
-    Port (
-        -- Sync
-        CLK    : in std_logic;
-        RESETN : in std_logic;
-
-        -- Control
-        ON_OFF      : in  std_logic;
-        SPI_TRIGGER : in  std_logic;
-
-        -- Status
-        ON_OFF_STATUS : out std_logic_vector(1 downto 0);
-        SPI_READY     : out std_logic;
-
-        -- SPI data request
-        SPI_DATA_REQUEST : out std_logic;
-
-        -- Data input
-        BYTE      : in  std_logic_vector(7 downto 0);
-        DC_SELECT : in  std_logic;
-
-        -- Pmod physical pins
-        MOSI         : out std_logic;
-        SCK          : out std_logic;
-        CS           : out std_logic;
-        DATA_COMMAND : out std_logic;
-        POWER_RESET  : out std_logic;
-        VCC_ENABLE   : out std_logic;
-        PMOD_ENABLE  : out std_logic
-    );
-end screen_controller;
-```
-
 ***
 
 ### Vivado project: screen
 
-To create and test the `screen_controller` block, there is a vivado project called `screen`.  
+To create and test the `screen_controller` block, there is a Vivado project called `screen`.
 
-To replicate the project, open a cmd/terminal in its folder and run the script `build_screen.bat` (Windows) or `build_screen.sh` (Linux).
-These scripts will invoke the `generate_vivado_project.tcl` script, that generates the Vivado project, contained in its own folder.  
-It is done through the GUI, as for the moment it is not necessary to fully automate all the process, but this can easily be done in the future.
+The project can be replicated as follows:
+
+    $ cd hw/vivado_screen
+    $ ./generate_screen.sh
 
 This project has the following hierarchy:
 
@@ -196,10 +147,10 @@ This project has the following hierarchy:
     └── screen_tester
 ```
 
-The behaviour of `screen_controller` is explained above.  
+The behaviour of `screen_controller` is explained above.
 
-The block `screen_tester` works as follows: if `ON_OFF_STATUS` is ON and `screen_tester` receives a rising edge in  its `ENABLE`, it sends the "ENTIRE_DISPLAY_ON" command, making all the pixels in the screen white.  
-If it receives a falling edge in its `ENABLE`, it sends the "ENTIRE_DISPLAY_OFF" command, putting all pixels to black.  
+The block `screen_tester` works as follows: if `ON_OFF_STATUS` is ON and `screen_tester` receives a rising edge in  its `ENABLE`, it sends the "ENTIRE_DISPLAY_ON" command, making all the pixels in the screen white.
+If it receives a falling edge in its `ENABLE`, it sends the "ENTIRE_DISPLAY_OFF" command, putting all pixels to black.
 
 The `top` module instantiates `screen_controller` and `screen_tester` and makes the necessary connections
 This way, we have a physical test to see that the commands sent to the screen work.
@@ -212,17 +163,18 @@ This way, we have a physical test to see that the commands sent to the screen wo
 - LED3: `ON_OFF`
 
 In this project, there are also testbenches, for the `spi_master`, `screen_controller` and `screen_tester`.
-They can be set as top in the simulation folder to be individually executed, and see how each block works.
+They can be set as top in the simulation folder to be individually executed with Vivado simualtor, and see how each block works.
 
 ***
 
 ### Packaging the IP
 
 Once I had the VHDL block working and tested, it is the moment to package it in an AXI4Lite IP.
-In a Vivado project, in the top bar:  
+
+In a Vivado project, in the top bar:
  - Tools > Create and Package New IP > Create AXI4 Peripheral > [...] > Add IP to repository.
 
-Then, going to the IP Catalog, it can be edited with the IP Packager. It creates a project, where we need to add the user logic blocks (screen_controller and spi_master).
+Then, going to the IP Catalog, it can be edited with the IP Packager. It creates a project, where we need to add the user logic blocks (`screen_controller` and `spi_master`).
 
 With this IP, I basically connected the control/write ports (ON_OFF, SPI_TRIGGER, BYTE, DC_SELECT) and the status/read ports(ON_OFF_STATUS, SPI_READY, SPI_REQUEST_DATA) to the AXI registers of the IP block.
 
@@ -263,63 +215,69 @@ After this is done, we can re-package the IP and close the temporal project.
 
 ### Vivado project: axi_screen
 
-To generate what will be the final hardware platform, I created the vivado project `axi_screen`.  
+To generate what will be the final hardware platform, I created the vivado project `axi_screen`.
 
-To replicate the project, open a cmd/terminal in its folder and run the script `build_screen.bat` (Windows) or `build_screen.sh` (Linux).
-These scripts will invoke the `generate_vivado_project.tcl` script, that generates the Vivado project, contained in its own folder.  
-It is done through the GUI, as for the moment it is not necessary to fully automate all the process, but this can easily be done in the future.
+The project can be replicated as follows:
+
+    $ cd hw/vivado_axi_screen
+    $ ./generate_axi_screen.sh
 
 This project only has the HDL wrapper of the block diagram from the picture.
-T
+
 <br>
 
 <div align="center">
-<img src="images/screen_block.jpg" title="AXI Screen block Diagram" width="100%" height="auto"> 
+<img src="images/screen_block.jpg" title="AXI Screen block Diagram" width="100%" height="auto">
 </div>
 
 <br>
 
-In the block diagram, we can see the ZYNQ Processing System connected through AXI interface to 2 `screen` IP blocks.  
-The physical output ports of the screen IP are the PMOD and 2 LEDs (which show ON_OFF_STATUS).  
+In the block diagram, we can see the ZYNQ Processing System connected through AXI interface to 2 `screen` IP blocks.
+The physical output ports of the screen IP are the PMOD and 2 LEDs (which show ON_OFF_STATUS).
 
 We can generate the bitstream and after that export the hardware platform (a file with .xsa extension).
  - Files > Export > Export Hardware > Include Bitstream
 
-To test if this hardware platform works correctly, we can open Vitis (Tools > Launch Vitis IDE).  
+To do all these steps automatically (create the project, generate the bitstream and export the hardware platofrm) execute the following script:
+
+    $ ./generate_hw_platform.sh
+
+
+To test if this hardware platform works correctly, we can open Vitis (Tools > Launch Vitis IDE).
 We select a workspace or create a new one in a desired folder
 
 > [!TIP]
-> It is recommended to use a Vitis workspace with a short path, such as `C:/vitis_ws/` or else we can have some problems when trying to compile the hardware platform or the application
+> It is recommended to use a Vitis workspace with a short path, such as `$HOME/vitis_ws` or else we can have some problems when trying to compile the hardware platform or the application
 
-Once we have a Vitis workspace, we create a hardware platform based on the `.xsa` we exported before and compile it.  
+Once we have a Vitis workspace, we create a hardware platform based on the `.xsa` we exported before and compile it.
 
-Then we create an application project from the templates: Empty Application.  
+Then we create an application project from the templates: Empty Application.
 In `Sources > src` we add the C program `screen_test.c` (available in the repo: `sw/basic_test/baremetal/screen_test.c`).
-We can now build it and run it.  
+We can now build it and run it.
 We will see how the LEDs will turn ON (meaning ON_OFF_STATUS from screens A and B are ON "11") and how the screens receive the command "ENTIRE_DISPLAY_ON".
 
 <br>
 
 <div align="center">
-<img src="images/screen_test.jpg" title="Screen Platform test" width="100%" height="auto"> 
+<img src="images/screen_test.jpg" title="Screen Platform test" width="100%" height="auto">
 </div>
 
 <br>
 
 The screens are connected with 6x2 dupont cables because both can't fit directly in the PMOD connectors side by side.
 
-I decided not to create any scripts to replicate the Vitis project, as it is easier than the Vivado projects and its only purpose is to perform a quick test of the hardware platform.  
+I decided not to create any scripts to replicate the Vitis project, as it is easier than the Vivado projects and its only purpose is to perform a quick test of the hardware platform.
 The further development will be done with the Petalinux OS.
 
-> [!CAUTION]  
-> There is a typo in the Makefile created by the Vivado IP packager.  
-> This typo doesn't affect the standalone project created by Vitis, but generates an error when building the petalinux OS.  
-> The typo needs to be corrected as follows:  
+> [!CAUTION]
+> There is a typo in the Makefile created by the Vivado IP packager.
+> This typo doesn't affect the standalone project created by Vitis, but generates an error when building the petalinux OS.
+> The typo needs to be corrected as follows:
 >   ```
->   LIBSOURCES=($wildcard *.c) --> LIBSOURCES=$(wildcard *.c)  
->   OUTS = ($wildcard *.o)     --> OUTS = $(wildcard *.o) 
->   ``` 
-> Once this is done, it is necessary to repackage the IP and regenerate the hardware platform.  
+>   LIBSOURCES=($wildcard *.c) --> LIBSOURCES=$(wildcard *.c)
+>   OUTS = ($wildcard *.o)     --> OUTS = $(wildcard *.o)
+>   ```
+> Once this is done, it is necessary to repackage the IP and regenerate the hardware platform.
 
 ***
 
@@ -327,6 +285,7 @@ The further development will be done with the Petalinux OS.
 
 The petalinux project is stored in the repo, and the image can be regenerated executing the script:
 
+    $ cd os
     $ ./generate_petalinux_image
 
 The necessary files to boot the OS from an SD card will appear in the dir `os/petalinux_screen/images/linux`.
@@ -336,29 +295,22 @@ The SD card has to be formatted with two partitions:
 - **BOOT**. Formatted to fat32, recommended minimum of 500MB.
 - **rootfs**. Formated to ext4, take the rest of the space in the SD card.
 
-Once it is formatted (using a tool as `parted` or `gparted`), mount the SD card partitions.
-Assuming they have been mounted in `/media/BOOT` and `/media/rootfs`.
-For the boot files, copy them into the `BOOT` partition.
-For the root file system, extract it into the `rootfs` partition.
+Once it is formatted (using a tool as `parted` or `gparted`), mount the SD card partitions and assuming they have been mounted in `/media/$USER/BOOT` and `/media/$USER/rootfs`, execute the following script:
 
-    cp images/linux/BOOT.BIN /media/BOOT/
-    cp images/linux/image.ub /media/BOOT/
-    cp images/linux/boot.scr /media/BOOT/
-
-    sudo tar -xzvf rootfs.tar.gz -C /media/rootfs
-    sync
+    $ cd os
+    $ ./package_sd_image.sh
 
 The SD is ready to be plugged in the PYNQ-Z2.
 
 Custom details applied to Petalinux:
 
-- **EXT4 rootfs**. Same as INITRD (default) root file system, requires to be extracted into the SD before the first boot up, but is permanent between reboots.
+- **EXT4 rootfs**. Requires to be extracted into the SD before the first boot up, but it is permanent between reboots.
 - Fixed MAC address and let IP address get automatically assigned.
-- Added glibc to support C applications.
-- Added libstdc++ to support C++ applications.
+- glibc to support C applications.
+- libstdc++ to support C++ applications.
 - UIO driver support.
-- Added ntp to get correct time and date.
-- Added rsync to improve file sync.
+- ntp to get correct time and date.
+- rsync to improve file sync.
 - Enable debug-tweaks to allow root SSH login (and disabled empty password)
 - Changed from sysvinit to systemd.
 - Added petalinux app to execute script at boot time that will launch `service_app`.
@@ -370,20 +322,21 @@ Once the Petalinux OS is up and running, the C/C++ software can be compiled, loa
 In principle, petalinux provides a custom toolchain, than can be generated and extracted with the following commands:
 
     $ petalinux-build --sdk
-    $ petalinux-package sysroot
+    $ petalinux-package sysroot --sdk <custom sdk path> --dir <custom directory path>
 
-These two steps can be executed with the script `generate_petalinux_toolchain.sh`, located in the `os/` dir:
+These two steps can be executed with the following script:
 
+    $ cd os
     $ ./generate_petalinux_toolchain
 
-This is sometimes unpredictable and gets stuck on the process, so I proceeded with the standard Arm cross-compiler toolchain for 32 bit architecture:  
-`AArch32 GNU/Linux target with hard float (arm-none-linux-gnueabihf)`.  
-Version: `12.2.Rel1 (December 22, 2022)`.  
+This is sometimes unpredictable and gets stuck on the process, so I proceeded with the standard Arm cross-compiler toolchain for 32 bit architecture:
+`AArch32 GNU/Linux target with hard float (arm-none-linux-gnueabihf)`.
+Version: `12.2.Rel1 (December 22, 2022)`.
 Available here: [Arm GNU Toolchain Downloads][arm-toolchain].
 
-Download it and extract it in `$HOME/tools/` directory:
+Download it and extract it in `$HOME/tools` directory:
 
-    $ tar -xvf arm-gnu-toolchain-12.2.rel1-x86_64-arm-none-linux-gnueabihf.tar.xz
+    $ tar -xvf arm-gnu-toolchain-12.2.rel1-x86_64-arm-none-linux-gnueabihf.tar.xz -C $HOME/tools
 
 ***
 
@@ -391,16 +344,16 @@ Download it and extract it in `$HOME/tools/` directory:
 
 In the folder `sw/basic_test/linux` there are four versions of the same program to test the screen (turn it ON, send the ENTIRE_DISPLAY_ON command, send the ENTIRE_DISPLAY_OFF command and turn it OFF).
 They aim to test two things:
-- The toolchain works for C and C++.
-- The screen memory addresses can be accessed through `/dev/mem` and `/dev/uioX` (being `X` the index of the screen, 0 for screenA and 1 for screenB)
+- The toolchain works both for C and C++.
+- The screen memory addresses can be accessed both through `/dev/mem` and `/dev/uioX` (being `X` the index of the screen, 0 for screenA and 1 for screenB)
 
 They can be compiled and sent to the PYNQ-Z2 board using the script:
 
     $ ./compile_and_send.sh
 
-> [!TIP]  
-> The script `compile_and_send.sh` sends the binaries to `pynqz2-screen:/home/petalinux`.  
-> This means there has to be a host alias for `pynqz2-screen` in `.ssh/config` with its IP and user (petalinux).
+> [!TIP]
+> The script `compile_and_send.sh` sends the binaries to `pynq-z2-screen:/home/plnx`.
+> This means there has to be a host alias for `pynq-z2-screen` in `$HOME/.ssh/config` with its IP and user (plnx).
 
 Connect to the board via SSH and execute them (with sudo privileges, in order to open the file descriptor for memory interfaces):
 
@@ -426,7 +379,7 @@ To compile any of them, use the `Makefile`:
     $ make service_app
     $ make all
     $ make
-    
+
 To directly compile and send it to the board at `/opt/screen/`:
 
     $ ./deploy.sh
@@ -448,13 +401,26 @@ The deployed files look like this:
         └── run_service.sh
 ```
 
+> [!TIP]
+> If the time and date are incorrect, check the available timezones:
+>
+>     $ timedatectl list-timezones
+>
+> Set it:
+>
+>     $ sudo timedatectl set-timezone <desired-timezone>
+>
+> And check it:
+>
+>     $ ls -l /etc/localtime
+
 At boot, the script `/usr/bin/screen-boot-hook.sh` is launched, executing `/opt/screen/scripts/run_service.sh`, which executes `service_app`.
 
-This is fixed on the petalinux image. This way, the `service_app` is launched automnatically, but if any modification needs to be done to the done to `service_app` or `run_service.sh`, the petalinux image does not need to be modified and reuploaded.
+This is fixed on the petalinux image. This way, the `service_app` is launched automatically, but if any modification needs to be done to the done to `service_app` or `run_service.sh`, the petalinux image does not need to be modified and regenerated.
 
-> [!TIP]  
-> The script `deploy.sh` sends the binaries to `pynqz2-screen:/opt/screen`.  
-> This means there has to be a host alias for `pynqz2-screen` in `.ssh/config` with its IP and user (root).
+> [!TIP]
+> The script `deploy.sh` sends the binaries to `pynq-z2-screen:/opt/screen`.
+> This means there has to be a host alias for `pynq-z2-screen` in `.ssh/config` with its IP and user (root).
 
 #### External resources used
 
@@ -469,7 +435,7 @@ This is fixed on the petalinux image. This way, the `service_app` is launched au
 [youtube-demo]: https://youtu.be/TNlVlC1Tnaw
 [open-cores]: https://opencores.org/
 [pmod-oled-rgb-reference-manual]: https://digilent.com/reference/pmod/pmodoledrgb/reference-manual
-[arm-toolchain]: https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads
+[arm-toolchain]: https://gitlab.arm.com/tooling/gnu-toolchains-for-arm
 [stb_repo]: https://github.com/nothings/stb
 [json_repo]: https://github.com/nlohmann/json
 [font_repo]: https://github.com/dhepper/font8x8

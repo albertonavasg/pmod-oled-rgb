@@ -1,15 +1,32 @@
+# Backup files
+*.old
 
-*/*/config.old
-*/*/rootfs_config.old
+# Xilinx temporary workspaces
+**/.Xil
+
+# Generated
 build/
 images/linux/
 pre-built/linux/
 .petalinux/*
-!.petalinux/metadata
-*.o
-*.jou
+
+# Vivado logs and journals
 *.log
+*.jou
+
+# Temporary yocto workspaces
 components/plnx_workspace
 components/yocto
 
+project-spec/configs/.statistics
+project-spec/configs/configs/
+project-spec/configs/rootfsconfigs/
+
+project-spec/hw_description/extracted
+
+# Compiled objects
+*.o
+
+# Imported hardware platforms or bitstreams
 *.xsa
+*.bit
