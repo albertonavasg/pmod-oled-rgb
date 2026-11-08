@@ -6,7 +6,7 @@
             "mode": "DigitalClock",
             "subMode": "HourMinuteColonTick",
             "spiDelay": 0,
-            "orientation": "Horizontal_180",
+            "orientation": "Horizontal_0",
             "fillRectangle": false,
             "reverseCopy": false
         },
@@ -16,7 +16,7 @@
             "mode": "Info",
             "subMode": "HourMinuteColonTick",
             "spiDelay": 0,
-            "orientation": "Horizontal_180",
+            "orientation": "Horizontal_0",
             "fillRectangle": false,
             "reverseCopy": false
         }

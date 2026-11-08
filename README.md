@@ -53,7 +53,7 @@ Here is a little demo video of it working, executing some demo functions, such a
 
 This was the first version of the project.
 
-To see the code, go to the folder `old_version`
+To see the code, go to the `old_version`
 
 Currently I am working on the second version, with some enhacements: add support for a second screen, build the embedded operating system with petalinux, show the FPGA IP address on one of the screens, etc.
 This is the work described now.
@@ -78,12 +78,13 @@ Package OS in SD card (already partitioned)
 Compile and send `basic_test` software to the board
 
     $ cd sw/basic_test/linux
-    $ ./compile_and_send.sh
+    $ make compile
+    $ make send
 
-Compile and send `screen` software to the board
+Compile and send `screen` software, scripts and assets to the board
 
     $ cd sw/screen
-    $ ./deploy.sh
+    $ make deploy
 
 ## Design
 
@@ -244,7 +245,7 @@ To do all these steps automatically (create the project, generate the bitstream 
 
 
 To test if this hardware platform works correctly, we can open Vitis (Tools > Launch Vitis IDE).
-We select a workspace or create a new one in a desired folder
+We select a workspace or create a new one in a desired folder.
 
 > [!TIP]
 > It is recommended to use a Vitis workspace with a short path, such as `$HOME/vitis_ws` or else we can have some problems when trying to compile the hardware platform or the application
@@ -334,7 +335,7 @@ This is sometimes unpredictable and gets stuck on the process, so I proceeded wi
 Version: `12.2.Rel1 (December 22, 2022)`.
 Available here: [Arm GNU Toolchain Downloads][arm-toolchain].
 
-Download it and extract it in `$HOME/tools` directory:
+Download it and extract it in `$HOME/tools`:
 
     $ tar -xvf arm-gnu-toolchain-12.2.rel1-x86_64-arm-none-linux-gnueabihf.tar.xz -C $HOME/tools
 
@@ -342,17 +343,22 @@ Download it and extract it in `$HOME/tools` directory:
 
 #### Basic test
 
-In the folder `sw/basic_test/linux` there are four versions of the same program to test the screen (turn it ON, send the ENTIRE_DISPLAY_ON command, send the ENTIRE_DISPLAY_OFF command and turn it OFF).
+In `sw/basic_test/linux` there are four versions of the same program to test the screens (turn it ON, send the ENTIRE_DISPLAY_ON command, send the ENTIRE_DISPLAY_OFF command and turn it OFF).
 They aim to test two things:
 - The toolchain works both for C and C++.
 - The screen memory addresses can be accessed both through `/dev/mem` and `/dev/uioX` (being `X` the index of the screen, 0 for screenA and 1 for screenB)
 
-They can be compiled and sent to the PYNQ-Z2 board using the script:
+They can be compiled and sent to the PYNQ-Z2 board using the `Makefile`:
 
-    $ ./compile_and_send.sh
+    $ make compile
+    $ make send
+
+Or both steps together:
+
+    $ make all
 
 > [!TIP]
-> The script `compile_and_send.sh` sends the binaries to `pynq-z2-screen:/home/plnx`.
+> The script `Makefile` sends the binaries to `pynq-z2-screen:/home/plnx`.
 > This means there has to be a host alias for `pynq-z2-screen` in `$HOME/.ssh/config` with its IP and user (plnx).
 
 Connect to the board via SSH and execute them (with sudo privileges, in order to open the file descriptor for memory interfaces):
@@ -366,28 +372,27 @@ Connect to the board via SSH and execute them (with sudo privileges, in order to
 
 #### Screen
 
-The final version of the software is in the `sw/screen` directory.
+The final version of the software is in `sw/screen`.
 
-For the moment, there are two main apps:
+There are currently two applications:
 
 - `test_app`. Instantiates screen A and screen B and tests all the features.
-- `service_app`. Final application. Automatically launched at boot.
+- `service_app`. Final application, automatically launched at boot.
 
-To compile any of them, use the `Makefile`:
+To compile them and send them to the board at `/opt/screen/bin`, use the `Makefile`:
 
-    $ make test_app
-    $ make service_app
+    $ make compile
+    $ make send
+
+Or both steps together:
+
     $ make all
-    $ make
 
-To directly compile and send it to the board at `/opt/screen/`:
+To also send the scripts and the assets:
 
-    $ ./deploy.sh
+    $ make deploy
 
-This script also sends to the board the assets used by the programs.
-It is recommended to ssh into the board as `root` to skip the use of `sudo` when executing the programs.
-
-The deployed files look like this:
+Deployed directory structure:
 
 ```
 └── /opt/screen
